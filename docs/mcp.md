@@ -45,6 +45,12 @@ to a space sees a smaller result of the same shape. There is no permission
 error, no partial-result warning, and no field saying something was withheld,
 because a count of hidden rows is itself a disclosure about their existence.
 
+### `fetch`
+
+ChatGPT's connector contract names two tools, `search` and `fetch`. This is
+`get_document` under that name, taking `{ id }` and answering `{ id, title,
+text, url, metadata }`.
+
 ### `whoami`
 
 Proves the transport and the auth path work end to end. Takes no arguments,

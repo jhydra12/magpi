@@ -146,3 +146,18 @@ export function functionsBaseUrl(source: EnvSource = denoEnv): string {
 export function webBaseUrl(source: EnvSource = denoEnv): string {
   return (source.get('SB_WEB_BASE_URL') ?? 'http://localhost:3000').replace(/\/+$/, '');
 }
+
+/**
+ * A budget for a dream run started from the app, in milliseconds. Unset means the Edge Function
+ * default. The keynote sets it low on the hosted project so the run on stage times out on cue.
+ * Compute sets its own budget and never reads this.
+ */
+export function dreamRunBudgetMs(source: EnvSource = denoEnv): number | undefined {
+  const raw = source.get('SB_DREAM_RUN_BUDGET_MS');
+  if (!raw) return undefined;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value <= 0) {
+    throw misconfigured('SB_DREAM_RUN_BUDGET_MS must be a positive whole number of milliseconds');
+  }
+  return value;
+}

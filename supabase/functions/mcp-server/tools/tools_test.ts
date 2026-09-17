@@ -9,6 +9,7 @@ import {
 } from '../../_shared/testing/stub_db.ts';
 import type { ModelRunner } from '../../_shared/model_client.ts';
 import { addNote } from './add_note.ts';
+import { fetchDocument } from './fetch.ts';
 import { readDocument } from './get_document.ts';
 import { listSpaces } from './list_spaces.ts';
 import { searchPassages } from './search.ts';
@@ -273,6 +274,21 @@ Deno.test('a document comes back as its chunks, in the order they were written',
     assertEquals(document.content, 'first\n\nsecond');
     assertEquals(document.chunk_count, 2);
     assertEquals(document.space_id, ENGINEERING);
+  } finally {
+    await stub.close();
+  }
+});
+
+Deno.test('fetch is the same read as get_document, in the shape ChatGPT looks for', async () => {
+  const stub = stubDb(replies());
+  try {
+    const document = await fetchDocument(context(stub), { id: DOC_A });
+
+    assertEquals(document.id, DOC_A);
+    assertEquals(document.title, 'The crease');
+    assertEquals(document.text, 'first\n\nsecond');
+    assertEquals(document.url, 'https://example.test/crease');
+    assertEquals(document.metadata.space_id, ENGINEERING);
   } finally {
     await stub.close();
   }
