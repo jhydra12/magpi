@@ -24,22 +24,20 @@ pnpm dev
 ```
 
 `next dev` reads `web/.env.local`, so the file goes there rather than at the
-repo root. If you are on the team, run `pnpm env:pull` to write that file from
-the `magpi` dev config in Doppler, or skip the file and run `pnpm dev:doppler`
-to inject them at launch instead.
+repo root. For the Select demo the file points at the hosted demo project, and
+a person hands it over. It is never committed.
 
-**Doppler is the only place a credential is authored.** The two env files are
-copies of it: `pnpm env:pull` writes `web/.env.local` and
-`node scripts/local-function-secrets.mjs` writes `supabase/.env.local`, because
-the app and the edge functions each read their own environment. Both update in
-place and neither drops a key it cannot replace, so editing either by hand is
-how a key from another project ends up billing this one. `pnpm check:secrets`
-fails when the two copies disagree with each other or with Doppler, and it runs
-in the gate.
+Two env files, each read by a different thing:
 
-The exception is the handful of keys the local stack issues for itself, listed
-in `scripts/lib/local-stack.mjs`. Doppler's copies of those belong to the hosted
-project, so a pull takes them from `supabase status` instead.
+- `web/.env.local` is what the app reads. Start from `.env.example`.
+- `supabase/.env` holds the values `supabase/config.toml` reads through
+  `env()`. The CLI loads it on its own for `supabase start` and `db push`.
+
+`pnpm check:secrets` fails when `web/.env.local` and a local
+`supabase/.env.local` disagree about a shared key, and it runs in the gate.
+
+The handful of keys the local stack issues for itself are listed in
+`scripts/lib/local-stack.mjs`. `supabase status` prints them.
 
 Open http://127.0.0.1:3000, create an account, drop a file into Documents, and ask a question about it in Chat. That path takes about five minutes from a cold clone.
 
