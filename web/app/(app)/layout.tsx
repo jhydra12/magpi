@@ -13,8 +13,6 @@ import { getSessionContext } from '@/lib/supabase/context';
 
 const SECTIONS: readonly NavItem[] = [
   { href: '/chat', label: 'Chat' },
-  { href: '/spaces', label: 'Spaces' },
-  { href: '/documents', label: 'Documents' },
   { href: '/connections', label: 'Connections' },
   { href: '/dreams', label: 'Dreams' },
 ];
@@ -67,7 +65,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         <footer className="border-t border-border">
           <ShellRow className="flex items-center justify-between gap-4 py-4 text-xs text-tertiary-foreground">
             <Link
-              href="https://github.com/supabase-community/magpi"
+              href="https://github.com/supabase/select-2026-demo"
               className="transition-colors hover:text-foreground motion-reduce:transition-none"
             >
               Source

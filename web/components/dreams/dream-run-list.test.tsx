@@ -27,22 +27,24 @@ const getSummary = (overrides?: Partial<DreamRunSummary>): DreamRunSummary => ({
 });
 
 describe('the list of dream runs', () => {
-  it('says what ran, over how many documents, and how it ended', () => {
+  it('says what ran, where, over how many documents, and what came out', () => {
     render(<DreamRunList runs={[getSummary()]} />);
 
-    expect(screen.getByText('Digest')).toBeInTheDocument();
-    expect(screen.getByText('Engineering')).toBeInTheDocument();
-    expect(screen.getByText(/42 documents read/)).toBeInTheDocument();
-    expect(screen.getByText('Succeeded')).toBeInTheDocument();
-  });
-
-  it('opens the run', () => {
-    render(<DreamRunList runs={[getSummary()]} />);
-
-    expect(screen.getByRole('link', { name: /open this run/i })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Digest' })).toHaveAttribute(
       'href',
       '/dreams/11111111-2222-4333-8444-555555555555',
     );
+    expect(screen.getByText('Engineering')).toBeInTheDocument();
+    expect(screen.getByText(/42 documents read/)).toBeInTheDocument();
+    expect(screen.getByText(/wrote one document/i)).toBeInTheDocument();
+  });
+
+  // A finished run is the ordinary case, so it carries no badge and no sentence about itself.
+  it('says nothing about the status of a run that finished', () => {
+    render(<DreamRunList runs={[getSummary()]} />);
+
+    expect(screen.queryByText('Succeeded')).not.toBeInTheDocument();
+    expect(screen.queryByText(/the run finished/i)).not.toBeInTheDocument();
   });
 
   it('names the stage a timed-out run died in, rather than showing it as still working', () => {
@@ -62,7 +64,31 @@ describe('the list of dream runs', () => {
       />,
     );
 
+    expect(screen.getByText('Timed out')).toBeInTheDocument();
     expect(screen.getByText(/timed out during synthesize/i)).toBeInTheDocument();
+  });
+
+  it('shows a run that is still going as running, without a pulse', () => {
+    render(
+      <DreamRunList
+        runs={[
+          getSummary({
+            duration: 'Still running',
+            outputDocumentId: null,
+            status: {
+              status: 'running',
+              label: 'Running',
+              tone: 'progress',
+              detail: 'Reading the space now.',
+              stage: null,
+            },
+          }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByText('Running')).toBeInTheDocument();
+    expect(document.querySelector('.animate-pulse, .motion-safe\\:animate-pulse')).toBeNull();
   });
 
   it('reads grammatically when a run read nothing at all', () => {

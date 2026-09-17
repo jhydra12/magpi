@@ -9,24 +9,15 @@ const TONE_CLASSES: Record<StatusTone, string> = {
   destructive: 'border-border-destructive bg-destructive-200 text-destructive-600',
 };
 
-/** Status as a border, a background tint and a leading dot. Shared by connections and dreams. */
+/** Status as a border and a background tint. Shared by connections and dreams. */
 export function StatusPill({ tone, label }: { tone: StatusTone; label: string }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium',
+        'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium',
         TONE_CLASSES[tone],
       )}
     >
-      <span
-        aria-hidden="true"
-        data-testid={tone === 'progress' ? 'progress-dot' : undefined}
-        className={cn(
-          'size-1.5 rounded-full bg-current',
-          // Reduced motion gets the same dot, held still.
-          tone === 'progress' && 'motion-safe:animate-pulse',
-        )}
-      />
       {label}
     </span>
   );

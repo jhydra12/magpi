@@ -88,9 +88,9 @@ function SpaceRow({
           )}
         </div>
 
-        <div className="flex items-end gap-2">
+        <div className="flex items-center gap-2">
           <div className="flex flex-col gap-1">
-            <label htmlFor={kindFieldId} className="text-xs text-tertiary-foreground">
+            <label htmlFor={kindFieldId} className="sr-only">
               Kind
             </label>
             <select

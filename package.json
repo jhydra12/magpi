@@ -40,7 +40,8 @@
     "check:upload-types": "node scripts/check-upload-types.mjs",
     "check:compat-tokens": "node scripts/check-compat-tokens.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
-    "spend": "node scripts/spend.mjs"
+    "spend": "node scripts/spend.mjs",
+    "secrets:push": "supabase secrets set --env-file supabase/.env.hosted"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

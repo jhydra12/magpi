@@ -9,13 +9,7 @@ import { UploadDialog } from '@/components/documents/upload-dialog';
 import { loadConnectionsPage } from '@/lib/connections/queries';
 import { getSessionContext } from '@/lib/supabase/context';
 
-import {
-  claimPendingConnection,
-  disconnectConnection,
-  resyncConnection,
-  saveScopeSelection,
-  startConnection,
-} from './actions';
+import { claimPendingConnection } from './actions';
 
 export default async function ConnectionsPage({
   searchParams,
@@ -48,14 +42,7 @@ export default async function ConnectionsPage({
       <SyncActivity spaceIds={spaceIds} />
 
       {listings.length > 0 ? (
-        <ConnectionList
-          listings={listings}
-          spaces={spaces}
-          onResync={resyncConnection}
-          onDisconnect={disconnectConnection}
-          onBegin={startConnection}
-          onSaveScope={saveScopeSelection}
-        />
+        <ConnectionList listings={listings} />
       ) : (
         <EmptyState
           title="No sources are available"

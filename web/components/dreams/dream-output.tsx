@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 
+import { Markdown } from '@/components/app/markdown';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -110,9 +111,7 @@ export function DreamOutput({
             <DeleteOutput documentId={output.documentId} onDelete={onDelete} />
           </div>
 
-          <p className="max-w-[var(--measure-prose)] text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-            {output.body}
-          </p>
+          <Markdown source={output.body} />
 
           <div
             role="status"
@@ -136,9 +135,7 @@ export function DreamOutput({
             <DeleteOutput documentId={output.documentId} onDelete={onDelete} />
           </div>
 
-          <p className="max-w-[var(--measure-prose)] text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-            {output.body}
-          </p>
+          <Markdown source={output.body} />
 
           <div className="flex flex-col gap-2">
             <h3 className="text-sm font-medium text-foreground">Sources</h3>

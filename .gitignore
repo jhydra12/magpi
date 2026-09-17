@@ -12,7 +12,6 @@ coverage/
 .env
 .env.*
 !.env.example
-.doppler.yaml
 
 .DS_Store
 Thumbs.db

@@ -34,7 +34,7 @@ function main() {
   const key = process.env.SB_SERVICE_ROLE_KEY;
 
   if (!key) {
-    console.error('SB_SERVICE_ROLE_KEY is not set. Run this under `doppler run --`.');
+    console.error('SB_SERVICE_ROLE_KEY is not set. Run with node --env-file=supabase/.env.local.');
     process.exit(1);
   }
 

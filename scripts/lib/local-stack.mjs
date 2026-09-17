@@ -1,12 +1,12 @@
 /**
- * The keys the running local stack issues for itself. Doppler holds the hosted project's
- * versions of these, which are wrong for this machine, so a pull must not overwrite them.
+ * The keys the running local stack issues for itself. The hosted project's versions of these
+ * are wrong for this machine, so a copy from it must not overwrite them.
  * Changing the signing key regenerates the two JWT-format ones, which is how they go stale.
  */
 
 import { spawnSync } from 'node:child_process';
 
-/** Written by `supabase start`, not by a person. Doppler's copies are for another project. */
+/** Written by `supabase start`, not by a person. A hosted project's copies are for another stack. */
 export const STACK_KEYS = [
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',

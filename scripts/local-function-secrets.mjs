@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-/** Writes edge function secrets to a gitignored file when Doppler is unavailable. */
+/** Writes the running local stack's keys into the gitignored edge function env file. */
 
-import { spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Local facts beat shared secrets: Doppler's copies of these belong to the hosted project.
+// Local facts beat shared secrets: the hosted project's copies of these belong to it.
 import { fromLocalStack, isSameToken } from './lib/local-stack.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -28,19 +27,6 @@ function localEncryptionKey() {
   return randomBytes(32).toString('base64');
 }
 
-function fromDoppler() {
-  const child = spawnSync('doppler', ['secrets', 'download', '--no-file', '--format', 'json'], {
-    cwd: ROOT,
-    encoding: 'utf8',
-  });
-  if (child.status !== 0) return null;
-  try {
-    return JSON.parse(child.stdout);
-  } catch {
-    return null;
-  }
-}
-
 /** What the file already holds, which is the floor: this script never drops a key. */
 function existing() {
   if (!existsSync(OUT)) return {};
@@ -55,17 +41,13 @@ function existing() {
 
 function main() {
   const was = existing();
-  const doppler = fromDoppler();
   const local = fromLocalStack(ROOT);
 
-  // Start from what is there. An unreachable Doppler leaves every secret it authored in place
-  // rather than replacing the file with defaults, which is how a run with no network used to
-  // take the OpenAI key and four sets of OAuth credentials out with it.
+  // Start from what is there, so a run with the stack down leaves every other secret in place.
   const merged = {
     ...LOCAL_DEFAULTS,
     ...was,
     SB_TOKEN_ENC_KEY: localEncryptionKey(),
-    ...(doppler ?? {}),
     ...(local ?? {}),
   };
 
@@ -76,15 +58,12 @@ function main() {
   }
 
   const lines = Object.entries(merged)
-    .filter(([key]) => !key.startsWith('DOPPLER_'))
     .map(([key, value]) => `${key}=${String(value).replace(/\n/g, '\\n')}`)
     .sort();
 
   writeFileSync(OUT, `${lines.join('\n')}\n`, { mode: 0o600 });
 
-  const kept = Object.keys(was).length;
   console.log(`wrote ${OUT} (${lines.length} keys)`);
-  if (!doppler) console.log(`  doppler is unreachable, so ${kept} key(s) already there were kept`);
   if (!local) console.log('  the local stack is not running, so its own keys were left alone');
 }
 
