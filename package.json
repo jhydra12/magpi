@@ -9,8 +9,6 @@
   "packageManager": "pnpm@11.1.0",
   "scripts": {
     "dev": "pnpm --dir web dev",
-    "dev:doppler": "doppler run -- pnpm --dir web dev",
-    "env:pull": "node scripts/pull-env.mjs",
     "build": "pnpm --dir web build",
     "format": "prettier --write . && deno fmt --config supabase/functions/deno.json supabase/functions",
     "format:check": "prettier --check .",
