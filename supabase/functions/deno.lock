@@ -8,6 +8,7 @@
     "npm:@modelcontextprotocol/server@2.0.0": "2.0.0",
     "npm:@supabase/auth-js@2.110.7": "2.110.7",
     "npm:@supabase/functions-js@2.110.7": "2.110.7",
+    "npm:@supabase/middleware@0.5.0": "0.5.0",
     "npm:@supabase/postgrest-js@2.110.7": "2.110.7",
     "npm:@supabase/realtime-js@2.110.7": "2.110.7",
     "npm:@supabase/server@1.6.0": "1.6.0_@supabase+supabase-js@2.116.0",
@@ -253,6 +254,7 @@
       "jsr:@supabase/supabase-js@^2.49.4",
       "jsr:@zod/zod@^4.0.17",
       "npm:@modelcontextprotocol/server@2.0.0",
+      "npm:@supabase/middleware@0.5.0",
       "npm:@supabase/server@1.6.0"
     ]
   }

@@ -19,6 +19,8 @@ type ConsentOptions = {
 const calls: Call[] = [];
 const client = { current: consentClient() };
 const replace = vi.fn();
+// The block's hook leaves the consent page in history after a decision, so it uses assign.
+const assign = vi.fn();
 
 vi.mock('@/lib/supabase/client', () => ({ createClient: () => client.current }));
 
@@ -83,12 +85,14 @@ beforeEach(() => {
     pathname: '/oauth/consent',
     search: `?authorization_id=${AUTHORIZATION}`,
     replace,
+    assign,
   });
 });
 
 afterEach(() => {
   vi.unstubAllGlobals();
   replace.mockReset();
+  assign.mockReset();
 });
 
 describe('deciding whether an application may read your knowledge base', () => {
@@ -117,7 +121,7 @@ describe('deciding whether an application may read your knowledge base', () => {
       'getAuthorizationDetails',
       'approveAuthorization',
     ]);
-    expect(replace).toHaveBeenCalledWith(REDIRECT);
+    expect(assign).toHaveBeenCalledWith(REDIRECT);
   });
 
   it('denying sends them back with a refusal rather than doing nothing', async () => {
@@ -125,7 +129,7 @@ describe('deciding whether an application may read your knowledge base', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Deny' }));
 
     expect(calls.map((call) => call.method)).toContain('denyAuthorization');
-    expect(replace).toHaveBeenCalledWith(`${REDIRECT}&error=access_denied`);
+    expect(assign).toHaveBeenCalledWith(`${REDIRECT}&error=access_denied`);
   });
 
   // A second press would spend the same authorization twice, and the second one fails.
@@ -163,7 +167,7 @@ describe('deciding whether an application may read your knowledge base', () => {
   it('a link with no authorization on it grants nothing and says so', async () => {
     render(<OAuthConsent authorizationId={null} />);
 
-    expect(await screen.findByText(/needs an authorization to act on/)).toBeInTheDocument();
+    expect(await screen.findByText(/needs an authorization_id/)).toBeInTheDocument();
     expect(calls).toHaveLength(0);
   });
 
