@@ -392,7 +392,7 @@ search for any of the names should find all of them.
 ### Loading it
 
 ```
-doppler run -- node scripts/seed-corpus.mjs --org-slug <slug>
+node --env-file=web/.env.local scripts/seed-corpus.mjs --org-slug <slug>
 ```
 
 `--org-slug` is optional when the database holds exactly one organization. The

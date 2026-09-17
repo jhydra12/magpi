@@ -216,7 +216,7 @@ The schedule is `public.schedule_workers()` in
 | `worker_service_key` | The service role key.                                     |
 
 A database with neither set ticks and does nothing. Set them for a local stack
-with `doppler run -- node scripts/configure-schedules.mjs`, which points them at
+with `node --env-file=supabase/.env.local scripts/configure-schedules.mjs`, which points them at
 `http://host.docker.internal:55321`, since `127.0.0.1` inside Postgres is
 Postgres. For a hosted project, set the same two secrets once in the SQL editor.
 

@@ -13,8 +13,6 @@ import { getSessionContext } from '@/lib/supabase/context';
 
 const SECTIONS: readonly NavItem[] = [
   { href: '/chat', label: 'Chat' },
-  { href: '/spaces', label: 'Spaces' },
-  { href: '/documents', label: 'Documents' },
   { href: '/connections', label: 'Connections' },
   { href: '/dreams', label: 'Dreams' },
 ];

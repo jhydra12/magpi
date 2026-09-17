@@ -1,17 +1,13 @@
 name: deploy supabase
 
-# Migrations and edge functions go to the hosted project on every push to main
-# that touches them. SB_AUTH_HOOK_SECRET is here only because config.toml reads
-# it with env() and the CLI refuses to parse a config whose hook secret is empty.
-# Function secrets are pushed by hand from Doppler, see README.
+# Every push to main sends migrations and every edge function to the hosted
+# project. SB_AUTH_HOOK_SECRET is here only because config.toml reads it with
+# env() and the CLI refuses to parse a config whose hook secret is empty.
+# Function secrets are pushed by hand from supabase/.env.hosted, see README.
+# The web app deploys from Vercel's Git integration on the same push.
 on:
   push:
     branches: [main]
-    paths:
-      - supabase/migrations/**
-      - supabase/functions/**
-      - supabase/config.toml
-      - .github/workflows/deploy.yml
   workflow_dispatch:
 
 concurrency:

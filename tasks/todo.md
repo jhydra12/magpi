@@ -1,3 +1,21 @@
+# Session queue, 2026-09-17: demo ready on the work repo
+
+- [ ] Header: drop Spaces and Documents from the section nav
+- [ ] Connections: one section per provider with its mark, an inert "Add another",
+      one row per connection with an inert Reconnect and Disconnect
+- [ ] Doppler out of scripts, .gitignore, deploy.yml and the two docs that give commands
+- [ ] Function secrets come from a local file: `supabase/.env.hosted` + `pnpm secrets:push`
+- [ ] deploy.yml runs on every push to main, not only when supabase/ changes
+- [ ] Push a PR and confirm the light gate and deploy actually trigger on the new repo
+      (nothing but a manual dispatch has run so far)
+- [ ] Vercel: left for Supabase IT. The Vercel GitHub app cannot see the repo yet.
+
+## Review
+
+(filled in at the end)
+
+---
+
 # Session queue
 
 Four things asked for in this session, in the order they will be done. The first

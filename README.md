@@ -66,7 +66,7 @@ with, and it names the four facts planted in the corpus on purpose.
 
 ```bash
 supabase functions serve --env-file supabase/.env.local   # in another terminal
-node scripts/seed-demo.mjs                                # accounts, spaces, corpus, ingest
+node --env-file=web/.env.local scripts/seed-demo.mjs      # accounts, spaces, corpus, ingest
 ```
 
 That goes from an empty database to answerable questions. It creates the seven
@@ -195,6 +195,24 @@ Five tiers, one runner each.
 Two gates. `pnpm gate:light` is format, lint, typecheck, unit tests and build, and it runs on pre-push and in CI under five minutes. `pnpm gate` adds pgTAP, integration, the browser journeys, coverage thresholds, and the mobile-spec contract check. Every step a gate could not run is reported by name, and `pnpm gate --strict` refuses to skip one.
 
 pgTAP carries the security tests. Every table has an assertion proving a member of one space cannot read another space's rows.
+
+## Deploying
+
+Every push to `main` runs `.github/workflows/deploy.yml`, which pushes the
+migrations and deploys every edge function to the hosted project. It reads three
+repository secrets, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` and
+`SB_AUTH_HOOK_SECRET`, and one repository variable, `SUPABASE_PROJECT_ID`.
+
+Function secrets do not go through CI. They live in `supabase/.env.hosted`,
+which is not committed, and a person pushes them:
+
+```bash
+supabase link --project-ref <ref>
+pnpm secrets:push    # supabase secrets set --env-file supabase/.env.hosted
+```
+
+The web app deploys from Vercel's Git integration on the same push. Its
+environment is set in the Vercel project from the same values as `web/.env.local`.
 
 ## Configuration
 

@@ -36,7 +36,7 @@ const TEAM_SPACES = ['Marketing', 'Engineering', 'Finance'];
 
 function db() {
   if (!SERVICE_KEY) {
-    console.error('SB_SERVICE_ROLE_KEY is missing. Run under `doppler run --`.');
+    console.error('SB_SERVICE_ROLE_KEY is missing. Run with node --env-file=web/.env.local.');
     process.exit(1);
   }
   return createClient(API_URL, SERVICE_KEY, {
