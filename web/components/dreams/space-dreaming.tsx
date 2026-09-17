@@ -9,6 +9,8 @@ import type { ActionState } from '@/lib/actions/state';
 import type { DreamRunOutcome } from '@/lib/dreams/edge';
 import { DREAM_KINDS, describeDreamKind, type DreamKind } from '@/lib/dreams/status';
 
+import { RunProgress } from './run-progress';
+
 export type DreamingSpace = {
   readonly id: string;
   readonly name: string;
@@ -51,6 +53,8 @@ function SpaceRow({
   const [isDreaming, setDreaming] = useState(space.dreaming_enabled);
   const [failure, setFailure] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<DreamRunOutcome | null>(null);
+  // Only a run shows the bar. The switch also goes through the transition and must not.
+  const [isRunning, setRunning] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const toggle = (next: boolean) => {
@@ -65,10 +69,12 @@ function SpaceRow({
   const runNow = () => {
     setFailure(null);
     setOutcome(null);
+    setRunning(true);
     startTransition(async () => {
       const result = await onRun(space.id, kind);
       if (result.status === 'error') setFailure(result.message);
       else if (result.status === 'success') setOutcome(result.data);
+      setRunning(false);
     });
   };
 
@@ -116,6 +122,10 @@ function SpaceRow({
           </Button>
         </div>
       </div>
+
+      {isRunning ? (
+        <RunProgress spaceName={space.name} kindLabel={describeDreamKind(kind).label} />
+      ) : null}
 
       {outcome ? (
         <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

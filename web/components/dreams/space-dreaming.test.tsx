@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -60,6 +60,24 @@ describe('dreaming, per space', () => {
     await userEvent.click(within(row).getByRole('button', { name: /run now/i }));
 
     expect(actions.onRun).toHaveBeenCalledWith('space-1', 'entities');
+  });
+
+  it('shows a creeping bar while the run is in flight, and drops it when the run comes back', async () => {
+    const actions = getActions();
+    let finish!: (value: ReturnType<typeof successState<DreamRunOutcome>>) => void;
+    actions.onRun.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /run now/i }));
+
+    expect(
+      await screen.findByRole('progressbar', { name: 'Digest over Engineering' }),
+    ).toBeInTheDocument();
+
+    finish(successState(getOutcome()));
+    await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument());
+    expect(screen.getByText(/finished and wrote a document/i)).toBeInTheDocument();
   });
 
   it('will not run a dream in a space where dreaming is switched off', () => {
