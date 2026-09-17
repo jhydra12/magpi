@@ -15,7 +15,7 @@ Magpi is the demo application for the Supabase Select 2026 keynote. It is also M
 You need Node 22, pnpm 11, Docker, the [Supabase CLI](https://supabase.com/docs/guides/cli), and an OpenAI API key.
 
 ```bash
-git clone https://github.com/supabase-community/magpi
+git clone https://github.com/supabase/select-2026-demo
 cd magpi
 pnpm install
 supabase start

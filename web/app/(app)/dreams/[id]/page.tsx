@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
-import { StatusPill } from '@/components/app/status-pill';
 import { DreamOutput } from '@/components/dreams/dream-output';
 import { LinkCandidates } from '@/components/dreams/link-candidates';
 import { RunFailure } from '@/components/dreams/run-failure';
+import { RunStatus } from '@/components/dreams/run-status';
 import { loadDreamRun } from '@/lib/dreams/queries';
 import { getSessionContext } from '@/lib/supabase/context';
 
@@ -24,17 +24,14 @@ export default async function DreamRunPage({ params }: { params: Promise<{ id: s
     <>
       <section className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <StatusPill tone={run.status.tone} label={run.status.label} />
           <h2 className="font-heading text-base font-medium text-foreground">{run.kindLabel}</h2>
           <span className="text-sm text-muted-foreground">{run.spaceName}</span>
+          <RunStatus status={run.status} />
           <Link href="/dreams" className="text-sm text-tertiary-foreground hover:text-foreground">
             All runs
           </Link>
         </div>
 
-        <p className="max-w-[var(--measure-prose)] text-sm text-muted-foreground">
-          {run.status.detail}
-        </p>
         <p className="text-xs text-tertiary-foreground">
           {run.inputSummary} read &middot; {run.duration}
         </p>

@@ -36,7 +36,7 @@ export default function LandingPage() {
               <Link href="/sign-up">Create an account</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="https://github.com/supabase-community/magpi">Read the source</Link>
+              <Link href="https://github.com/supabase/select-2026-demo">Read the source</Link>
             </Button>
           </div>
         </div>
