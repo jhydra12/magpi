@@ -95,17 +95,11 @@ begin
     $job$select public.invoke_worker('sync-worker', 10)$job$
   );
 
-  -- 01:55 UTC, so the queue is full before the worker looks at it.
+  -- 01:55 UTC. The dream compute instance drains the queue as soon as the rows appear, so nothing
+  -- schedules dream-worker any more. The Edge Function stays deployed as the manual path.
   perform cron.schedule(
     'queue-nightly-dreams', '55 1 * * *',
     $job$select public.queue_nightly_dreams()$job$
-  );
-
-  -- Every five minutes through the 02:00 hour. One firing drains a batch, and a fleet with more
-  -- spaces than that has the rest of the hour. An empty queue costs one select.
-  perform cron.schedule(
-    'dream-worker', '*/5 2 * * *',
-    $job$select public.invoke_worker('dream-worker', 8)$job$
   );
 end;
 $$;
