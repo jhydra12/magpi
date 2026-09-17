@@ -1,12 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { isAuthSessionMissingError, type OAuthAuthorizationDetails } from '@supabase/supabase-js';
-
 import { AuthShell } from '@/components/auth/auth-shell';
 import { FormError } from '@/components/auth/form-error';
 import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client';
+import { useOAuthConsent, type OAuthAuthorizationDetails } from '@/hooks/use-oauth-consent';
 
 /** What each scope actually lets the client do, in the words a person needs to decide. */
 const SCOPE_MEANING: Record<string, string> = {
@@ -25,98 +22,12 @@ function clientName(details: OAuthAuthorizationDetails): string {
   return name && name.length > 0 ? name : 'An application';
 }
 
+/** The library's consent flow, on Magpi's sign-in shell. Signed-out people go to /sign-in first. */
 export function OAuthConsent({ authorizationId }: { authorizationId: string | null }) {
-  const [details, setDetails] = useState<OAuthAuthorizationDetails | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [decided, setDecided] = useState(false);
-  const deciding = useRef(false);
-
-  useEffect(() => {
-    let live = true;
-
-    async function load() {
-      if (!authorizationId) {
-        setError('This page needs an authorization to act on. Start again from the application.');
-        setIsLoading(false);
-        return;
-      }
-
-      const supabase = createClient();
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (userError && !isAuthSessionMissingError(userError)) {
-        if (live) {
-          setError(userError.message);
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      // Signing in comes first, and brings them back here to the same authorization.
-      if (!user) {
-        const here = `${window.location.pathname}${window.location.search}`;
-        window.location.replace(`/sign-in?next=${encodeURIComponent(here)}`);
-        return;
-      }
-
-      const { data, error: detailsError } =
-        await supabase.auth.oauth.getAuthorizationDetails(authorizationId);
-      if (detailsError) {
-        if (live) {
-          setError(detailsError.message);
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      // Already approved once: Supabase answers with where to send them rather than what to ask.
-      if (!('authorization_id' in data)) {
-        window.location.replace(data.redirect_url);
-        return;
-      }
-
-      if (live) {
-        setDetails(data);
-        setIsLoading(false);
-      }
-    }
-
-    void load();
-    return () => {
-      live = false;
-    };
-  }, [authorizationId]);
-
-  const decide = useCallback(
-    async (approve: boolean) => {
-      if (!authorizationId || deciding.current) return;
-      deciding.current = true;
-      setDecided(true);
-      setError(null);
-
-      const supabase = createClient();
-      const { data, error: decisionError } = approve
-        ? await supabase.auth.oauth.approveAuthorization(authorizationId, {
-            skipBrowserRedirect: true,
-          })
-        : await supabase.auth.oauth.denyAuthorization(authorizationId, {
-            skipBrowserRedirect: true,
-          });
-
-      if (decisionError) {
-        deciding.current = false;
-        setDecided(false);
-        setError(decisionError.message);
-        return;
-      }
-
-      window.location.replace(data.redirect_url);
-    },
-    [authorizationId],
-  );
+  const { details, error, isLoading, decision, approve, deny } = useOAuthConsent({
+    authorizationId,
+    signInPath: '/sign-in',
+  });
 
   if (isLoading) {
     return (
@@ -135,6 +46,7 @@ export function OAuthConsent({ authorizationId }: { authorizationId: string | nu
   }
 
   const scopes = details.scope.split(' ').filter((scope) => scope.length > 0);
+  const isDecided = decision !== null;
 
   return (
     <AuthShell
@@ -172,15 +84,10 @@ export function OAuthConsent({ authorizationId }: { authorizationId: string | nu
         </p>
 
         <div className="flex gap-3">
-          <Button onClick={() => decide(true)} disabled={decided} className="flex-1">
+          <Button onClick={approve} disabled={isDecided} className="flex-1">
             Allow
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => decide(false)}
-            disabled={decided}
-            className="flex-1"
-          >
+          <Button variant="outline" onClick={deny} disabled={isDecided} className="flex-1">
             Deny
           </Button>
         </div>

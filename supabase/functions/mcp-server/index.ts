@@ -1,11 +1,16 @@
-// Magpi's MCP server: one Edge Function, five tools, the caller's own row level security.
+// Magpi's MCP server: the Supabase Library's MCP Server block with five tools on it, composed as
+// the block is:
 //
-// withOAuthProtectedResource answers OAuth discovery and points a 401 at it, so an external
-// client can find out where to log in. It has to wrap withSupabase rather than sit inside it,
-// because the discovery request carries no token. withSupabase then verifies every other
-// request and hands back a client scoped to whoever sent it.
+//   withOAuthProtectedResource  OAuth discovery for external clients. Runs before the auth gate
+//                               so a client with no token yet can read the metadata, and adds
+//                               the WWW-Authenticate challenge to the gate's 401.
+//   withSupabase                Verifies the user access token and builds an RLS-scoped client,
+//                               so an embedded agent and an external OAuth client both act as
+//                               the signed-in person.
+//   handleMcp                   MCP transport and the tools in ./tools/index.ts.
 
 import { createMcpHandler, McpServer } from '@modelcontextprotocol/server';
+import { pipeline } from '@supabase/middleware';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { type SupabaseContext, withOAuthProtectedResource, withSupabase } from '@supabase/server';
 
@@ -17,14 +22,23 @@ import { enforceRateLimits } from '../_shared/rate_limit.ts';
 import { registerTools, type ToolContext } from './tools/index.ts';
 import type { NoteStore } from './tools/types.ts';
 
-const SERVER_NAME = 'magpi';
-const SERVER_VERSION = '1.0.0';
+function readTextEnv(name: string, fallback: string): string {
+  return Deno.env.get(name)?.trim() || fallback;
+}
 
-const INSTRUCTIONS =
+/** The block reads both from env. Magpi's defaults keep the name short and the description its own. */
+const SERVER_NAME = readTextEnv('MCP_SERVER_NAME', 'magpi');
+const SERVER_VERSION = '1.0.0';
+const SERVER_DESCRIPTION = readTextEnv(
+  'MCP_SERVER_DESCRIPTION',
   'Magpi is one searchable index over the documents this person has connected: their notes, ' +
-  'their issue tracker, their files. Every tool runs as the signed-in user, so row level ' +
-  'security decides what each one can see. Prefer search over guessing, and read a document in ' +
-  'full with get_document when a passage is not enough.';
+    'their issue tracker, their files.',
+);
+
+const INSTRUCTIONS = `${SERVER_DESCRIPTION} ` +
+  'Every tool runs as the signed-in user, so row level security decides what each one can ' +
+  'see. Prefer search over guessing, and read a document in full with get_document when a ' +
+  'passage is not enough.';
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
@@ -105,8 +119,10 @@ async function handleMcp(request: Request, ctx: SupabaseContext): Promise<Respon
   return await handler.fetch(request);
 }
 
+// The handler is passed inline so TypeScript infers its context from the entries.
 Deno.serve(
-  withOAuthProtectedResource(
-    withSupabase({ auth: 'user', cors: { headers: CORS_HEADERS } }, handleMcp),
+  pipeline(
+    [withOAuthProtectedResource(), withSupabase({ auth: 'user', cors: { headers: CORS_HEADERS } })],
+    (request, ctx) => handleMcp(request, ctx),
   ),
 );

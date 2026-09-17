@@ -53,9 +53,13 @@ the running stack, since changing the signing key changes both.
 
 ## Connecting an agent
 
-The MCP server is `supabase/functions/mcp-server/`. Point an MCP client at
+The MCP server is `supabase/functions/mcp-server/`, the Supabase Library's MCP
+Server block with Magpi's five tools registered on it. Point an MCP client at
 `http://127.0.0.1:55321/functions/v1/mcp-server` and it will find its own way to
-the sign-in page. `docs/mcp.md` covers the five tools and how a caller gets in.
+the sign-in page, through the library's OAuth Consent flow at `/oauth/consent`.
+`docs/mcp.md` covers the five tools and how a caller gets in. A hosted project
+needs the OAuth server, dynamic client registration and the consent path turned
+on in its Auth settings, as `supabase/config.toml` has them for the local stack.
 
 ## The demo company
 
@@ -237,7 +241,6 @@ Upload, search and chat work with only the first four. Every provider driver has
 ## Current limitations
 
 - (September 2026) Google Drive read scopes are sensitive and OAuth verification takes weeks. Running Drive means an unverified app with a fixed list of test users.
-- (September 2026) The MCP server is a stub with a single `whoami` tool. The four real tools are contracted in [`docs/mcp.md`](docs/mcp.md) and get built on BYO MCP rather than hand-rolled around it.
 - (September 2026) The Edge Function ceiling is deliberate and unmeasured. Large imports and large dream runs fail, visibly, and the numbers are not in `docs/limits.md` yet.
 - (September 2026) Analytics queries run against the primary.
 - (September 2026) The `/ios` and `/android` clients are specified in [`docs/mobile-spec.md`](docs/mobile-spec.md) and not built.
