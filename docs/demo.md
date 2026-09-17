@@ -46,7 +46,15 @@ the beta, so the skill works as written.
    node --env-file=web/.env.local scripts/seed-demo.mjs
    ```
 
-5. Confirm Compute answers. This should print an empty list.
+5. Pin the on-stage timeout. With this secret set, a dream run started from the
+   app gives up after twenty seconds, which is the failure step 2 needs. Compute
+   has its own ten minute budget and ignores it.
+
+   ```bash
+   supabase secrets set SB_DREAM_RUN_BUDGET_MS=20000 --project-ref vvfegdrzrzjyekvrfyoj
+   ```
+
+6. Confirm Compute answers. This should print an empty list.
 
    ```bash
    supabase compute list --project-ref vvfegdrzrzjyekvrfyoj
@@ -83,8 +91,8 @@ the beta, so the skill works as written.
    delete from public.dream_runs;
    ```
 
-5. Remove the Magpi connector from Claude or ChatGPT. Adding it again
-   registers a new client, which is what makes the consent screen appear.
+5. Remove the Magpi connector from ChatGPT. Adding it again registers a new
+   client, which is what makes the consent screen appear.
 
 6. Open the windows. Terminal in the repo. Codex with the three worktrees.
    Browser tabs: the app, signed in as `jane@example.com` with password
@@ -97,9 +105,9 @@ the beta, so the skill works as written.
    The answer comes back with citations.
 
 2. **Start a dream.** Dreams, Engineering, Run now. The bar creeps while the
-   run reads the space. With the demo corpus the run finishes rather than
-   timing out. The line to say is that a real space does not fit inside one
-   Edge Function.
+   run reads the space, and after twenty seconds the run times out and says
+   which stage it died in. That is the budget pinned in setup step 5. The line
+   to say is that a whole space does not fit inside one Edge Function.
 
 3. **Open Codex.** Three worktrees, two stacks running. Say what they are.
 
@@ -141,12 +149,12 @@ the beta, so the skill works as written.
       Prompt. Say that this is what you handed Codex to build it.
    2. In Magpi, Settings, MCP and API. Copy the server address. It is
       `https://vvfegdrzrzjyekvrfyoj.supabase.co/functions/v1/mcp-server`.
-   3. In Claude: Settings, Connectors, Add custom connector, paste the
-      address. In ChatGPT: Settings, Connectors, Create, paste the address.
-      The client registers itself with the project's OAuth server.
+   3. In ChatGPT: Settings, Connectors, Create, paste the address. ChatGPT
+      registers itself with the project's OAuth server. The server has the
+      `search` and `fetch` tools ChatGPT looks for, plus three more.
    4. The consent screen opens at `/oauth/consent` in the app. It names the
       client and says the agent will act as you. Press Allow.
-   5. Ask the agent the question from step 1. The answer has the same
+   5. Ask ChatGPT the question from step 1. The answer has the same
       citations, plus last night's dreams, plus what the model knows on its
       own. Ask it as a different account and the answer is shorter, with no
       error, because row level security decides what each person sees.
@@ -161,9 +169,6 @@ Do "Before every run" again, so the next one starts clean.
 
 ## Known gaps
 
-- The timeout in step 2 does not happen on the demo corpus. Every job body
-  takes a budget, so a forced timeout is a small change if the story needs
-  the failure on screen.
 - There is no per-user list of authorized agents in Magpi yet. Removing the
   connector in the client is the reset.
 - The Compute variant of the MCP Server block is not on the library site.

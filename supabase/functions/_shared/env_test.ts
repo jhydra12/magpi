@@ -4,6 +4,7 @@ import { ApiError } from './errors.ts';
 import { apiErrorFrom, envSource } from './testing/assertions.ts';
 import {
   coreEnv,
+  dreamRunBudgetMs,
   functionsBaseUrl,
   oauthCredentials,
   openAiKey,
@@ -126,4 +127,17 @@ Deno.test('the web origin falls back to the local dev server', () => {
     'https://magpi.dev',
   );
   assertEquals(webBaseUrl(source({})), 'http://localhost:3000');
+});
+
+Deno.test('a dream run has no budget of its own unless one is set', () => {
+  assertEquals(dreamRunBudgetMs(envSource({})), undefined);
+});
+
+Deno.test('a dream run budget is read in whole milliseconds', () => {
+  assertEquals(dreamRunBudgetMs(envSource({ SB_DREAM_RUN_BUDGET_MS: '20000' })), 20000);
+});
+
+Deno.test('a dream run budget that is not a positive whole number is a misconfiguration', () => {
+  assertThrows(() => dreamRunBudgetMs(envSource({ SB_DREAM_RUN_BUDGET_MS: 'soon' })));
+  assertThrows(() => dreamRunBudgetMs(envSource({ SB_DREAM_RUN_BUDGET_MS: '0' })));
 });

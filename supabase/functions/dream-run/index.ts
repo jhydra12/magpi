@@ -6,6 +6,7 @@ import { dreamRunSchema, parseBody } from '../_shared/validate.ts';
 import { audit, serviceClient } from '../_shared/db.ts';
 import { enforceRateLimits } from '../_shared/rate_limit.ts';
 import { requireSpaceMembership, requireUser } from '../_shared/auth.ts';
+import { dreamRunBudgetMs } from '../_shared/env.ts';
 import { runDreamJob } from '../_shared/jobs/dream.ts';
 import { jobDepsFromEnv } from '../_shared/jobs/runtime.ts';
 import { startManualRun } from './start.ts';
@@ -34,7 +35,8 @@ serveFunction('dream-run', async (core) => {
     throw new ApiError(409, 'dreaming_disabled', 'dreaming is switched off for this space');
   }
 
-  const deps = jobDepsFromEnv();
+  // The budget can be pinned by env, which is how the keynote makes this run time out on cue.
+  const deps = { ...jobDepsFromEnv(), budgetMs: dreamRunBudgetMs() };
   const run = await startManualRun(
     db,
     { orgId, spaceId: input.space_id, kind: input.kind, triggeredBy: user.id },
