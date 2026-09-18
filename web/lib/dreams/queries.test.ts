@@ -129,32 +129,60 @@ function detailResponses(overrides: Record<string, readonly StubResponse[]> = {}
 }
 
 describe('the dreams page', () => {
-  it('lists the newest runs with the name of the space each one read', async () => {
+  it('rolls a night of runs into one dream with the space, the clock, and the counts', async () => {
     const { context } = recordingContext({
       responses: {
         spaces: [{ data: [getSpace()] }],
-        dream_runs: [{ data: [getRun({ input_document_count: 1 })] }],
+        dream_runs: [
+          {
+            data: [
+              getRun({ input_document_count: 7 }),
+              getRun({ id: 'run-links', kind: 'connections', output_document_id: null }),
+            ],
+          },
+        ],
+        dream_links: [{ data: [{ dream_run_id: 'run-links' }, { dream_run_id: 'run-links' }] }],
       },
     });
 
     const page = await loadDreamsPage(context);
 
-    expect(page.runs).toHaveLength(1);
-    expect(page.runs[0].spaceName).toBe('Engineering');
-    expect(page.runs[0].inputSummary).toBe('1 document');
-    expect(page.runs[0].duration).toBe('1m 30s');
+    expect(page.nights).toHaveLength(1);
+    expect(page.nights[0].spaceName).toBe('Engineering');
+    expect(page.nights[0].nightLabel).toBe('9 Sept 2026');
+    expect(page.nights[0].durationLabel).toBe('3m 0s');
+    expect(page.nights[0].documentsIngested).toBe(12);
+    expect(page.nights[0].connectionsMade).toBe(2);
     expect(page.spaces).toEqual([getSpace()]);
   });
 
-  it('reads the most recent runs first and stops at fifty', async () => {
+  it('reads the most recent runs first, enough for weeks of nights', async () => {
     const { context, callsFor } = recordingContext({
-      responses: { spaces: [{ data: [] }], dream_runs: [{ data: [] }] },
+      responses: {
+        spaces: [{ data: [] }],
+        dream_runs: [{ data: [] }],
+        dream_links: [{ data: [] }],
+      },
     });
 
     await loadDreamsPage(context);
 
     expect(callsFor('dream_runs')).toContainEqual(['order', 'created_at', { ascending: false }]);
-    expect(callsFor('dream_runs')).toContainEqual(['limit', 50]);
+    expect(callsFor('dream_runs')).toContainEqual(['limit', 150]);
+  });
+
+  it('counts only the links of the runs it listed', async () => {
+    const { context, callsFor } = recordingContext({
+      responses: {
+        spaces: [{ data: [getSpace()] }],
+        dream_runs: [{ data: [getRun()] }],
+        dream_links: [{ data: [] }],
+      },
+    });
+
+    await loadDreamsPage(context);
+
+    expect(callsFor('dream_links')).toContainEqual(['in', 'dream_run_id', [RUN_ID]]);
   });
 
   it('leaves out a run from a space this reader cannot open', async () => {
@@ -162,12 +190,13 @@ describe('the dreams page', () => {
       responses: {
         spaces: [{ data: [getSpace()] }],
         dream_runs: [{ data: [getRun(), getRun({ id: 'run-hidden', space_id: OTHER_SPACE_ID })] }],
+        dream_links: [{ data: [] }],
       },
     });
 
     const page = await loadDreamsPage(context);
 
-    expect(page.runs.map((run) => run.id)).toEqual([RUN_ID]);
+    expect(page.nights.map((night) => night.spaceId)).toEqual([SPACE_ID]);
   });
 
   it('throws when the database refuses the runs, rather than showing an empty history', async () => {
@@ -179,6 +208,20 @@ describe('the dreams page', () => {
     });
 
     await expect(loadDreamsPage(context)).rejects.toThrow('permission denied for table dream_runs');
+  });
+
+  it('throws when the links behind the counts cannot be read', async () => {
+    const { context } = recordingContext({
+      responses: {
+        spaces: [{ data: [getSpace()] }],
+        dream_runs: [{ data: [getRun()] }],
+        dream_links: [{ error: { message: 'permission denied for table dream_links' } }],
+      },
+    });
+
+    await expect(loadDreamsPage(context)).rejects.toThrow(
+      'permission denied for table dream_links',
+    );
   });
 
   it('throws when the spaces behind the runs cannot be read', async () => {

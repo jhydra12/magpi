@@ -4,6 +4,7 @@ import type { SessionContext } from '@/lib/supabase/context';
 
 import { describeDreamOutput } from './citations';
 import { buildEntityGroups, type EntityGroup } from './entities';
+import { buildNightlyDreams, type NightlyDream } from './nightly';
 import {
   buildLinkCandidates,
   buildRunSummaries,
@@ -25,9 +26,12 @@ async function fetchSpaces(context: SessionContext): Promise<readonly SpaceRecor
 }
 
 export type DreamsPageData = {
-  readonly runs: readonly DreamRunSummary[];
+  readonly nights: readonly NightlyDream[];
   readonly spaces: readonly SpaceRecord[];
 };
+
+/** Three passes a night per space, so 150 rows is fifty nights of one space or a few weeks of several. */
+const RUN_LIMIT = 150;
 
 export async function loadDreamsPage(context: SessionContext): Promise<DreamsPageData> {
   const [spaces, runs] = await Promise.all([
@@ -36,12 +40,22 @@ export async function loadDreamsPage(context: SessionContext): Promise<DreamsPag
       .from('dream_runs')
       .select(RUN_COLUMNS)
       .order('created_at', { ascending: false })
-      .limit(50),
+      .limit(RUN_LIMIT),
   ]);
 
   if (runs.error) throw new Error(`Could not read dream runs: ${runs.error.message}`);
 
-  return { runs: buildRunSummaries({ runs: runs.data, spaces }), spaces };
+  // Read under the caller's RLS, so a link they cannot see is not counted for them.
+  const { data: links, error: linksError } = await context.supabase
+    .from('dream_links')
+    .select('dream_run_id')
+    .in(
+      'dream_run_id',
+      runs.data.map((run) => run.id),
+    );
+  if (linksError) throw new Error(`Could not read dream links: ${linksError.message}`);
+
+  return { nights: buildNightlyDreams({ runs: runs.data, spaces, links }), spaces };
 }
 
 export type DreamSource = {

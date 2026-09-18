@@ -57,3 +57,31 @@ passed. The bundle build, formatting, diff whitespace check, and schedule
 validation passed. Hosted migration `20260917235000` was already applied;
 the only active cron jobs are source sync and nightly dream queueing.
 This deployment runs ingestion; dream processing remains separate.
+
+## Dream log on the dreams page
+
+- [x] Group runs into nightly dreams per space: time taken, documents ingested, connections made.
+- [x] Read dream link counts for the listed runs under the caller's RLS.
+- [x] Replace the Runs list with a dream log table that still links to each run.
+- [x] Tests for the grouping, the query, and the table; typecheck and lint.
+- [ ] Cap dream digests in public.search so rehearsal digests cannot fill the passage budget; migration, pgTAP, docs.
+- [x] Swap the local Supabase stack from Future Nerds to this app.
+
+### Dream log review
+
+The Runs list on the dreams page is now a dream log: one row per space per
+night with the time the night took, the documents that came in that day, the
+connections made, a status, and links to the three passes. `buildNightlyDreams`
+in `web/lib/dreams/nightly.ts` does the grouping; the page reads dream link
+counts under the caller's RLS to count connections.
+
+`public.search` now caps dream digests at a quarter of `match_count`, so a week
+of nightly digests, or an afternoon of rehearsals, cannot fill the chat's twelve
+passages and push out the source that states a fact. Migration
+`20260918143500`, pgTAP `21_search_dream_cap`, and docs/retrieval.md cover it.
+
+Verified: web unit tests, typecheck, lint, pgTAP for search. Five pgTAP
+assertions in 10_space_isolation, 12_admin and 60_functions fail locally on
+anon grants; the local image's default privileges grant anon on every new
+table, which predates this work and is not run in CI. The migration is not yet
+applied to the hosted project.
