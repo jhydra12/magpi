@@ -10,6 +10,7 @@ import {
   type DreamRunRecord,
   type DreamStage,
   NOTHING,
+  observe,
   type Pass,
 } from './dream_pass.ts';
 import { spaceScoped } from './space_writer.ts';
@@ -43,8 +44,9 @@ async function updateRun(
   fields: Record<string, unknown>,
 ): Promise<void> {
   const { error } = await deps.db.from('dream_runs').update(fields).eq('id', run.id);
-  // A lost bookkeeping write is worth a log rather than an exception.
-  if (error) console.error('the dream run row could not be updated', run.id, error.message);
+  if (error) {
+    throw new ApiError(500, 'dream_status_unavailable', 'the dream run status could not be saved');
+  }
 }
 
 function finish(
@@ -87,21 +89,22 @@ export async function runDreamJob(run: DreamRunRecord, deps: JobDeps): Promise<D
     stage: 'collect',
     inputDocumentCount: 0,
   };
-  await updateRun(run, deps, { status: 'running', started_at: deps.http.now().toISOString() });
-
   try {
+    await updateRun(run, deps, { status: 'running', started_at: deps.http.now().toISOString() });
+    observe(pass, 'started');
     const outcome = await dispatch(pass);
     await finish(pass, 'succeeded', outcome, null);
     await recordUsage(deps.db, [{ orgId: run.org_id, kind: 'dream_run', quantity: 1 }]);
+    observe(pass, 'completed', outcome);
     return { kind: 'succeeded', ...outcome };
   } catch (err) {
     if (err instanceof StageTimeout) {
-      console.error('a dream run ran out of time', run.id, err.message);
+      observe(pass, 'timeout');
       await finish(pass, 'timeout', reached(pass), withStage(pass.stage, err.message));
       return { kind: 'timeout', stage: err.stage };
     }
     const detail = readableDetail(err);
-    console.error('a dream run failed', run.id, err);
+    observe(pass, 'failed');
     await finish(pass, 'failed', reached(pass), withStage(pass.stage, detail));
     return { kind: 'failed', detail };
   }

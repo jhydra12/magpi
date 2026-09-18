@@ -30,6 +30,26 @@
     "author": null
   },
   {
+    "path": "company/drive-bridge-quarterly-plan.md",
+    "title": "First-quarter plan across the company",
+    "space": "company",
+    "source": "drive",
+    "externalId": "company/drive-bridge-quarterly-plan",
+    "url": "https://docs.google.com/document/d/drive-bridge-quarterly-plan",
+    "updatedAt": "2026-09-01T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company/drive-bridge-supplier-review.md",
+    "title": "Supplier review and launch decisions",
+    "space": "company",
+    "source": "drive",
+    "externalId": "company/drive-bridge-supplier-review",
+    "url": "https://docs.google.com/document/d/drive-bridge-supplier-review",
+    "updatedAt": "2026-09-01T09:00:00.000Z",
+    "author": null
+  },
+  {
     "path": "company/drive-colourway-decision-note.md",
     "title": "Four colours, and why there are four",
     "space": "company",
@@ -140,6 +160,46 @@
     "author": null
   },
   {
+    "path": "company/notion-bridge-customer-feedback.md",
+    "title": "Customer feedback joins the launch plan",
+    "space": "company",
+    "source": "notion",
+    "externalId": "company/notion-bridge-customer-feedback",
+    "url": "https://www.notion.so/supaphone/notion-bridge-customer-feedback",
+    "updatedAt": "2026-09-01T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company/notion-bridge-launch-readiness.md",
+    "title": "Launch readiness across Engineering, Marketing and Finance",
+    "space": "company",
+    "source": "notion",
+    "externalId": "company/notion-bridge-launch-readiness",
+    "url": "https://www.notion.so/supaphone/notion-bridge-launch-readiness",
+    "updatedAt": "2026-09-01T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company/notion-bridge-risk-register.md",
+    "title": "Launch risk register",
+    "space": "company",
+    "source": "notion",
+    "externalId": "company/notion-bridge-risk-register",
+    "url": "https://www.notion.so/supaphone/notion-bridge-risk-register",
+    "updatedAt": "2026-09-01T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company/notion-bridge-weekly-program-review.md",
+    "title": "Weekly program review: one company, three spaces",
+    "space": "company",
+    "source": "notion",
+    "externalId": "company/notion-bridge-weekly-program-review",
+    "url": "https://www.notion.so/supaphone/notion-bridge-weekly-program-review",
+    "updatedAt": "2026-09-01T09:00:00.000Z",
+    "author": null
+  },
+  {
     "path": "company/notion-company-handbook.md",
     "title": "Supaphone handbook",
     "space": "company",
@@ -227,6 +287,26 @@
     "externalId": "company/notion-weekly-cadence",
     "url": "https://www.notion.so/supaphone/notion-weekly-cadence",
     "updatedAt": "2026-08-31T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company/slack-bridge-all-hands-followup.md",
+    "title": "All-hands follow-up: decisions and owners",
+    "space": "company",
+    "source": "slack",
+    "externalId": "company/slack-bridge-all-hands-followup",
+    "url": "https://supaphone.slack.com/archives/slack-bridge-all-hands-followup",
+    "updatedAt": "2026-09-01T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company/slack-bridge-weekly-summary.md",
+    "title": "Weekly summary: what changed",
+    "space": "company",
+    "source": "slack",
+    "externalId": "company/slack-bridge-weekly-summary",
+    "url": "https://supaphone.slack.com/archives/slack-bridge-weekly-summary",
+    "updatedAt": "2026-09-01T09:00:00.000Z",
     "author": null
   },
   {

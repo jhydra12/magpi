@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
+import { DreamActivity } from '@/components/dreams/dream-activity';
 import { DreamOutput } from '@/components/dreams/dream-output';
 import { LinkCandidates } from '@/components/dreams/link-candidates';
 import { RunFailure } from '@/components/dreams/run-failure';
 import { RunStatus } from '@/components/dreams/run-status';
+import { loadDreamActivity } from '@/lib/dreams/activity-queries';
 import { loadDreamRun } from '@/lib/dreams/queries';
 import { getSessionContext } from '@/lib/supabase/context';
 
@@ -19,6 +21,7 @@ export default async function DreamRunPage({ params }: { params: Promise<{ id: s
   if (!detail) notFound();
 
   const { run, output, candidates } = detail;
+  const activity = await loadDreamActivity(context, [id]);
 
   return (
     <>
@@ -36,6 +39,10 @@ export default async function DreamRunPage({ params }: { params: Promise<{ id: s
           {run.inputSummary} read &middot; {run.duration}
         </p>
       </section>
+
+      {activity.runs.some((run) => run.status === 'queued' || run.status === 'running') ? (
+        <DreamActivity initial={activity} isBatch />
+      ) : null}
 
       <RunFailure status={run.status} inputDocumentCount={run.inputDocumentCount} />
 

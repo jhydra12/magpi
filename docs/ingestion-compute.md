@@ -1,6 +1,6 @@
-# Ingestion on Supabase Compute
+# Ingestion and Dreams on Supabase Compute
 
-`dream` runs the existing ingestion jobs in Node with 2 GB of memory.
+`dream` runs ingestion and queued Dream jobs in Node with 2 GB of memory.
 The source is `supabase/compute/dream/src/index.ts`. It imports the job
 code from `supabase/functions/_shared/jobs` and uses the existing project secrets.
 
@@ -9,19 +9,29 @@ again. An empty queue waits five seconds. A retryable failure waits two minutes.
 Each job has a five-minute budget checked between processing stages. The database
 can reclaim a job after fifteen minutes if its worker disappears.
 
+The separate Dream loop defaults to one job at a time per instance. It uses
+`SB_DREAM_CONCURRENCY` and `SB_DREAM_BUDGET_MS` (300000 by default, at most 600000).
+Database and model requests have timeouts. Dream jobs log processing stages and
+terminal results with their run ID and worker ID. Interrupted Dreams are marked
+as timed out after fifteen minutes and require an explicit new run.
+
+The manual `dream-run` endpoint validates access and returns a queued run ID with
+HTTP 202. Deploy Compute before updating that endpoint and the web app. See
+[Dream rehearsal](dream-rehearsal.md) for recording and isolated scaling batches.
+
 Uploads and connected sources keep their existing enqueue paths. The
 `ingest-worker` Edge Function remains available for manual calls and rollback.
 The migration removes its automatic cron schedule. Hourly source sync continues.
 
-## Verified deployment
+## Earlier ingestion deployment
 
 On 2026-09-18, `dream` reported one live and ready Node instance with 2 GB.
 A temporary upload completed in one attempt and produced one embedded chunk.
 The worker reported one success and zero failures. The temporary document,
 job, chunks, and storage object were removed after verification.
 
-The ingestion cron is disabled on the hosted project. This deployment processes
-ingestion jobs; dream processing remains separate.
+That deployment processed ingestion only. The Dream changes on this branch need
+their own deployment and hosted verification; the earlier result does not verify them.
 
 ## Deploy
 
@@ -39,7 +49,7 @@ Project secrets must include `SUPABASE_URL`, `SB_SERVICE_ROLE_KEY`, and
 OAuth secrets. `SB_INGEST_CONCURRENCY` optionally sets concurrency from 1 to 32.
 
 On the first deployment, verify that `/` returns
-`{"service":"ingestion","status":"ok"}`, then apply
+`{"service":"dream","status":"ok"}`, then apply
 `20260917235000_ingestion_on_compute.sql` with `supabase-beta db push --linked`.
 That migration removes the ingestion cron and updates `schedule_workers()`.
 
@@ -51,9 +61,10 @@ supabase-beta compute logs dream --kind app --project-ref vvfegdrzrzjyekvrfyoj
 curl https://vvfegdrzrzjyekvrfyoj.supabase.co/compute/v1/dream/
 ```
 
-`GET /status` accepts a bearer token containing `SB_SERVICE_ROLE_KEY` and reports
-processing counters for the current instance. Public health returns 503 until
-the first successful database claim, after a polling error, and during shutdown.
+`GET /status` accepts a bearer token containing `SB_SERVICE_ROLE_KEY` and returns
+`worker_id`, `ingestion`, and `dream` counters for the current instance. Public
+health returns 503 until both loops complete a successful poll, after a polling
+error, and during shutdown. The app reads aggregate run status through RLS.
 
 ## Roll back
 

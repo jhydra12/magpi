@@ -5,24 +5,49 @@ import { ok, type Result } from '@/lib/result';
 
 import type { DreamKind } from './status';
 
-/** dream-run answers 200 for a timeout too, so only the three terminal states are accepted. */
+/** A successful submission queues work for Compute and returns before processing starts. */
 const runResponse = z.object({
   dream_run_id: z.uuid(),
-  status: z.enum(['succeeded', 'failed', 'timeout']),
+  dream_run_ids: z.array(z.uuid()).min(1).max(3).optional(),
+  status: z.enum(['queued', 'succeeded', 'failed', 'timeout']),
   output_document_id: z.uuid().nullable(),
 });
 
 export type DreamRunOutcome = {
   readonly dreamRunId: string;
-  readonly status: 'succeeded' | 'failed' | 'timeout';
+  readonly dreamRunIds: readonly string[];
+  readonly status: 'queued' | 'succeeded' | 'failed' | 'timeout';
   readonly outputDocumentId: string | null;
 };
 
-/** One kind over one space. The function a person can reach; dream-worker is service role only. */
+/** Queue all tasks or one explicit task through the authenticated endpoint. */
 export async function requestDreamRun(
   client: FunctionsClient,
-  input: { spaceId: string; kind: DreamKind },
+  input: { spaceId: string; kind: DreamKind | 'all' },
 ): Promise<Result<DreamRunOutcome, string>> {
+  if (input.kind === 'all') {
+    const kinds: readonly DreamKind[] = ['entities', 'digest', 'connections'];
+    const queued: string[] = [];
+
+    for (const kind of kinds) {
+      const result = await invokeEdgeFunction(
+        client,
+        'dream-run',
+        { space_id: input.spaceId, kind },
+        runResponse,
+      );
+      if (!result.ok) return result;
+      queued.push(result.data.dream_run_id);
+    }
+
+    return ok({
+      dreamRunId: queued[1] ?? queued[0],
+      dreamRunIds: queued,
+      status: 'queued',
+      outputDocumentId: null,
+    });
+  }
+
   const result = await invokeEdgeFunction(
     client,
     'dream-run',
@@ -30,9 +55,10 @@ export async function requestDreamRun(
     runResponse,
   );
   if (!result.ok) return result;
-
+  const ids = result.data.dream_run_ids ?? [result.data.dream_run_id];
   return ok({
     dreamRunId: result.data.dream_run_id,
+    dreamRunIds: ids,
     status: result.data.status,
     outputDocumentId: result.data.output_document_id,
   });

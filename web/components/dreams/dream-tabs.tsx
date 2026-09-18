@@ -6,15 +6,18 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const ENTITIES_PATH = '/dreams/entities';
+const LOG_PATH = '/dreams/log';
 
 /** The subtab strip for the dreams route. Runs stays selected on a single run's page. */
 export function DreamTabs() {
   const pathname = usePathname();
   const isEntities = pathname.startsWith(ENTITIES_PATH);
+  const isLog = pathname === LOG_PATH;
 
   const items = [
-    { href: '/dreams', label: 'Runs', isActive: !isEntities },
+    { href: '/dreams', label: 'Runs', isActive: !isEntities && !isLog },
     { href: ENTITIES_PATH, label: 'Entities', isActive: isEntities },
+    { href: LOG_PATH, label: 'Log', isActive: isLog },
   ] as const;
 
   return (

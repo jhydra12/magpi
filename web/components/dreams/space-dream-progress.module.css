@@ -1,0 +1,19 @@
+.running {
+  animation: dream-progress 1.8s linear infinite;
+}
+
+@keyframes dream-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .running {
+    animation: none;
+    transform: translateX(100%);
+  }
+}

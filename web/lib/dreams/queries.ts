@@ -22,7 +22,8 @@ import {
 const RUN_COLUMNS =
   'id, space_id, kind, status, started_at, finished_at, input_document_count, output_document_id, error, triggered_by, created_at';
 
-async function fetchSpaces(context: SessionContext): Promise<readonly SpaceRecord[]> {
+/** Reads the spaces visible to the caller for Dream controls. */
+export async function loadDreamSpaces(context: SessionContext): Promise<readonly SpaceRecord[]> {
   const { data, error } = await context.supabase
     .from('spaces')
     .select('id, name, dreaming_enabled')
@@ -41,7 +42,7 @@ const RUN_LIMIT = 150;
 
 export async function loadDreamsPage(context: SessionContext): Promise<DreamsPageData> {
   const [spaces, runs] = await Promise.all([
-    fetchSpaces(context),
+    loadDreamSpaces(context),
     context.supabase
       .from('dream_runs')
       .select(RUN_COLUMNS)
@@ -246,7 +247,7 @@ export async function loadDreamRun(
 ): Promise<DreamRunDetail | null> {
   const [{ data: run }, spaces] = await Promise.all([
     context.supabase.from('dream_runs').select(RUN_COLUMNS).eq('id', runId).maybeSingle(),
-    fetchSpaces(context),
+    loadDreamSpaces(context),
   ]);
 
   if (!run) return null;
@@ -271,7 +272,7 @@ export async function loadEntities(
   context: SessionContext,
   spaceId?: string,
 ): Promise<EntitiesPageData> {
-  const spaces = await fetchSpaces(context);
+  const spaces = await loadDreamSpaces(context);
 
   const entityQuery = context.supabase
     .from('entities')

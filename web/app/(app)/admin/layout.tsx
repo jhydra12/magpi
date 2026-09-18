@@ -12,6 +12,7 @@ const ADMIN_SECTIONS: readonly NavItem[] = [
   { href: '/admin/members', label: 'Members' },
   { href: '/admin/consumption', label: 'Consumption' },
   { href: '/admin/billing', label: 'Billing' },
+  { href: '/admin/demo', label: 'Demo' },
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {

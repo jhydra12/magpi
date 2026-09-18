@@ -49,7 +49,7 @@ export const workerBatchSchema = z.strictObject({
 
 export const dreamRunSchema = z.strictObject({
   space_id: z.uuid(),
-  kind: z.enum(['entities', 'digest', 'connections']),
+  kind: z.enum(['all', 'entities', 'digest', 'connections']).default('all'),
 });
 
 /** Throws a 400 ApiError carrying the issue list. */

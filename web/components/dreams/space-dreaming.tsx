@@ -1,15 +1,21 @@
 'use client';
 
-import Link from 'next/link';
-import { useId, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import type { ActionState } from '@/lib/actions/state';
+import {
+  isDreamActive,
+  type DreamActivityRun,
+  type DreamActivitySnapshot,
+} from '@/lib/dreams/activity';
 import type { DreamRunOutcome } from '@/lib/dreams/edge';
-import { DREAM_KINDS, describeDreamKind, type DreamKind } from '@/lib/dreams/status';
+import type { DreamKind } from '@/lib/dreams/status';
+import { summarizeSpaceDream } from '@/lib/dreams/space-progress';
 
-import { RunProgress } from './run-progress';
+import { SpaceDreamProgress } from './space-dream-progress';
+import { useDreamActivity } from './use-dream-activity';
 
 export type DreamingSpace = {
   readonly id: string;
@@ -17,125 +23,129 @@ export type DreamingSpace = {
   readonly dreaming_enabled: boolean;
 };
 
-type ToggleDreaming = (spaceId: string, enabled: boolean) => Promise<ActionState<undefined>>;
-
-type RunDream = (spaceId: string, kind: DreamKind) => Promise<ActionState<DreamRunOutcome>>;
-
-function describeOutcome(outcome: DreamRunOutcome): string {
-  switch (outcome.status) {
-    case 'succeeded':
-      return outcome.outputDocumentId
-        ? 'The run finished and wrote a document.'
-        : 'The run finished and produced nothing, because it found nothing it could cite.';
-    case 'timeout':
-      return 'The run timed out. Open it to see which stage it died in.';
-    case 'failed':
-      return 'The run failed. Open it to see which stage it died in.';
-    default: {
-      const unhandled: never = outcome.status;
-      throw new Error(`Unhandled dream run status: ${String(unhandled)}`);
-    }
-  }
-}
+type RunDream = (spaceId: string, kind: DreamKind | 'all') => Promise<ActionState<DreamRunOutcome>>;
 
 function SpaceRow({
   space,
-  onToggle,
+  runs,
+  observedAt,
   onRun,
+  onQueued,
+  nextDreamLabel,
+  lastDreamAt,
+  isGloballyQueued,
+  isGlobalPending,
 }: {
   space: DreamingSpace;
-  onToggle: ToggleDreaming;
+  runs: readonly DreamActivityRun[];
+  observedAt: string;
   onRun: RunDream;
+  onQueued: () => void;
+  nextDreamLabel: string;
+  lastDreamAt: string | null;
+  isGloballyQueued: boolean;
+  isGlobalPending: boolean;
 }) {
-  const kindFieldId = useId();
-  const [kind, setKind] = useState<DreamKind>('digest');
-  // Held here as well as written, so the switch shows the saved value without a reload.
-  const [isDreaming, setDreaming] = useState(space.dreaming_enabled);
+  const progress = summarizeSpaceDream(runs);
+  const run = progress?.run;
   const [failure, setFailure] = useState<string | null>(null);
-  const [outcome, setOutcome] = useState<DreamRunOutcome | null>(null);
-  // Only a run shows the bar. The switch also goes through the transition and must not.
-  const [isRunning, setRunning] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [submittedRunId, setSubmittedRunId] = useState<string | null>(null);
+  const isActive = run ? isDreamActive(run) : false;
+  const [initialFinishedRunId] = useState(() => (isActive ? null : run?.id));
+  const [expiredRunId, setExpiredRunId] = useState<string | null>(null);
+  const runId = run?.id;
+  const finishedAt = run?.finished_at;
+  const showProgress = isActive || (runId !== initialFinishedRunId && runId !== expiredRunId);
+  const isAwaitingRun = submittedRunId !== null && submittedRunId !== run?.id;
+  const isStarting = isPending || isAwaitingRun;
+  const showQueuedPlaceholder = isGloballyQueued && !run;
+  const lastFinishedAt = [lastDreamAt, finishedAt]
+    .filter((value): value is string => Boolean(value))
+    .sort((a, b) => Date.parse(b) - Date.parse(a))[0];
+  const lastDreamLabel = lastFinishedAt
+    ? `${new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: 'UTC',
+      })
+        .format(new Date(lastFinishedAt))
+        .replace(' AM', 'am')
+        .replace(' PM', 'pm')} UTC`
+    : 'Never';
 
-  const toggle = (next: boolean) => {
-    setFailure(null);
-    startTransition(async () => {
-      const result = await onToggle(space.id, next);
-      if (result.status === 'error') setFailure(result.message);
-      else setDreaming(next);
-    });
-  };
+  useEffect(() => {
+    if (!runId || isActive || !showProgress) return;
+    const elapsed = finishedAt ? Math.max(0, Date.parse(observedAt) - Date.parse(finishedAt)) : 0;
+    const timer = setTimeout(() => setExpiredRunId(runId), Math.max(0, 300_000 - elapsed));
+    return () => clearTimeout(timer);
+  }, [runId, finishedAt, isActive, showProgress, observedAt]);
 
-  const runNow = () => {
+  const startDreaming = () => {
     setFailure(null);
-    setOutcome(null);
-    setRunning(true);
+    setSubmittedRunId(null);
     startTransition(async () => {
-      const result = await onRun(space.id, kind);
+      const result = await onRun(space.id, 'all');
       if (result.status === 'error') setFailure(result.message);
-      else if (result.status === 'success') setOutcome(result.data);
-      setRunning(false);
+      else if (result.status === 'success') {
+        setSubmittedRunId(result.data.dreamRunId);
+        onQueued();
+      }
     });
   };
 
   return (
     <div role="group" aria-label={space.name} className="flex flex-col gap-2 px-4 py-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Switch
-            checked={isDreaming}
-            aria-label={`Dreaming in ${space.name}`}
-            disabled={isPending}
-            onCheckedChange={toggle}
-          />
-          <span className="text-sm text-foreground">{space.name}</span>
-          {isDreaming ? null : (
-            <span className="text-xs text-tertiary-foreground">Dreaming is off in this space</span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col gap-1">
-            <label htmlFor={kindFieldId} className="sr-only">
-              Kind
-            </label>
-            <select
-              id={kindFieldId}
-              value={kind}
-              disabled={!isDreaming || isPending}
-              onChange={(event) => {
-                const chosen = DREAM_KINDS.find((candidate) => candidate === event.target.value);
-                if (chosen) setKind(chosen);
-              }}
-              className="h-8 rounded-[var(--radius-panel)] border border-input bg-card px-2 text-xs text-foreground focus-visible:ring-2 focus-visible:ring-input focus-visible:outline-none"
-            >
-              {DREAM_KINDS.map((candidate) => (
-                <option key={candidate} value={candidate}>
-                  {describeDreamKind(candidate).label}
-                </option>
-              ))}
-            </select>
+      <div className="flex flex-wrap items-center gap-5">
+        <span className="w-28 shrink-0 text-sm text-foreground">{space.name}</span>
+        {isStarting || showQueuedPlaceholder ? (
+          <div className="flex min-w-40 flex-1 flex-col gap-1.5">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span role="status">{isPending ? 'Starting' : 'Queued'}</span>
+              <span className="font-mono tabular-nums">00:00</span>
+            </div>
+            <div
+              role="progressbar"
+              aria-label={`${space.name} dreaming progress`}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={0}
+              aria-valuetext={isPending ? 'Starting' : 'Queued'}
+              className="relative h-1.5 overflow-hidden rounded-full bg-muted"
+            ></div>
           </div>
-
-          <Button size="sm" variant="outline" disabled={!isDreaming || isPending} onClick={runNow}>
-            Run now
-          </Button>
-        </div>
+        ) : run && showProgress ? (
+          <SpaceDreamProgress
+            spaceName={space.name}
+            run={run}
+            observedAt={observedAt}
+            tasks={progress}
+          />
+        ) : (
+          <div className="min-w-40 flex-1 text-center text-xs text-muted-foreground">
+            {space.dreaming_enabled ? (
+              <>
+                <span title={lastFinishedAt ? new Date(lastFinishedAt).toUTCString() : undefined}>
+                  Last dream: {lastDreamLabel}
+                </span>
+                <span aria-hidden="true"> · </span>
+                <span>Next dream: {nextDreamLabel}</span>
+              </>
+            ) : null}
+          </div>
+        )}
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={!space.dreaming_enabled || isStarting || isActive || isGlobalPending}
+          onClick={startDreaming}
+        >
+          Start dreaming
+        </Button>
       </div>
-
-      {isRunning ? (
-        <RunProgress spaceName={space.name} kindLabel={describeDreamKind(kind).label} />
+      {!space.dreaming_enabled ? (
+        <p className="text-xs text-tertiary-foreground">Dreaming is off in this space</p>
       ) : null}
-
-      {outcome ? (
-        <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          {describeOutcome(outcome)}
-          <Link href={`/dreams/${outcome.dreamRunId}`} className="text-brand-link hover:underline">
-            Open the run
-          </Link>
-        </p>
-      ) : null}
-
       {failure ? (
         <p role="alert" className="text-xs text-destructive-600">
           {failure}
@@ -145,27 +155,105 @@ function SpaceRow({
   );
 }
 
-/** Dreaming is a per-space setting, because a dream run is scoped to exactly one space. */
+/** Shows active Dreams and keeps their results briefly until refresh or dismissal. */
 export function SpaceDreaming({
   spaces,
-  onToggle,
+  initial,
   onRun,
+  nextDreamLabel,
+  lastDreamTimes = {},
 }: {
   spaces: readonly DreamingSpace[];
-  onToggle: ToggleDreaming;
+  initial: DreamActivitySnapshot;
   onRun: RunDream;
+  nextDreamLabel: string;
+  lastDreamTimes?: Readonly<Record<string, string | null>>;
 }) {
+  const router = useRouter();
+  const { snapshot, failure } = useDreamActivity(initial, () => router.refresh());
+  const [globallyQueued, setGloballyQueued] = useState<ReadonlySet<string>>(() => new Set());
+  const [globalFailure, setGlobalFailure] = useState<string | null>(null);
+  const [isGlobalPending, startGlobalTransition] = useTransition();
+  const recent = [...snapshot.runs].sort(
+    (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
+  );
+  const startAllDreams = () => {
+    const enabledSpaces = spaces.filter((space) => space.dreaming_enabled);
+    setGlobalFailure(null);
+    setGloballyQueued(new Set(enabledSpaces.map((space) => space.id)));
+    startGlobalTransition(() => {
+      const submissions = enabledSpaces.map((space) =>
+        onRun(space.id, 'all')
+          .then((result) => ({ space, result }))
+          .catch((error: unknown) => ({
+            space,
+            result: {
+              status: 'error' as const,
+              message: error instanceof Error ? error.message : 'That Dream could not be started.',
+            },
+          })),
+      );
+
+      void Promise.all(submissions).then((results) => {
+        for (const { space, result } of results) {
+          if (result.status !== 'error') continue;
+          setGlobalFailure(result.message);
+          setGloballyQueued((current) => {
+            const next = new Set(current);
+            next.delete(space.id);
+            return next;
+          });
+        }
+      });
+
+      router.refresh();
+      setGloballyQueued(new Set());
+    });
+  };
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="font-heading text-sm font-medium text-foreground">Dreaming by space</h2>
-      <p className="max-w-[var(--measure-prose)] text-sm text-tertiary-foreground">
-        Switch off to suspend dreaming for a space.
-      </p>
-      <div className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
-        {spaces.map((space) => (
-          <SpaceRow key={space.id} space={space} onToggle={onToggle} onRun={onRun} />
-        ))}
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="font-heading text-sm font-medium text-foreground">
+          Spaces in your organization
+        </h2>
+        <Button
+          variant="default"
+          aria-label="Start dreaming in all spaces"
+          disabled={isGlobalPending || spaces.every((space) => !space.dreaming_enabled)}
+          onClick={startAllDreams}
+        >
+          {isGlobalPending ? 'Starting dreams…' : 'Start dreaming'}
+        </Button>
       </div>
+      <div className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
+        {spaces.map((space) => {
+          const runs = recent.filter((run) => run.space_id === space.id);
+          return (
+            <SpaceRow
+              key={space.id}
+              space={space}
+              runs={runs}
+              observedAt={snapshot.observedAt}
+              onRun={onRun}
+              onQueued={() => router.refresh()}
+              nextDreamLabel={nextDreamLabel}
+              lastDreamAt={lastDreamTimes[space.id] ?? null}
+              isGloballyQueued={globallyQueued.has(space.id)}
+              isGlobalPending={isGlobalPending}
+            />
+          );
+        })}
+      </div>
+      {failure ? (
+        <p role="alert" className="text-xs text-destructive-600">
+          {failure}
+        </p>
+      ) : null}
+      {globalFailure ? (
+        <p role="alert" className="text-xs text-destructive-600">
+          {globalFailure}
+        </p>
+      ) : null}
     </section>
   );
 }

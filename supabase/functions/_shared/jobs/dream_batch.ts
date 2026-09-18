@@ -22,18 +22,33 @@ export async function runDreamBatch(
   deps: JobDeps,
   runOne: RunOne,
 ): Promise<BatchOutcome> {
-  const settled = await Promise.all(runs.map(async (run) => {
+  const settled = await Promise.allSettled(runs.map(async (run) => {
     // A select says the run was queued a moment ago, not that this caller owns it.
     const claimed = await claimQueuedRow(deps.db, 'dream_runs', run.id, {
       status: 'running',
       started_at: deps.http.now().toISOString(),
-    });
+    }, true);
     if (!claimed) return null;
-    return { run_id: run.id, ...(await runOne(run, deps)) };
+    try {
+      return { run_id: run.id, ...(await runOne(run, deps)) };
+    } catch {
+      const detail = 'the dream worker stopped on an unexpected error';
+      const { error } = await deps.db.from('dream_runs').update({
+        status: 'failed',
+        error: detail,
+        finished_at: deps.http.now().toISOString(),
+      }).eq('id', run.id).eq('status', 'running');
+      if (error) console.error('dream failure could not be recorded', run.id);
+      return { run_id: run.id, kind: 'failed' as const, detail };
+    }
   }));
 
+  // All started jobs must finish before a caller can retry after a claim/database failure.
+  const failed = settled.find((result) => result.status === 'rejected');
+  if (failed?.status === 'rejected') throw failed.reason;
+  const results = settled.flatMap((result) => result.status === 'fulfilled' ? [result.value] : []);
   return {
-    results: settled.filter((result) => result !== null),
-    contended: settled.filter((result) => result === null).length,
+    results: results.filter((result) => result !== null),
+    contended: results.filter((result) => result === null).length,
   };
 }

@@ -10,12 +10,12 @@ import { setSpaceDreaming as writeSpaceDreaming } from '@/lib/spaces/dreaming';
 const DREAMS_PATH = '/dreams';
 
 const idSchema = z.uuid();
-const kindSchema = z.enum(['entities', 'digest', 'connections']);
+const kindSchema = z.enum(['entities', 'digest', 'connections', 'all']);
 
-/** The manual trigger. dream-run works inline, so the finished outcome comes back with it. */
+/** Queue a manual Dream run after checking access and the per-space setting. */
 export async function startDreamRun(
   spaceId: string,
-  kind: 'entities' | 'digest' | 'connections',
+  kind: 'entities' | 'digest' | 'connections' | 'all' = 'all',
 ): Promise<ActionState<DreamRunOutcome>> {
   const input = z.object({ spaceId: idSchema, kind: kindSchema }).safeParse({ spaceId, kind });
   if (!input.success) return errorState('Choose a space and a kind of run.');

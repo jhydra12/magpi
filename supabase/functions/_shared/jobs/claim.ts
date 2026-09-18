@@ -54,6 +54,7 @@ export async function claimQueuedRow(
   table: string,
   id: string,
   patch: Record<string, unknown>,
+  throwOnError = false,
 ): Promise<boolean> {
   const { data, error } = await db
     .from(table)
@@ -65,6 +66,9 @@ export async function claimQueuedRow(
 
   // A failed claim is the ordinary answer when another worker was faster.
   if (error) {
+    if (throwOnError) {
+      throw new ApiError(500, 'claim_failed', 'the queued run could not be claimed');
+    }
     console.error('claim failed', table, id, error.message);
     return false;
   }

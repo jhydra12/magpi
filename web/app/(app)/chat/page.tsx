@@ -12,10 +12,7 @@ export default async function ChatPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader
-        title="Ask your knowledge base"
-        description="Every answer cites the document it came from."
-      />
+      <PageHeader title="Ask your knowledge base" />
 
       <NewConversation spaces={spaces.data ?? []} />
     </div>
