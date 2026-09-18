@@ -82,13 +82,9 @@ security definer
 set search_path = ''
 as $$
 begin
-  -- Every two minutes, which claim_ingest_jobs reasons its reclaim window from. A hundred at a
-  -- time, eight at once: the batch used to be twenty-five because the jobs ran in sequence and
-  -- that was all that fitted in the budget. A hundred now takes about three seconds.
-  perform cron.schedule(
-    'ingest-worker', '*/2 * * * *',
-    $job$select public.invoke_worker('ingest-worker', 100)$job$
-  );
+  -- Compute polls the ingestion queue continuously. Remove an older scheduled worker.
+  perform cron.unschedule('ingest-worker')
+  where exists (select 1 from cron.job where jobname = 'ingest-worker');
 
   perform cron.schedule(
     'sync-worker', '0 * * * *',

@@ -216,9 +216,21 @@ as $$
         (coalesce(1.0 / (60 + s.rank), 0) + coalesce(1.0 / (60 + l.rank), 0))::real as score
       from semantic s
       full outer join lexical l on l.id = s.id
+    ),
+    -- A dream digest summarises the same documents the query is about, so it scores well on
+    -- both arms. A week of nightly digests can then fill a small budget with summaries and push
+    -- out the source that holds the answer. Digests get at most a quarter of the budget.
+    ranked as (
+      select
+        f.*,
+        d.origin = 'dream' as is_dream,
+        row_number() over (partition by d.origin = 'dream' order by f.score desc) as origin_rank
+      from fused f
+      join public.documents d on d.id = f.document_id
     )
   select chunk_id, document_id, space_id, content, score
-  from fused
+  from ranked
+  where not is_dream or origin_rank <= greatest(1, match_count / 4)
   order by score desc
   limit match_count;
 $$;

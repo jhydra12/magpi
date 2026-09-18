@@ -30,6 +30,7 @@ type Run = {
   input_document_count: number;
   output_document_id: string | null;
   error: string | null;
+  triggered_by: string | null;
   created_at: string;
 };
 
@@ -43,6 +44,7 @@ const getRun = (overrides: Partial<Run> = {}): Run => ({
   input_document_count: 12,
   output_document_id: OUTPUT_ID,
   error: null,
+  triggered_by: null,
   created_at: '2026-09-09T02:00:00.000Z',
   ...overrides,
 });
@@ -129,32 +131,121 @@ function detailResponses(overrides: Record<string, readonly StubResponse[]> = {}
 }
 
 describe('the dreams page', () => {
-  it('lists the newest runs with the name of the space each one read', async () => {
+  it('rolls a night of runs into one dream with the space, the clock, and the counts', async () => {
     const { context } = recordingContext({
       responses: {
         spaces: [{ data: [getSpace()] }],
-        dream_runs: [{ data: [getRun({ input_document_count: 1 })] }],
+        dream_runs: [
+          {
+            data: [
+              getRun({ input_document_count: 7 }),
+              getRun({ id: 'run-links', kind: 'connections', output_document_id: null }),
+            ],
+          },
+        ],
+        dream_links: [
+          {
+            data: [
+              {
+                dream_run_id: 'run-links',
+                confirmed_at: '2026-09-09T08:00:00.000Z',
+                dismissed_at: null,
+              },
+              { dream_run_id: 'run-links', confirmed_at: null, dismissed_at: null },
+            ],
+          },
+        ],
+        documents: [{ data: [{ id: OUTPUT_ID, title: 'What changed in Engineering' }] }],
       },
     });
 
     const page = await loadDreamsPage(context);
 
-    expect(page.runs).toHaveLength(1);
-    expect(page.runs[0].spaceName).toBe('Engineering');
-    expect(page.runs[0].inputSummary).toBe('1 document');
-    expect(page.runs[0].duration).toBe('1m 30s');
+    expect(page.nights).toHaveLength(1);
+    expect(page.nights[0].spaceName).toBe('Engineering');
+    expect(page.nights[0].startedBy).toBe('Nightly');
+    expect(page.nights[0].durationLabel).toBe('3m 0s');
+    expect(page.nights[0].documentsIngested).toBe(12);
+    expect(page.nights[0].connectionsFound).toBe(2);
+    expect(page.nights[0].connectionsConfirmed).toBe(1);
+    expect(page.nights[0].output).toEqual({ id: OUTPUT_ID, title: 'What changed in Engineering' });
     expect(page.spaces).toEqual([getSpace()]);
   });
 
-  it('reads the most recent runs first and stops at fifty', async () => {
+  it('reads the most recent runs first, enough for weeks of nights', async () => {
     const { context, callsFor } = recordingContext({
-      responses: { spaces: [{ data: [] }], dream_runs: [{ data: [] }] },
+      responses: {
+        spaces: [{ data: [] }],
+        dream_runs: [{ data: [] }],
+        dream_links: [{ data: [] }],
+      },
     });
 
     await loadDreamsPage(context);
 
     expect(callsFor('dream_runs')).toContainEqual(['order', 'created_at', { ascending: false }]);
-    expect(callsFor('dream_runs')).toContainEqual(['limit', 50]);
+    expect(callsFor('dream_runs')).toContainEqual(['limit', 150]);
+  });
+
+  it('counts only the links of the runs it listed', async () => {
+    const { context, callsFor } = recordingContext({
+      responses: {
+        spaces: [{ data: [getSpace()] }],
+        dream_runs: [{ data: [getRun()] }],
+        dream_links: [{ data: [] }],
+        documents: [{ data: [] }],
+      },
+    });
+
+    await loadDreamsPage(context);
+
+    expect(callsFor('dream_links')).toContainEqual(['in', 'dream_run_id', [RUN_ID]]);
+  });
+
+  it('leaves spend out for a member, who is not allowed to read model calls', async () => {
+    const { context, callsFor } = recordingContext({
+      responses: {
+        spaces: [{ data: [getSpace()] }],
+        dream_runs: [{ data: [getRun()] }],
+        dream_links: [{ data: [] }],
+        documents: [{ data: [] }],
+      },
+    });
+
+    const page = await loadDreamsPage(context);
+
+    expect(callsFor('model_calls')).toEqual([]);
+    expect(page.nights[0].modelTokens).toBeNull();
+  });
+
+  it('adds up the dream spend for an admin from the model calls since the first run', async () => {
+    const { context, callsFor } = recordingContext({
+      session: { role: 'admin' },
+      responses: {
+        spaces: [{ data: [getSpace()] }],
+        dream_runs: [{ data: [getRun()] }],
+        dream_links: [{ data: [] }],
+        documents: [{ data: [] }],
+        model_calls: [
+          {
+            data: [
+              { input_tokens: 30_000, output_tokens: 500, occurred_at: '2026-09-09T02:00:30.000Z' },
+              { input_tokens: 9_000, output_tokens: 100, occurred_at: '2026-09-09T02:01:00.000Z' },
+            ],
+          },
+        ],
+      },
+    });
+
+    const page = await loadDreamsPage(context);
+
+    expect(callsFor('model_calls')).toContainEqual(['in', 'purpose', ['dream', 'extract']]);
+    expect(callsFor('model_calls')).toContainEqual([
+      'gte',
+      'occurred_at',
+      '2026-09-09T02:00:00.000Z',
+    ]);
+    expect(page.nights[0].modelTokens).toBe(39_600);
   });
 
   it('leaves out a run from a space this reader cannot open', async () => {
@@ -162,12 +253,14 @@ describe('the dreams page', () => {
       responses: {
         spaces: [{ data: [getSpace()] }],
         dream_runs: [{ data: [getRun(), getRun({ id: 'run-hidden', space_id: OTHER_SPACE_ID })] }],
+        dream_links: [{ data: [] }],
+        documents: [{ data: [] }],
       },
     });
 
     const page = await loadDreamsPage(context);
 
-    expect(page.runs.map((run) => run.id)).toEqual([RUN_ID]);
+    expect(page.nights.map((night) => night.spaceId)).toEqual([SPACE_ID]);
   });
 
   it('throws when the database refuses the runs, rather than showing an empty history', async () => {
@@ -179,6 +272,21 @@ describe('the dreams page', () => {
     });
 
     await expect(loadDreamsPage(context)).rejects.toThrow('permission denied for table dream_runs');
+  });
+
+  it('throws when the links behind the counts cannot be read', async () => {
+    const { context } = recordingContext({
+      responses: {
+        spaces: [{ data: [getSpace()] }],
+        dream_runs: [{ data: [getRun()] }],
+        dream_links: [{ error: { message: 'permission denied for table dream_links' } }],
+        documents: [{ data: [] }],
+      },
+    });
+
+    await expect(loadDreamsPage(context)).rejects.toThrow(
+      'permission denied for table dream_links',
+    );
   });
 
   it('throws when the spaces behind the runs cannot be read', async () => {

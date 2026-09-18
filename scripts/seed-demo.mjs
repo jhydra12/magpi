@@ -344,6 +344,17 @@ async function main() {
   }
 
   await ingestEverything(client);
+
+  // A history of nights for the dream log, cited to the chunks the ingest just wrote. The
+  // digests then ingest the same way, so the second pass embeds them.
+  const dreams = spawnSync(
+    'node',
+    [resolve(ROOT, 'scripts/seed-dreams.mjs'), '--org-slug', org.slug],
+    { cwd: ROOT, stdio: 'inherit', env: process.env },
+  );
+  if (dreams.status !== 0) process.exit(dreams.status ?? 1);
+
+  await ingestEverything(client);
 }
 
 await main();

@@ -84,6 +84,23 @@ which are not comparable quantities.
 
 A chunk that both arms rank highly beats a chunk that only one arm found.
 
+### Why digests are capped
+
+A dream digest is a summary of the documents a question is about, so it scores
+well on both arms for that question. After a week of nightly digests, or an
+afternoon of rehearsal runs, a budget of twelve passages can fill with summaries
+that mention the topic and leave out the source that states the fact. This is
+what happened with the Fold S1 launch date on 18 September 2026: ten of twelve
+passages were digests, none of which carried the date the GTM-7 ticket locks.
+
+So after fusion, `search` joins each candidate to its document and keeps at most
+`greatest(1, match_count / 4)` chunks whose document has `origin = 'dream'`,
+by score. That is three of the chat's twelve. The other nine slots go to uploads
+and synced documents in score order. A budget with room for every candidate is
+unchanged, and a caller who wants only digests can still filter for them
+afterwards. The cap is per call, not per digest, so ten copies of the same
+digest count against the same three slots.
+
 ### Why pure vector search is not enough
 
 Ask "what is the SSO ticket number" of a pure embedding search. The query embeds

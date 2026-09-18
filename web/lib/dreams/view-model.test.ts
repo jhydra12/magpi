@@ -13,6 +13,7 @@ const getRun = (overrides?: Partial<DreamRunRecord>): DreamRunRecord => ({
   input_document_count: 42,
   output_document_id: 'doc-1',
   error: null,
+  triggered_by: null,
   created_at: '2026-09-09T02:00:00.000Z',
   ...overrides,
 });

@@ -24,6 +24,7 @@ const CHAIN_METHODS = [
   'delete',
   'eq',
   'in',
+  'gte',
   'order',
   'limit',
   'maybeSingle',

@@ -724,6 +724,22 @@ Deno.test('a JSON answer wrapped in a markdown code fence still parses', async (
   }
 });
 
+Deno.test('a digest never reads an earlier dream, so a night of digests is not its own input', async () => {
+  const stub = stubDb(replies());
+  try {
+    const result = await runDreamJob(dreamRun('digest'), jobDeps(stub, fakeModels(answerFor)));
+
+    assert(result.kind === 'succeeded');
+    const [read] = requestsFor(stub, 'chunks').filter((request) => request.method === 'GET');
+    assert(read !== undefined);
+    // The filter rides on the document, which the read joins for that one column.
+    assert(read.query.includes('documents!inner(origin)'), read.query);
+    assert(read.query.includes('documents.origin=neq.dream'), read.query);
+  } finally {
+    await stub.close();
+  }
+});
+
 Deno.test('a digest cites every chunk it read, in documents.source_chunk_ids', async () => {
   const stub = stubDb(replies());
   try {
