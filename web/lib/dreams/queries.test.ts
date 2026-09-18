@@ -163,7 +163,6 @@ describe('the dreams page', () => {
 
     expect(page.nights).toHaveLength(1);
     expect(page.nights[0].spaceName).toBe('Engineering');
-    expect(page.nights[0].nightLabel).toBe('9 Sept 2026');
     expect(page.nights[0].startedBy).toBe('Nightly');
     expect(page.nights[0].durationLabel).toBe('3m 0s');
     expect(page.nights[0].documentsIngested).toBe(12);

@@ -45,6 +45,7 @@ export type NightlyDreamStatus = {
  */
 export type NightlyDream = {
   readonly id: string;
+  /** The UTC date the night was queued, for ordering. The label is what a person sees. */
   readonly night: string;
   readonly nightLabel: string;
   readonly spaceId: string;
@@ -62,20 +63,20 @@ export type NightlyDream = {
   readonly status: NightlyDreamStatus;
 };
 
-const NIGHT_LABEL = new Intl.DateTimeFormat('en-GB', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Runs are bucketed by the UTC day they were queued, the same clock the nightly schedule keeps. */
 function nightOf(createdAt: string): string {
   return createdAt.slice(0, 10);
 }
 
-function formatNight(night: string): string {
-  return NIGHT_LABEL.format(new Date(`${night}T00:00:00.000Z`));
+/** How a person counts nights, not a calendar date: the log is about the morning after. */
+export function formatNight(night: string, now: Date): string {
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const nightsAgo = Math.round((today - Date.parse(`${night}T00:00:00.000Z`)) / DAY_MS);
+  if (nightsAgo <= 0) return 'Tonight';
+  if (nightsAgo === 1) return 'Last night';
+  return `${nightsAgo} nights ago`;
 }
 
 function elapsedSeconds(run: DreamRunRecord): number {
@@ -103,7 +104,11 @@ function describeStarter(runs: readonly DreamRunRecord[], readerId: string): str
   return 'A member';
 }
 
-/** A call belongs to a night when it happened while one of the night's passes was running. */
+/**
+ * A call belongs to a night when it happened while one of the night's passes was running. Model
+ * calls carry no run id, so two spaces dreaming at the same minute share the same calls; the
+ * worker drains one space at a time, which keeps that rare.
+ */
 function tokensSpent(
   runs: readonly DreamRunRecord[],
   calls: readonly ModelCallRecord[],
@@ -221,7 +226,7 @@ export function buildNightlyDreams({
       return {
         id,
         night,
-        nightLabel: formatNight(night),
+        nightLabel: formatNight(night, now),
         spaceId: first.space_id,
         spaceName: spaceNames.get(first.space_id) ?? '',
         startedBy: describeStarter(ordered, readerId),

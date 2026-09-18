@@ -8,7 +8,7 @@ import { DreamLog } from './dream-log';
 const getNight = (overrides?: Partial<NightlyDream>): NightlyDream => ({
   id: 'space-1|2026-09-17',
   night: '2026-09-17',
-  nightLabel: '17 Sept 2026',
+  nightLabel: 'Last night',
   spaceId: 'space-1',
   spaceName: 'Engineering',
   startedBy: 'Nightly',
@@ -52,7 +52,7 @@ describe('the dream log', () => {
   it('shows one night as when, where, who, how long, what came in, what it spent and connected', () => {
     render(<DreamLog nights={[getNight()]} />);
 
-    const row = screen.getByRole('row', { name: /17 Sept 2026/ });
+    const row = screen.getByRole('row', { name: /Last night/ });
     expect(row).toHaveTextContent('Engineering');
     expect(row).toHaveTextContent('Nightly');
     expect(row).toHaveTextContent('2m 30s');
@@ -71,7 +71,7 @@ describe('the dream log', () => {
       'Documents ingested',
       'Connections made',
       'Model tokens',
-      'Wrote',
+      'Digest',
     ]) {
       expect(screen.getByRole('columnheader', { name })).toBeInTheDocument();
     }
@@ -80,16 +80,13 @@ describe('the dream log', () => {
   it('links to the document the night wrote', () => {
     render(<DreamLog nights={[getNight()]} />);
 
-    expect(screen.getByRole('link', { name: 'Digest for 2026-09-17' })).toHaveAttribute(
-      'href',
-      '/documents/doc-1',
-    );
+    expect(screen.getByRole('link', { name: 'Open' })).toHaveAttribute('href', '/documents/doc-1');
   });
 
   it('says a night wrote nothing rather than leaving the cell blank', () => {
     render(<DreamLog nights={[getNight({ output: null })]} />);
 
-    expect(screen.getByText('Nothing')).toBeInTheDocument();
+    expect(screen.getByText('None')).toBeInTheDocument();
   });
 
   it('links to each pass of the night', () => {
@@ -142,14 +139,14 @@ describe('the dream log', () => {
     render(
       <DreamLog
         nights={[
-          getNight({ id: 'a', nightLabel: '18 Sept 2026' }),
-          getNight({ id: 'b', nightLabel: '17 Sept 2026' }),
+          getNight({ id: 'a', nightLabel: 'Last night' }),
+          getNight({ id: 'b', nightLabel: '2 nights ago' }),
         ]}
       />,
     );
 
     const rows = screen.getAllByRole('row').slice(1);
-    expect(rows[0]).toHaveTextContent('18 Sept 2026');
-    expect(rows[1]).toHaveTextContent('17 Sept 2026');
+    expect(rows[0]).toHaveTextContent('Last night');
+    expect(rows[1]).toHaveTextContent('2 nights ago');
   });
 });

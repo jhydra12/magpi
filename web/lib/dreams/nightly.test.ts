@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildNightlyDreams,
+  formatNight,
   formatTokens,
   type DreamLinkRecord,
   type ModelCallRecord,
@@ -13,7 +14,7 @@ const ENGINEERING = '33333333-3333-4333-8333-333333333333';
 const MARKETING = '33333333-3333-4333-8333-444444444444';
 const READER = '77777777-7777-4777-8777-777777777777';
 const SOMEONE_ELSE = '88888888-8888-4888-8888-888888888888';
-const NOW = new Date('2026-09-17T09:00:00.000Z');
+const NOW = new Date('2026-09-18T09:00:00.000Z');
 
 const getSpace = (overrides: Partial<SpaceRecord> = {}): SpaceRecord => ({
   id: ENGINEERING,
@@ -86,7 +87,7 @@ describe('a night of dreaming', () => {
   it('rolls the passes for one space into one entry with the night, the space, and the clock', () => {
     const [night] = buildNightlyDreams(getInputs());
 
-    expect(night.nightLabel).toBe('17 Sept 2026');
+    expect(night.nightLabel).toBe('Last night');
     expect(night.spaceName).toBe('Engineering');
     // 40s for entities, 1m 30s for the digest, 20s for links.
     expect(night.durationLabel).toBe('2m 30s');
@@ -274,6 +275,16 @@ describe('a night of dreaming', () => {
 
     expect(nights).toHaveLength(1);
     expect(nights[0].spaceName).toBe('Engineering');
+  });
+});
+
+describe('the night on a row', () => {
+  it('counts nights back from today rather than naming a date', () => {
+    const now = new Date('2026-09-18T09:00:00.000Z');
+
+    expect(formatNight('2026-09-18', now)).toBe('Tonight');
+    expect(formatNight('2026-09-17', now)).toBe('Last night');
+    expect(formatNight('2026-09-13', now)).toBe('5 nights ago');
   });
 });
 

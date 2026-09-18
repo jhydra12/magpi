@@ -131,7 +131,10 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    ```
 
 4. Seed the hosted project if it is empty. Seven accounts, the spaces, 196
-   documents, then ingest. Running it twice writes nothing the second time.
+   documents, then ingest, then five nights of dreams for the dream log, cited
+   to the chunks the ingest wrote. Running it twice writes nothing the second
+   time. The digests come from `supabase/corpus/dreams`, written once by
+   `scripts/generate-dream-digests.mjs`, so the seed spends no tokens on them.
 
    ```bash
    node --env-file=web/.env.local scripts/seed-demo.mjs
@@ -175,10 +178,15 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    git checkout -- . && git clean -fd && pnpm compute:sync
    ```
 
-4. Clear the runs in the SQL editor of the hosted project.
+4. Clear the runs from the last rehearsal in the SQL editor of the hosted
+   project. The seeded nights have no `triggered_by`, so they stay; a run
+   started from the button and the digest it wrote go.
 
    ```sql
-   delete from public.dream_runs;
+   delete from public.documents
+   where origin = 'dream'
+     and dream_run_id in (select id from public.dream_runs where triggered_by is not null);
+   delete from public.dream_runs where triggered_by is not null;
    ```
 
 5. Remove the Magpi connector from ChatGPT. Adding it again registers a new

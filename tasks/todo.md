@@ -103,3 +103,28 @@ shown to organization admins, since model_calls is admin-only under RLS.
 Wrote links to the digest document. The hosted project has no dream runs,
 links or dream documents left; the corpus is 196 documents and 299 chunks.
 Reseed before recording so the corpus is inside the dream's 24 hour window.
+
+## Seeded dreams
+
+- [x] Generate five nights of digests and link proposals from the corpus, once, into supabase/corpus/dreams.
+- [x] Seed runs, digests, links, and model calls per space per night after the corpus ingests.
+- [x] Prove the seed end to end on the local stack and read the log.
+
+### Seeded dreams review
+
+`scripts/generate-dream-digests.mjs` wrote 19 digests and 14 link proposals
+into `supabase/corpus/dreams` from the corpus days 5 to 9 September, once.
+`scripts/seed-dreams.mjs`, run by the demo seed after the corpus ingests,
+turns them into five nights per team space: three runs each, the digest as a
+dream document cited to the day's opening chunks and embedded by the ingest
+worker, links with a similarity measured from the real embeddings, and model
+calls spaced so no two spaces overlap. Nights land on the five nights before
+the seed runs, and the log names them "Last night", "2 nights ago", and so
+on, with no calendar date anywhere on the page. Marketing's most recent
+digest is seeded as a timeout so the status column has something to show.
+
+Proved on the local stack: 57 runs, 18 digests with chunks, 14 links, one
+timeout, and the page read as Jane with the spend column. Local functions had
+to be served from a scratch copy of supabase/.env.local with the JWT service
+key, because the worker compares the caller's key to its own and the client
+cannot act as service role with the newer secret key.
