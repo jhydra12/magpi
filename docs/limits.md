@@ -200,10 +200,10 @@ platform do unpaid work.
 That means the scheduler has to send the key. `pg_cron` holds the schedule and
 `pg_net` makes the call, both declared in `supabase/schemas/00_extensions.sql`.
 
-| Worker          | Schedule      | Batch |
-| --------------- | ------------- | ----- |
-| Ingestion on Compute | Continuous | 8 |
-| `sync-worker`   | `0 * * * *`   | 10    |
+| Worker                 | Schedule     | Batch              |
+| ---------------------- | ------------ | ------------------ |
+| Ingestion on Compute   | Continuous   | 8                  |
+| `sync-worker`          | `0 * * * *`  | 10                 |
 | `queue-nightly-dreams` | `55 1 * * *` | All enabled spaces |
 
 The schedule is `public.schedule_workers()` in
