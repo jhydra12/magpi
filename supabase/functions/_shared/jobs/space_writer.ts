@@ -120,9 +120,11 @@ export function spaceScoped(db: SupabaseClient, scope: SpaceScope): SpaceScopedD
     async recentChunks(sinceIso, limit) {
       const { data, error } = await db
         .from('chunks')
-        .select('id, document_id, ordinal, content, created_at')
+        .select('id, document_id, ordinal, content, created_at, documents!inner(origin)')
         .eq('space_id', scope.spaceId)
         .gte('created_at', sinceIso)
+        // A dream output is not an input to the next dream, or a digest would digest digests.
+        .neq('documents.origin', 'dream')
         .order('created_at', { ascending: true })
         .limit(limit)
         .returns<SpaceChunkRow[]>();
