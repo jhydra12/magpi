@@ -460,17 +460,17 @@ select ok(
   'but never move it between organizations or change what kind of space it is'
 );
 
--- The schedule. Three jobs, in the database rather than in a hosting configuration file.
+-- Compute drains ingestion and dreams; the remaining schedules create work.
 select is(
   (select count(*)::int from cron.job
    where jobname in ('ingest-worker', 'sync-worker', 'dream-worker')),
-  3, 'the three workers are scheduled'
+  1, 'only the sync worker remains scheduled'
 );
 
 select is(
-  (select schedule from cron.job where jobname = 'ingest-worker'),
-  '*/2 * * * *',
-  'ingest runs every two minutes, which is what claim_ingest_jobs reasons its reclaim window from'
+  (select count(*)::int from cron.job where jobname = 'ingest-worker'),
+  0,
+  'Compute owns ingestion polling'
 );
 
 -- cron.job.command is readable from the catalog, so secrets stay in Vault.

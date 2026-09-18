@@ -8,6 +8,9 @@
   },
   "packageManager": "pnpm@11.1.0",
   "scripts": {
+    "compute:build": "node --experimental-strip-types scripts/build-ingest-compute.mts",
+    "compute:test": "node --experimental-strip-types scripts/build-ingest-compute.mts --test && node --test build/compute-tests/*.test.mjs",
+    "compute:push": "pnpm compute:build && supabase-beta compute push dream",
     "dev": "pnpm --dir web dev",
     "build": "pnpm --dir web build",
     "format": "prettier --write . && deno fmt --config supabase/functions/deno.json supabase/functions",
@@ -46,10 +49,12 @@
   "devDependencies": {
     "@playwright/test": "^1.56.1",
     "@supabase/supabase-js": "^2.116.0",
+    "esbuild": "^0.28.2",
     "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "simple-icons": "^16.30.0",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "zod": "^4.5.4"
   }
 }

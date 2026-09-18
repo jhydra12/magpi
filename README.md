@@ -72,6 +72,9 @@ More in `docs/`: `mcp.md`, `limits.md`, `retrieval.md`, `decisions.md`.
 
 ## Deploying
 
+Ingestion runs on the Node 2 GB `dream` instance. See
+[deployment, checks, and rollback](docs/ingestion-compute.md).
+
 Every push to `main` runs `.github/workflows/deploy.yml`: migrations, then
 every Edge Function, to the hosted project. It reads three repository secrets,
 `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` and `SB_AUTH_HOOK_SECRET`, and

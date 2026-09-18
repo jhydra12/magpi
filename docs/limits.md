@@ -202,13 +202,15 @@ That means the scheduler has to send the key. `pg_cron` holds the schedule and
 
 | Worker          | Schedule      | Batch |
 | --------------- | ------------- | ----- |
-| `ingest-worker` | `*/2 * * * *` | 25    |
+| Ingestion on Compute | Continuous | 8 |
 | `sync-worker`   | `0 * * * *`   | 10    |
-| `dream-worker`  | `0 2 * * *`   | 5     |
+| `queue-nightly-dreams` | `55 1 * * *` | All enabled spaces |
 
 The schedule is `public.schedule_workers()` in
-`supabase/schemas/96_schedules.sql`, applied by a migration. Each job calls
-`public.invoke_worker`, which reads two Vault secrets at fire time:
+`supabase/schemas/96_schedules.sql`, applied by a migration. Ingestion polls from
+Compute; deployment and rollback are in [Ingestion on Compute](ingestion-compute.md).
+The nightly job queues dreams. The sync job calls `public.invoke_worker`, which
+reads two Vault secrets at fire time:
 
 | Secret               | Value                                                     |
 | -------------------- | --------------------------------------------------------- |

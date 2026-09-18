@@ -494,3 +494,9 @@ verify_jwt = false
 [functions.stripe-webhook]
 # Stripe sends no JWT. The signature check in _shared/billing.ts is the auth.
 verify_jwt = false
+
+[compute.dream]
+runtime = "node"
+size = "2gb"
+exposure = "public"
+source = "supabase/compute/dream/dist"
