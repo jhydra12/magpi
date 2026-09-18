@@ -9,7 +9,20 @@ import {
 } from './status';
 import type { DreamRunRecord, SpaceRecord } from './view-model';
 
-export type DreamLinkCountRecord = Pick<Tables<'dream_links'>, 'dream_run_id'>;
+export type DreamLinkRecord = Pick<
+  Tables<'dream_links'>,
+  'dream_run_id' | 'confirmed_at' | 'dismissed_at'
+>;
+
+export type DreamOutputRecord = Pick<Tables<'documents'>, 'id' | 'title'>;
+
+export type ModelCallRecord = Pick<
+  Tables<'model_calls'>,
+  'input_tokens' | 'output_tokens' | 'occurred_at'
+>;
+
+/** The model purposes a dream pass spends on. Embeddings are shared with ingestion and left out. */
+export const DREAM_MODEL_PURPOSES: readonly string[] = ['dream', 'extract'];
 
 /** One pass inside a night's dream, kept so the log can still open the run's own page. */
 export type NightlyDreamRun = {
@@ -36,9 +49,15 @@ export type NightlyDream = {
   readonly nightLabel: string;
   readonly spaceId: string;
   readonly spaceName: string;
+  /** "Nightly" for the schedule, "You" for the reader, "A member" for anyone else. */
+  readonly startedBy: string;
   readonly durationLabel: string;
   readonly documentsIngested: number;
-  readonly connectionsMade: number;
+  readonly connectionsFound: number;
+  readonly connectionsConfirmed: number;
+  /** Prompt and completion tokens the night's model calls spent, or null when the reader cannot see them. */
+  readonly modelTokens: number | null;
+  readonly output: DreamOutputRecord | null;
   readonly runs: readonly NightlyDreamRun[];
   readonly status: NightlyDreamStatus;
 };
@@ -77,6 +96,33 @@ function describeDuration(runs: readonly DreamRunRecord[]): string {
   return formatSeconds(runs.reduce((total, run) => total + elapsedSeconds(run), 0));
 }
 
+function describeStarter(runs: readonly DreamRunRecord[], readerId: string): string {
+  const people = runs.map((run) => run.triggered_by).filter((id) => id !== null);
+  if (people.length === 0) return 'Nightly';
+  if (people.some((id) => id === readerId)) return 'You';
+  return 'A member';
+}
+
+/** A call belongs to a night when it happened while one of the night's passes was running. */
+function tokensSpent(
+  runs: readonly DreamRunRecord[],
+  calls: readonly ModelCallRecord[],
+  now: Date,
+): number {
+  const windows = runs.flatMap((run) => {
+    if (!run.started_at) return [];
+    const start = new Date(run.started_at).getTime();
+    const end = run.finished_at ? new Date(run.finished_at).getTime() : now.getTime();
+    return [{ start, end }];
+  });
+
+  return calls.reduce((total, call) => {
+    const at = new Date(call.occurred_at).getTime();
+    const inside = windows.some((window) => at >= window.start && at <= window.end);
+    return inside ? total + call.input_tokens + call.output_tokens : total;
+  }, 0);
+}
+
 const RUNNING: NightlyDreamStatus = {
   label: 'Running',
   tone: 'progress',
@@ -110,6 +156,17 @@ function byKind(a: DreamRunRecord, b: DreamRunRecord): number {
   return KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind);
 }
 
+export type NightlyDreamInputs = {
+  readonly runs: readonly DreamRunRecord[];
+  readonly spaces: readonly SpaceRecord[];
+  readonly links: readonly DreamLinkRecord[];
+  readonly outputs: readonly DreamOutputRecord[];
+  /** Null when the reader is not an organization admin, who is the only one allowed to see spend. */
+  readonly modelCalls: readonly ModelCallRecord[] | null;
+  readonly readerId: string;
+  readonly now: Date;
+};
+
 /**
  * Rolls the run rows up into one entry per space per night. A run whose space is not in the
  * reader's list is dropped, the same as the per-run summary does, because the reader cannot
@@ -119,16 +176,17 @@ export function buildNightlyDreams({
   runs,
   spaces,
   links,
-}: {
-  readonly runs: readonly DreamRunRecord[];
-  readonly spaces: readonly SpaceRecord[];
-  readonly links: readonly DreamLinkCountRecord[];
-}): readonly NightlyDream[] {
+  outputs,
+  modelCalls,
+  readerId,
+  now,
+}: NightlyDreamInputs): readonly NightlyDream[] {
   const spaceNames = new Map(spaces.map((space) => [space.id, space.name]));
+  const outputsById = new Map(outputs.map((output) => [output.id, output]));
 
-  const linksPerRun = new Map<string, number>();
+  const linksPerRun = new Map<string, DreamLinkRecord[]>();
   for (const link of links) {
-    linksPerRun.set(link.dream_run_id, (linksPerRun.get(link.dream_run_id) ?? 0) + 1);
+    linksPerRun.set(link.dream_run_id, [...(linksPerRun.get(link.dream_run_id) ?? []), link]);
   }
 
   const nights = new Map<string, DreamRunRecord[]>();
@@ -154,6 +212,11 @@ export function buildNightlyDreams({
           finishedAt: run.finished_at,
         }),
       }));
+      const nightLinks = ordered.flatMap((run) => linksPerRun.get(run.id) ?? []);
+      // The digest is the pass that writes a document; the others write rows.
+      const written = ordered
+        .map((run) => (run.output_document_id ? outputsById.get(run.output_document_id) : null))
+        .find((output) => output !== null && output !== undefined);
 
       return {
         id,
@@ -161,13 +224,24 @@ export function buildNightlyDreams({
         nightLabel: formatNight(night),
         spaceId: first.space_id,
         spaceName: spaceNames.get(first.space_id) ?? '',
+        startedBy: describeStarter(ordered, readerId),
         durationLabel: describeDuration(ordered),
         // Every pass reads the same day's arrivals, so the largest count is the day's count.
         documentsIngested: Math.max(...ordered.map((run) => run.input_document_count)),
-        connectionsMade: ordered.reduce((total, run) => total + (linksPerRun.get(run.id) ?? 0), 0),
+        connectionsFound: nightLinks.length,
+        connectionsConfirmed: nightLinks.filter((link) => link.confirmed_at !== null).length,
+        modelTokens: modelCalls === null ? null : tokensSpent(ordered, modelCalls, now),
+        output: written ?? null,
         runs: passes,
         status: describeNight(passes),
       };
     })
     .sort((a, b) => b.night.localeCompare(a.night) || a.spaceName.localeCompare(b.spaceName));
+}
+
+/** Tokens as a person reads them on a row: 850, 12k, 1.2M. */
+export function formatTokens(tokens: number): string {
+  if (tokens < 1_000) return `${tokens}`;
+  if (tokens < 1_000_000) return `${Math.round(tokens / 1_000)}k`;
+  return `${(tokens / 1_000_000).toFixed(1)}M`;
 }

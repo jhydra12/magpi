@@ -19,6 +19,7 @@ export type DreamRunRecord = Pick<
   | 'input_document_count'
   | 'output_document_id'
   | 'error'
+  | 'triggered_by'
   | 'created_at'
 >;
 

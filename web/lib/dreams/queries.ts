@@ -4,17 +4,23 @@ import type { SessionContext } from '@/lib/supabase/context';
 
 import { describeDreamOutput } from './citations';
 import { buildEntityGroups, type EntityGroup } from './entities';
-import { buildNightlyDreams, type NightlyDream } from './nightly';
+import {
+  buildNightlyDreams,
+  DREAM_MODEL_PURPOSES,
+  type ModelCallRecord,
+  type NightlyDream,
+} from './nightly';
 import {
   buildLinkCandidates,
   buildRunSummaries,
+  type DreamRunRecord,
   type DreamRunSummary,
   type LinkCandidate,
   type SpaceRecord,
 } from './view-model';
 
 const RUN_COLUMNS =
-  'id, space_id, kind, status, started_at, finished_at, input_document_count, output_document_id, error, created_at';
+  'id, space_id, kind, status, started_at, finished_at, input_document_count, output_document_id, error, triggered_by, created_at';
 
 async function fetchSpaces(context: SessionContext): Promise<readonly SpaceRecord[]> {
   const { data, error } = await context.supabase
@@ -45,17 +51,59 @@ export async function loadDreamsPage(context: SessionContext): Promise<DreamsPag
 
   if (runs.error) throw new Error(`Could not read dream runs: ${runs.error.message}`);
 
-  // Read under the caller's RLS, so a link they cannot see is not counted for them.
-  const { data: links, error: linksError } = await context.supabase
-    .from('dream_links')
-    .select('dream_run_id')
-    .in(
-      'dream_run_id',
-      runs.data.map((run) => run.id),
-    );
-  if (linksError) throw new Error(`Could not read dream links: ${linksError.message}`);
+  const runIds = runs.data.map((run) => run.id);
+  const outputIds = runs.data.flatMap((run) =>
+    run.output_document_id ? [run.output_document_id] : [],
+  );
+  const now = new Date();
 
-  return { nights: buildNightlyDreams({ runs: runs.data, spaces, links }), spaces };
+  // Every read is under the caller's RLS, so a row they cannot see is not counted for them.
+  const [links, outputs, modelCalls] = await Promise.all([
+    context.supabase
+      .from('dream_links')
+      .select('dream_run_id, confirmed_at, dismissed_at')
+      .in('dream_run_id', runIds),
+    outputIds.length === 0
+      ? Promise.resolve({ data: [], error: null })
+      : context.supabase.from('documents').select('id, title').in('id', outputIds),
+    loadDreamModelCalls(context, runs.data),
+  ]);
+  if (links.error) throw new Error(`Could not read dream links: ${links.error.message}`);
+  if (outputs.error) throw new Error(`Could not read dream outputs: ${outputs.error.message}`);
+
+  return {
+    nights: buildNightlyDreams({
+      runs: runs.data,
+      spaces,
+      links: links.data,
+      outputs: outputs.data,
+      modelCalls,
+      readerId: context.userId,
+      now,
+    }),
+    spaces,
+  };
+}
+
+/** Spend is admin-only under model_calls_select_admin, so a member gets null rather than zeros. */
+async function loadDreamModelCalls(
+  context: SessionContext,
+  runs: readonly DreamRunRecord[],
+): Promise<readonly ModelCallRecord[] | null> {
+  if (context.role === 'member') return null;
+
+  const starts = runs.flatMap((run) => (run.started_at ? [run.started_at] : []));
+  if (starts.length === 0) return [];
+  const since = starts.reduce((earliest, start) => (start < earliest ? start : earliest));
+
+  const { data, error } = await context.supabase
+    .from('model_calls')
+    .select('input_tokens, output_tokens, occurred_at')
+    .in('purpose', [...DREAM_MODEL_PURPOSES])
+    .gte('occurred_at', since)
+    .limit(5000);
+  if (error) throw new Error(`Could not read model calls: ${error.message}`);
+  return data;
 }
 
 export type DreamSource = {

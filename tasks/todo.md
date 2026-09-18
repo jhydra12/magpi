@@ -85,3 +85,21 @@ assertions in 10_space_isolation, 12_admin and 60_functions fail locally on
 anon grants; the local image's default privileges grant anon on every new
 table, which predates this work and is not run in CI. The migration is not yet
 applied to the hosted project.
+
+## Dream log, second pass
+
+- [x] Keep a dream from reading an earlier dream's output in the collect stage.
+- [x] Delete the rehearsal digests from the hosted project.
+- [x] Add who started the night, what it wrote, connections found and confirmed, and model tokens.
+
+### Second pass review
+
+The log now reads Night, Space, Started by, Time, Documents ingested,
+Connections made, Model tokens, Wrote, Status, Passes. Started by is "Nightly"
+for the schedule, "You" for the reader, "A member" otherwise, so no address
+lookup is needed. Model tokens sum the dream and extract model calls that
+happened while one of the night's passes was running; the column is only
+shown to organization admins, since model_calls is admin-only under RLS.
+Wrote links to the digest document. The hosted project has no dream runs,
+links or dream documents left; the corpus is 196 documents and 299 chunks.
+Reseed before recording so the corpus is inside the dream's 24 hour window.

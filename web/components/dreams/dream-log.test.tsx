@@ -11,9 +11,13 @@ const getNight = (overrides?: Partial<NightlyDream>): NightlyDream => ({
   nightLabel: '17 Sept 2026',
   spaceId: 'space-1',
   spaceName: 'Engineering',
+  startedBy: 'Nightly',
   durationLabel: '2m 30s',
   documentsIngested: 12,
-  connectionsMade: 3,
+  connectionsFound: 3,
+  connectionsConfirmed: 1,
+  modelTokens: 515_869,
+  output: { id: 'doc-1', title: 'Digest for 2026-09-17' },
   runs: [
     {
       id: '11111111-2222-4333-8444-555555555551',
@@ -45,23 +49,47 @@ const getNight = (overrides?: Partial<NightlyDream>): NightlyDream => ({
 });
 
 describe('the dream log', () => {
-  it('shows one night as when, where, how long, what came in, and what was connected', () => {
+  it('shows one night as when, where, who, how long, what came in, what it spent and connected', () => {
     render(<DreamLog nights={[getNight()]} />);
 
     const row = screen.getByRole('row', { name: /17 Sept 2026/ });
     expect(row).toHaveTextContent('Engineering');
+    expect(row).toHaveTextContent('Nightly');
     expect(row).toHaveTextContent('2m 30s');
     expect(row).toHaveTextContent('12');
-    expect(row).toHaveTextContent('3');
+    expect(row).toHaveTextContent('3 found, 1 confirmed');
+    expect(row).toHaveTextContent('516k');
     expect(row).toHaveTextContent('Done');
   });
 
   it('names the columns a person asks about the morning after', () => {
     render(<DreamLog nights={[getNight()]} />);
 
-    expect(screen.getByRole('columnheader', { name: 'Time' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'Documents ingested' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'Connections made' })).toBeInTheDocument();
+    for (const name of [
+      'Started by',
+      'Time',
+      'Documents ingested',
+      'Connections made',
+      'Model tokens',
+      'Wrote',
+    ]) {
+      expect(screen.getByRole('columnheader', { name })).toBeInTheDocument();
+    }
+  });
+
+  it('links to the document the night wrote', () => {
+    render(<DreamLog nights={[getNight()]} />);
+
+    expect(screen.getByRole('link', { name: 'Digest for 2026-09-17' })).toHaveAttribute(
+      'href',
+      '/documents/doc-1',
+    );
+  });
+
+  it('says a night wrote nothing rather than leaving the cell blank', () => {
+    render(<DreamLog nights={[getNight({ output: null })]} />);
+
+    expect(screen.getByText('Nothing')).toBeInTheDocument();
   });
 
   it('links to each pass of the night', () => {
@@ -75,6 +103,19 @@ describe('the dream log', () => {
       'href',
       '/dreams/11111111-2222-4333-8444-555555555551',
     );
+  });
+
+  it('leaves the spend column out for a reader who cannot see model calls', () => {
+    render(<DreamLog nights={[getNight({ modelTokens: null })]} />);
+
+    expect(screen.queryByRole('columnheader', { name: 'Model tokens' })).not.toBeInTheDocument();
+  });
+
+  it('reads a night with no connections as a plain zero', () => {
+    render(<DreamLog nights={[getNight({ connectionsFound: 0, connectionsConfirmed: 0 })]} />);
+
+    expect(screen.getByRole('cell', { name: '0' })).toBeInTheDocument();
+    expect(screen.queryByText(/found/)).not.toBeInTheDocument();
   });
 
   it('says which pass died and why, rather than showing the night as done', () => {

@@ -30,6 +30,7 @@ type Run = {
   input_document_count: number;
   output_document_id: string | null;
   error: string | null;
+  triggered_by: string | null;
   created_at: string;
 };
 
@@ -43,6 +44,7 @@ const getRun = (overrides: Partial<Run> = {}): Run => ({
   input_document_count: 12,
   output_document_id: OUTPUT_ID,
   error: null,
+  triggered_by: null,
   created_at: '2026-09-09T02:00:00.000Z',
   ...overrides,
 });
@@ -141,7 +143,19 @@ describe('the dreams page', () => {
             ],
           },
         ],
-        dream_links: [{ data: [{ dream_run_id: 'run-links' }, { dream_run_id: 'run-links' }] }],
+        dream_links: [
+          {
+            data: [
+              {
+                dream_run_id: 'run-links',
+                confirmed_at: '2026-09-09T08:00:00.000Z',
+                dismissed_at: null,
+              },
+              { dream_run_id: 'run-links', confirmed_at: null, dismissed_at: null },
+            ],
+          },
+        ],
+        documents: [{ data: [{ id: OUTPUT_ID, title: 'What changed in Engineering' }] }],
       },
     });
 
@@ -150,9 +164,12 @@ describe('the dreams page', () => {
     expect(page.nights).toHaveLength(1);
     expect(page.nights[0].spaceName).toBe('Engineering');
     expect(page.nights[0].nightLabel).toBe('9 Sept 2026');
+    expect(page.nights[0].startedBy).toBe('Nightly');
     expect(page.nights[0].durationLabel).toBe('3m 0s');
     expect(page.nights[0].documentsIngested).toBe(12);
-    expect(page.nights[0].connectionsMade).toBe(2);
+    expect(page.nights[0].connectionsFound).toBe(2);
+    expect(page.nights[0].connectionsConfirmed).toBe(1);
+    expect(page.nights[0].output).toEqual({ id: OUTPUT_ID, title: 'What changed in Engineering' });
     expect(page.spaces).toEqual([getSpace()]);
   });
 
@@ -177,6 +194,7 @@ describe('the dreams page', () => {
         spaces: [{ data: [getSpace()] }],
         dream_runs: [{ data: [getRun()] }],
         dream_links: [{ data: [] }],
+        documents: [{ data: [] }],
       },
     });
 
@@ -185,12 +203,59 @@ describe('the dreams page', () => {
     expect(callsFor('dream_links')).toContainEqual(['in', 'dream_run_id', [RUN_ID]]);
   });
 
+  it('leaves spend out for a member, who is not allowed to read model calls', async () => {
+    const { context, callsFor } = recordingContext({
+      responses: {
+        spaces: [{ data: [getSpace()] }],
+        dream_runs: [{ data: [getRun()] }],
+        dream_links: [{ data: [] }],
+        documents: [{ data: [] }],
+      },
+    });
+
+    const page = await loadDreamsPage(context);
+
+    expect(callsFor('model_calls')).toEqual([]);
+    expect(page.nights[0].modelTokens).toBeNull();
+  });
+
+  it('adds up the dream spend for an admin from the model calls since the first run', async () => {
+    const { context, callsFor } = recordingContext({
+      session: { role: 'admin' },
+      responses: {
+        spaces: [{ data: [getSpace()] }],
+        dream_runs: [{ data: [getRun()] }],
+        dream_links: [{ data: [] }],
+        documents: [{ data: [] }],
+        model_calls: [
+          {
+            data: [
+              { input_tokens: 30_000, output_tokens: 500, occurred_at: '2026-09-09T02:00:30.000Z' },
+              { input_tokens: 9_000, output_tokens: 100, occurred_at: '2026-09-09T02:01:00.000Z' },
+            ],
+          },
+        ],
+      },
+    });
+
+    const page = await loadDreamsPage(context);
+
+    expect(callsFor('model_calls')).toContainEqual(['in', 'purpose', ['dream', 'extract']]);
+    expect(callsFor('model_calls')).toContainEqual([
+      'gte',
+      'occurred_at',
+      '2026-09-09T02:00:00.000Z',
+    ]);
+    expect(page.nights[0].modelTokens).toBe(39_600);
+  });
+
   it('leaves out a run from a space this reader cannot open', async () => {
     const { context } = recordingContext({
       responses: {
         spaces: [{ data: [getSpace()] }],
         dream_runs: [{ data: [getRun(), getRun({ id: 'run-hidden', space_id: OTHER_SPACE_ID })] }],
         dream_links: [{ data: [] }],
+        documents: [{ data: [] }],
       },
     });
 
@@ -216,6 +281,7 @@ describe('the dreams page', () => {
         spaces: [{ data: [getSpace()] }],
         dream_runs: [{ data: [getRun()] }],
         dream_links: [{ error: { message: 'permission denied for table dream_links' } }],
+        documents: [{ data: [] }],
       },
     });
 
