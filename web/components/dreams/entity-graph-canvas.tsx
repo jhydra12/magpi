@@ -35,7 +35,12 @@ function readToken(token: string): string {
   if (typeof document === 'undefined') return token;
   const name = token.match(/^var\((--[^)]+)\)$/)?.[1];
   if (!name) return token;
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || 'transparent';
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  if (!value) return 'transparent';
+  const context = document.createElement('canvas').getContext('2d');
+  if (!context) return value;
+  context.fillStyle = value;
+  return context.fillStyle;
 }
 
 const ENTITY_COLORS: Record<string, string> = {
