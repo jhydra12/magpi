@@ -32,3 +32,13 @@
 ## Review
 
 - The hosted demo now has 37 spaces, 1,333 source documents, 1,788 chunks, and 1,333 successful ingest jobs. The 30 new spaces each have 12 documents across four providers.
+
+# Simplify Spaces and Entities
+
+- [x] Remove organization-wide membership copy and hide Spaces from the main navigation.
+- [x] Add document, member, and latest Dream metadata to the Entities view.
+- [x] Run focused tests, lint, and typecheck.
+
+## Review
+
+- Spaces is hidden from the main navigation. Entities now shows aggregate document and member counts plus the latest completed Dream time in UTC.

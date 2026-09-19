@@ -37,7 +37,7 @@ describe('the list of spaces', () => {
     );
 
     expect(screen.getByText('Only you')).toBeInTheDocument();
-    expect(screen.getByText('Everyone in the organization')).toBeInTheDocument();
+    expect(screen.getByText('Organization space')).toBeInTheDocument();
     expect(screen.getByText('The people you add')).toBeInTheDocument();
   });
 

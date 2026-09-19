@@ -51,12 +51,6 @@ describe('what a reader is told about membership they cannot change', () => {
     expect(screen.getByText(/one member, always. Nobody can be added to it/i)).toBeInTheDocument();
   });
 
-  it('says org membership follows the organization rather than a list here', () => {
-    render(<SpaceMembers kind="org" members={[getMember()]} />);
-
-    expect(screen.getByText(/Everyone in the organization is in this space/i)).toBeInTheDocument();
-  });
-
   it('explains neither of those for a team space, where the list is the membership', () => {
     render(<SpaceMembers kind="team" members={[getMember()]} />);
 
@@ -66,11 +60,9 @@ describe('what a reader is told about membership they cannot change', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('does not tell a personal space reader that everyone in the org is in it', () => {
+  it('does not tell a personal space reader about organization membership', () => {
     render(<SpaceMembers kind="personal" members={[getMember()]} />);
 
-    expect(
-      screen.queryByText(/Everyone in the organization is in this space/i),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Everyone in the organization/i)).not.toBeInTheDocument();
   });
 });

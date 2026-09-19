@@ -23,7 +23,7 @@ export function describeKind(kind: SpaceKind): string {
     case 'team':
       return 'The people you add';
     case 'org':
-      return 'Everyone in the organization';
+      return 'Organization space';
     default: {
       const exhaustive: never = kind;
       return exhaustive;
