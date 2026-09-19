@@ -4,6 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { EnvSource } from '../env.ts';
 import type { ModelRunner } from '../model_client.ts';
+import type { DreamEvent } from './dream_pass.ts';
 import type { SourceDeps } from '../sources/contract.ts';
 
 /** Where an uploaded file's bytes come from. Separate so a test needs no bucket. */
@@ -21,6 +22,8 @@ export interface JobDeps {
   env?: EnvSource;
   /** Overridden in tests to prove the timeout path without waiting for it. */
   budgetMs?: number;
+  /** Structured processing events containing identifiers and counts only. */
+  observeDream?: (event: DreamEvent) => void;
 }
 
 export type IngestStage = 'fetch' | 'extract' | 'chunk' | 'embed' | 'store';

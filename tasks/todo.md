@@ -1,130 +1,44 @@
-# Session queue, 2026-09-17 evening: Magpi on BYO-MCP
+# Demo admin reset
 
-- [x] Hosted project: OAuth server on, dynamic registration on, consent path /oauth/consent
-- [x] Function: compose with the block's `pipeline` and read MCP_SERVER_NAME / _DESCRIPTION
-      from env, with Magpi's defaults. Keep the five tools, rate limit, model runner, notes.
-- [x] Consent page: use the library block's `useOAuthConsent` hook; keep Magpi's UI on the tokens
-- [x] Prove it: discovery chain, dynamic client registration, authorize URL, against hosted
-- [x] Gate, PR, merge, rebase the three demo branches
+- [x] Define the reset scope and deletion order for demo-created dream data.
+- [x] Add an admin-only reset action and Demo page.
+- [x] Add Demo to the admin navigation below Billing.
+- [x] Verify the action and page with focused checks and browser validation.
 
 ## Review
 
-PR #5 merged and deployed. The hosted MCP server answers on the block's pipeline
-composition, the OAuth chain on the hosted project works end to end (discovery,
-dynamic registration, authorize redirect to /oauth/consent), and the consent page
-runs on the library's hook. docs/demo.md is the run sheet, with step 9 written,
-and the same text is the first toggle under Theme 1 in Notion. README cut to
-what Magpi is, how to run it, the demo accounts, deploying, tests. The three demo
-branches are rebased on this main.
+- Typecheck and lint pass; the authenticated browser shows Demo below Billing with the red Reset button. The action was not clicked during verification.
 
-## Ingestion on Compute
+# Connected Dream graph
 
-- [x] Trace ingestion, credentials, atomic queue claims, and scheduling.
-- [x] Package the existing ingestion code for the Node 2 GB Compute instance.
-- [x] Add continuous polling with bounded concurrency and retry delays.
-- [x] Verify the worker, deploy it, and retire the ingestion cron.
-- [x] Verify hosted ingestion and document deployment and rollback.
+- [x] Add bridge documents to the company corpus and seed them into the demo organization.
+- [x] Write entity discoveries in batches so the graph can update during a run.
+- [x] Merge matching entities across spaces in the graph.
+- [x] Verify the entity worker tests, web typecheck, and connected hosted data.
 
-### Ingestion review
+## Review
 
-Deployed to `compute-demo` on `vvfegdrzrzjyekvrfyoj`. A temporary upload completed
-in one attempt and produced one embedded chunk; Compute reported one success and
-zero failures. Removed the temporary document, job, chunks, and storage object.
-Migration `20260917235000` removed the ingestion cron; source sync and nightly
-dream queueing remain scheduled. Five worker tests and 28 shared ingestion tests
-pass, along with type checking, Node-appropriate lint, and schedule validation.
-Deployment and rollback instructions are in `docs/ingestion-compute.md`.
+- Eight bridge documents were added and ingested. The hosted entity data now resolves to one merged graph component.
 
-## Deploy ingestion as dream
+# Expand the demo corpus
 
-- [x] Check hosted queue schema, schedules, and existing Compute deployments.
-- [x] Name the Node ingestion deployment `dream` with 2 GB and update build commands.
-- [x] Run worker tests, build, and deploy to the linked project.
-- [x] Verify health and a temporary ingestion job; confirm ingestion cron is retired.
-- [x] Record current deployment evidence and cleanup.
+- [x] Define 30 additional team spaces, membership, document templates, and cross-space links.
+- [x] Generate and manifest deterministic corpus documents for the 30 spaces.
+- [x] Update seed and reset flows so the expanded demo is repeatable and scoped to the demo organization.
+- [x] Update global Dream submission and rate limits for the expanded space count.
+- [x] Add tests for space counts, document routing, cross-space links, and global Dream submission.
+- [x] Reset and seed the hosted demo organization, then verify ingestion readiness.
 
-### Dream deployment review
+## Review
 
-On 2026-09-18, deployed the existing ingestion worker as `dream` on
-`vvfegdrzrzjyekvrfyoj`: Node, 2 GB, one live and ready instance, image `5.0`.
-Public health returned 200. Authenticated status reported one successful job
-and zero failures after a temporary upload produced one embedded chunk in one
-attempt. Unauthenticated status returned 401. Removed the temporary document,
-job, chunks, and storage object.
+- The hosted demo now has 37 spaces, 1,333 source documents, 1,788 chunks, and 1,333 successful ingest jobs. The 30 new spaces each have 12 documents across four providers.
 
-All five Compute worker tests and 44 shared ingestion, batch, and claim tests
-passed. The bundle build, formatting, diff whitespace check, and schedule
-validation passed. Hosted migration `20260917235000` was already applied;
-the only active cron jobs are source sync and nightly dream queueing.
-This deployment runs ingestion; dream processing remains separate.
+# Simplify Spaces and Entities
 
-## Dream log on the dreams page
+- [x] Remove organization-wide membership copy and hide Spaces from the main navigation.
+- [x] Add document, member, and latest Dream metadata to the Entities view.
+- [x] Run focused tests, lint, and typecheck.
 
-- [x] Group runs into nightly dreams per space: time taken, documents ingested, connections made.
-- [x] Read dream link counts for the listed runs under the caller's RLS.
-- [x] Replace the Runs list with a dream log table that still links to each run.
-- [x] Tests for the grouping, the query, and the table; typecheck and lint.
-- [ ] Cap dream digests in public.search so rehearsal digests cannot fill the passage budget; migration, pgTAP, docs.
-- [x] Swap the local Supabase stack from Future Nerds to this app.
+## Review
 
-### Dream log review
-
-The Runs list on the dreams page is now a dream log: one row per space per
-night with the time the night took, the documents that came in that day, the
-connections made, a status, and links to the three passes. `buildNightlyDreams`
-in `web/lib/dreams/nightly.ts` does the grouping; the page reads dream link
-counts under the caller's RLS to count connections.
-
-`public.search` now caps dream digests at a quarter of `match_count`, so a week
-of nightly digests, or an afternoon of rehearsals, cannot fill the chat's twelve
-passages and push out the source that states a fact. Migration
-`20260918143500`, pgTAP `21_search_dream_cap`, and docs/retrieval.md cover it.
-
-Verified: web unit tests, typecheck, lint, pgTAP for search. Five pgTAP
-assertions in 10_space_isolation, 12_admin and 60_functions fail locally on
-anon grants; the local image's default privileges grant anon on every new
-table, which predates this work and is not run in CI. The migration is not yet
-applied to the hosted project.
-
-## Dream log, second pass
-
-- [x] Keep a dream from reading an earlier dream's output in the collect stage.
-- [x] Delete the rehearsal digests from the hosted project.
-- [x] Add who started the night, what it wrote, connections found and confirmed, and model tokens.
-
-### Second pass review
-
-The log now reads Night, Space, Started by, Time, Documents ingested,
-Connections made, Model tokens, Wrote, Status, Passes. Started by is "Nightly"
-for the schedule, "You" for the reader, "A member" otherwise, so no address
-lookup is needed. Model tokens sum the dream and extract model calls that
-happened while one of the night's passes was running; the column is only
-shown to organization admins, since model_calls is admin-only under RLS.
-Wrote links to the digest document. The hosted project has no dream runs,
-links or dream documents left; the corpus is 196 documents and 299 chunks.
-Reseed before recording so the corpus is inside the dream's 24 hour window.
-
-## Seeded dreams
-
-- [x] Generate five nights of digests and link proposals from the corpus, once, into supabase/corpus/dreams.
-- [x] Seed runs, digests, links, and model calls per space per night after the corpus ingests.
-- [x] Prove the seed end to end on the local stack and read the log.
-
-### Seeded dreams review
-
-`scripts/generate-dream-digests.mjs` wrote 19 digests and 14 link proposals
-into `supabase/corpus/dreams` from the corpus days 5 to 9 September, once.
-`scripts/seed-dreams.mjs`, run by the demo seed after the corpus ingests,
-turns them into five nights per team space: three runs each, the digest as a
-dream document cited to the day's opening chunks and embedded by the ingest
-worker, links with a similarity measured from the real embeddings, and model
-calls spaced so no two spaces overlap. Nights land on the five nights before
-the seed runs, and the log names them "Last night", "2 nights ago", and so
-on, with no calendar date anywhere on the page. Marketing's most recent
-digest is seeded as a timeout so the status column has something to show.
-
-Proved on the local stack: 57 runs, 18 digests with chunks, 14 links, one
-timeout, and the page read as Jane with the spend column. Local functions had
-to be served from a scratch copy of supabase/.env.local with the JWT service
-key, because the worker compares the caller's key to its own and the client
-cannot act as service role with the newer secret key.
+- Spaces is hidden from the main navigation. Entities now shows aggregate document and member counts plus the latest completed Dream time in UTC.

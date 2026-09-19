@@ -60,40 +60,22 @@ afterEach(() => {
 });
 
 describe('running a dream by hand', () => {
-  it('runs one kind over one space, and answers with how the run ended', async () => {
+  it('queues one kind over one space and returns the run ID', async () => {
     const { callsFor } = database({
       spaces: [dreamingSpace()],
-      'dream-run': [
-        { data: { dream_run_id: RUN_ID, status: 'succeeded', output_document_id: OUTPUT_ID } },
-      ],
+      'dream-run': [{ data: { dream_run_id: RUN_ID, status: 'queued', output_document_id: null } }],
     });
 
     const state = await startDreamRun(SPACE_ID, 'digest');
 
     expect(state).toEqual({
       status: 'success',
-      data: { dreamRunId: RUN_ID, status: 'succeeded', outputDocumentId: OUTPUT_ID },
+      data: { dreamRunId: RUN_ID, dreamRunIds: [RUN_ID], status: 'queued', outputDocumentId: null },
     });
     expect(callsFor('dream-run')).toEqual([
       ['invoke', 'dream-run', { space_id: SPACE_ID, kind: 'digest' }],
     ]);
     expect(caller.revalidated).toEqual(['/dreams']);
-  });
-
-  it('says a run timed out rather than reporting the button press as a success', async () => {
-    database({
-      spaces: [dreamingSpace()],
-      'dream-run': [
-        { data: { dream_run_id: RUN_ID, status: 'timeout', output_document_id: null } },
-      ],
-    });
-
-    const state = await startDreamRun(SPACE_ID, 'entities');
-
-    expect(state).toEqual({
-      status: 'success',
-      data: { dreamRunId: RUN_ID, status: 'timeout', outputDocumentId: null },
-    });
   });
 
   it('refuses a space id that is not a space', async () => {

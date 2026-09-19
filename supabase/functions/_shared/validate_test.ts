@@ -59,8 +59,11 @@ Deno.test('a worker batch is bounded so one call cannot ask for unbounded work',
   assertEquals(parseBody(workerBatchSchema, {}).batch, undefined);
 });
 
-Deno.test('a dream run names one space and one of the three kinds', () => {
-  assertEquals(parseBody(dreamRunSchema, { space_id: SPACE, kind: 'digest' }).kind, 'digest');
+Deno.test('a Dream defaults to all tasks and accepts explicit individual tasks', () => {
+  assertEquals(parseBody(dreamRunSchema, { space_id: SPACE }).kind, 'all');
+  for (const kind of ['all', 'entities', 'digest', 'connections']) {
+    assertEquals(parseBody(dreamRunSchema, { space_id: SPACE, kind }).kind, kind);
+  }
   apiErrorFrom(() => parseBody(dreamRunSchema, { space_id: SPACE, kind: 'summarise' }));
 });
 

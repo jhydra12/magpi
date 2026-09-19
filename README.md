@@ -62,8 +62,8 @@ holds anything real.
   Security is on for every table, and search runs inside it, so two people can
   ask the same question and get different answers with no error.
 - Search is hybrid: pgvector plus full text, merged with reciprocal rank fusion.
-- Ingest and dreaming run as Edge Functions locally and on Supabase Compute
-  when deployed. See `docs/demo.md` for the Compute half.
+- Ingestion and queued Dream jobs run on the Node Compute service. The manual
+  Dream Edge Function validates access and queues a run. See `docs/demo.md`.
 - The MCP server is the Supabase Library's MCP Server block with five tools on
   it. Agents sign in through the library's OAuth Consent flow and act as the
   person who approved them.
@@ -72,7 +72,7 @@ More in `docs/`: `mcp.md`, `limits.md`, `retrieval.md`, `decisions.md`.
 
 ## Deploying
 
-Ingestion runs on the Node 2 GB `dream` instance. See
+Ingestion and Dream processing run on the Node 2 GB `dream` instance. See
 [deployment, checks, and rollback](docs/ingestion-compute.md).
 
 Every push to `main` runs `.github/workflows/deploy.yml`: migrations, then
@@ -140,13 +140,10 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    node --env-file=web/.env.local scripts/seed-demo.mjs
    ```
 
-5. Pin the on-stage timeout. A dream run started from the app then gives up
-   after twenty seconds. Compute has its own ten minute budget and ignores it.
-   The beta CLI hangs on secrets commands, so this one uses the stable build.
-
-   ```bash
-   supabase secrets set SB_DREAM_RUN_BUDGET_MS=20000 --project-ref vvfegdrzrzjyekvrfyoj
-   ```
+5. Rehearse the full Dream: **Start dreaming** queues a daily summary, entity
+   extraction, and document links. Verify saved results for all three. Record
+   the runtime, application budget, and concurrency used in each take. See
+   [Dream rehearsal](docs/dream-rehearsal.md) for comparison requirements.
 
 6. Confirm Compute answers. This prints an empty list.
 
@@ -171,11 +168,11 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    git branch -D live-compute
    ```
 
-3. Reset the finished worktree and put its shared copies back.
+3. Build the finished worktree containing this branch's Dream worker.
 
    ```bash
    cd ~/Developer/supabase/magpi-compute
-   git checkout -- . && git clean -fd && pnpm compute:sync
+   pnpm compute:build
    ```
 
 4. Clear the runs from the last rehearsal in the SQL editor of the hosted
@@ -199,6 +196,12 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
 
 ### The demo
 
+Recording: retain elapsed-time labels when cutting waits. Use actual logs and
+saved output. The progress bar measures completed tasks out of three; elapsed
+time continues during each task. Keep `SB_DREAM_CONCURRENCY=1` fixed when
+comparing one and eight Compute instances. Hosted Edge-to-Compute speedup
+remains unverified. See [Dream rehearsal](docs/dream-rehearsal.md).
+
 **1. Ask the brain.**
 
 Do: Chat. Type "When will the Fold product ship?"
@@ -208,15 +211,15 @@ feed it. I ask it a question and it answers with citations, in under a second,
 without burning tokens on a search. Every night it dreams: it re-reads what came
 in that day and links it to everything it already knows.
 
-**2. Watch the dream die.**
+**2. Start dreaming.**
 
-Do: Dreams. Engineering. Run now. Let the bar creep. At twenty seconds the run
-stops and names the stage it died in.
+Do: Dreams. Engineering. Start dreaming. Show the three tasks and their elapsed
+time. Use a separately rehearsed Edge take only after verifying the same
+inputs and outputs. Describe any failure using the recorded error and budget.
 
-Say: Dreaming is the expensive part. It runs for minutes, holds a whole space in
-memory, and hits the database the entire time. Watch. That is one space, and it
-just ran out of time inside an Edge Function. This work belongs next to
-Postgres, on something that can run as long as it needs to.
+Say: Dreaming reads the documents, writes a daily summary, finds people and
+projects, and links related documents. I want this queue to keep processing as
+the company adds more work. Let's move it to Compute and measure it.
 
 **3. Open Codex.**
 
@@ -233,7 +236,7 @@ Do: Paste this into Codex from the main repo directory.
 ```
 Create a git worktree at ../magpi-live on a new branch live-compute from main, and
 work there. Scaffold a Supabase Compute instance called dream for the dream loop:
-Deno runtime, 2gb, public. Use the supabase-beta binary for every supabase command.
+Node runtime, 2gb, public. Use the supabase-beta binary for every supabase command.
 Read .claude/skills/supabase-compute/SKILL.md first. Do not deploy anything yet.
 Show me the config block it added and the folder it created.
 ```
@@ -243,10 +246,10 @@ What it runs underneath, which you can say while it works:
 ```bash
 git worktree add ../magpi-live -b live-compute main
 cd ../magpi-live
-supabase-beta compute new dream --runtime deno --size 2gb --exposure public
+supabase-beta compute new dream --runtime node --size 2gb --exposure public
 ```
 
-Say: Compute runs Deno, Node or Docker today. I want Deno, two gigabytes. That
+Say: Compute runs Deno, Node or Docker today. I want Node, two gigabytes. That
 gave me a config block and an empty folder. Nothing is deployed yet.
 
 **5. Hand Codex the real job.**
@@ -255,11 +258,10 @@ Do: Paste this into the same Codex session. Let it start, then switch to the
 magpi-compute worktree, where this prompt has already finished.
 
 ```
-Move the dream and ingest loop onto the dream Compute instance. Reuse the job
-bodies in supabase/functions/_shared/jobs. The loop picks up queued ingest jobs
-and dream runs, runs them with a ten minute budget, and goes back for more; sleep
-five seconds when the queue is empty. Requeue any dream run that timed out inside
-an Edge Function in the last hour. Do not deploy.
+Move my existing Dream processing onto the dream Compute instance. Reuse the job
+bodies in supabase/functions/_shared/jobs. Queue manual Dream requests and process
+them on Compute with a five-minute budget and one Dream job at a time per instance.
+Keep ingestion running. Record processing stages in logs. Do not deploy.
 ```
 
 Say: Codex has the Supabase skill, so it already knows the commands. I kicked
@@ -269,36 +271,56 @@ what it built.
 **6. Show the code.**
 
 Do: Open `supabase/config.toml` and scroll to the `[compute.dream]` block at the
-end. Open `supabase/compute/dream/main.ts`.
+end. Open `supabase/compute/dream/src/index.ts` and the Dream worker it starts.
 
-Say: One block of config. One file. It is a loop: pick up work, do it, go back
-for more, for as long as there is work. Each run gets ten minutes instead of
-forty five seconds. If you have written a Node server or a Dockerfile, you have
-already written a Compute instance.
+Say: The worker picks up a queued Dream, processes it, and goes back for more.
+Each run gets five minutes with this configuration. If you have written a Node
+server or a Dockerfile, you have already written a Compute instance.
 
 **7. Push it live.**
 
 ```bash
 cd ~/Developer/supabase/magpi-compute
-SUPABASE_CLI=supabase-beta pnpm compute:push
-supabase-beta compute status dream
+pnpm compute:push --project-ref vvfegdrzrzjyekvrfyoj
+supabase-beta compute status dream --project-ref vvfegdrzrzjyekvrfyoj
 curl https://vvfegdrzrzjyekvrfyoj.supabase.co/compute/v1/dream/
 ```
 
-Say: Deploying works like an Edge Function. One command. It is serving in about
-fifteen seconds. And look at the counters: it has already picked up the run that
-died a minute ago and finished it.
+Say: Deploying works like an Edge Function. One command. Let's check its status.
+
+Do: With the queue-only endpoint deployed, return to Dreams, Engineering,
+Start dreaming. Follow all three run IDs in the logs:
+
+```bash
+supabase-beta compute logs dream --kind app -f --project-ref vvfegdrzrzjyekvrfyoj
+```
+
+Do: Show processing stages and completed-task counts. Open the daily summary
+and its sources, the saved entities, and the document links in the Log tab.
+
+Say: It is processing the documents now. Here is the summary it produced, with
+the documents it used.
 
 **8. Scale it.**
 
+Do: Prepare the optional summary-only batch described in `docs/dream-rehearsal.md`.
+It creates temporary spaces; use it in a separate rehearsal dataset. Open its
+printed Dreams URL. With one instance, show jobs waiting, one job running,
+the remaining count, and completions in the last 30 seconds. Scale while there
+is still work waiting:
+
 ```bash
-supabase-beta compute push dream --instances 8
-supabase-beta compute status dream
+supabase-beta compute push dream --instances 8 --project-ref vvfegdrzrzjyekvrfyoj
+supabase-beta compute status dream --project-ref vvfegdrzrzjyekvrfyoj
 ```
 
-Say: There are four hundred thousand documents behind a real company. I can run
-as many instances as I want and Supabase spreads the queue across them. That is
-eight.
+Do: Return to the same batch. Show multiple jobs running, the remaining count,
+and completions in the last 30 seconds. Keep batch elapsed
+time visible. Quote a speed comparison only from separate rehearsals with the
+same source documents, job count, and per-instance concurrency.
+
+Say: There are more summaries waiting. I will add seven instances. Each
+instance picks up separate jobs. Watch the completion count and elapsed time.
 
 **9. Give the brain to ChatGPT.**
 
@@ -326,8 +348,8 @@ database's, not the agent's.
 
 **10. Close.**
 
-Say: Supabase Compute runs the work that is too big for a function, next to
-your database. Your MCP server lives there too. It is in private alpha today,
+Say: Supabase Compute runs these background workers next to your database.
+We can add instances as the queue grows. It is in private alpha today,
 and we would like you to try it.
 
 ### After the run
@@ -340,9 +362,9 @@ Do "Before every run" again, so the next one starts clean.
   connector in ChatGPT is the reset.
 - The Compute variant of the MCP Server block is not on the library site. Step
   9 uses the Edge Function block, which is what is deployed.
-- The compute loop requeues a run that timed out in the last hour, so the
-  counters in step 7 should show the rescued run within its first pass. If
-  status is slow, the curl to the instance URL is the faster read.
+- Start a fresh Dream after switching to Compute. Interrupted runs are marked
+  as timed out; partial output is not automatically retried. Use the rehearsal
+  manifest to clean up only its temporary spaces after the batch finishes.
 
 ## Licence
 

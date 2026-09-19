@@ -23,12 +23,6 @@ export function SpaceMembers({
         </p>
       ) : null}
 
-      {kind === 'org' ? (
-        <p className="text-sm text-tertiary-foreground">
-          Everyone in the organization is in this space.
-        </p>
-      ) : null}
-
       <ul className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
         {members.map((member) => (
           <li

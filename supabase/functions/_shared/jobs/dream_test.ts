@@ -993,3 +993,70 @@ Deno.test('a failure records what it had reached too, not a zero', async () => {
     await stub.close();
   }
 });
+
+Deno.test('Dream events describe actual processing and output without document contents', async () => {
+  const stub = stubDb(replies());
+  const events: import('./dream_pass.ts').DreamEvent[] = [];
+  try {
+    const result = await runDreamJob(dreamRun('digest'), {
+      ...jobDeps(stub, fakeModels(answerFor)),
+      observeDream: (event) => events.push(event),
+    });
+    assertEquals(result.kind, 'succeeded');
+    assertEquals(events[0].event, 'started');
+    assertEquals(events.filter((event) => event.event === 'stage').map((event) => event.stage), [
+      'collect',
+      'synthesize',
+      'write',
+      'write',
+      'write',
+    ]);
+    assertEquals(events.at(-1)?.event, 'completed');
+    assertEquals(events.at(-1)?.input_document_count, 2);
+    assertEquals(events.at(-1)?.output_document_id, DREAM_DOC);
+    assertEquals(JSON.stringify(events).includes('Northwind'), false);
+  } finally {
+    await stub.close();
+  }
+});
+
+Deno.test('a Dream timeout emits a terminal event for the stage that stopped', async () => {
+  const stub = stubDb(replies());
+  const events: import('./dream_pass.ts').DreamEvent[] = [];
+  try {
+    await runDreamJob(dreamRun('digest'), {
+      ...jobDeps(stub, fakeModels(answerFor), 0),
+      observeDream: (event) => events.push(event),
+    });
+    assertEquals(events.at(-1)?.event, 'timeout');
+    assertEquals(events.at(-1)?.stage, 'collect');
+    assertEquals(events.some((event) => event.event === 'completed'), false);
+  } finally {
+    await stub.close();
+  }
+});
+
+Deno.test('Dream reports a failed status write instead of a completed run', async () => {
+  const reply = replies();
+  const stub = stubDb((request) => {
+    if (
+      request.table === 'dream_runs' && isRecord(request.body) &&
+      request.body.status === 'succeeded'
+    ) {
+      return { status: 500, body: { message: 'database unavailable' } };
+    }
+    return reply(request);
+  });
+  const events: import('./dream_pass.ts').DreamEvent[] = [];
+  try {
+    const result = await runDreamJob(dreamRun('digest'), {
+      ...jobDeps(stub, fakeModels(answerFor)),
+      observeDream: (event) => events.push(event),
+    });
+    assertEquals(result.kind, 'failed');
+    assertEquals(events.some((event) => event.event === 'completed'), false);
+    assertEquals(events.at(-1)?.event, 'failed');
+  } finally {
+    await stub.close();
+  }
+});

@@ -5,6 +5,8 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { DEMO_TEAM_SPACES } from './demo-spaces.mjs';
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS = join(ROOT, 'supabase/corpus');
 const ORG = 'supaphone';
@@ -33,7 +35,11 @@ const UPLOADERS = {
   'personal-john': 'john@example.com',
 };
 
-const SPACES = Object.keys(UPLOADERS);
+const SPACES = [
+  'company',
+  ...DEMO_TEAM_SPACES.map(({ key }) => key),
+  ...Object.keys(UPLOADERS).filter((key) => key !== 'company'),
+];
 
 const URL_FOR = {
   slack: (org, slug) => `https://${org}.slack.com/archives/${slug}`,

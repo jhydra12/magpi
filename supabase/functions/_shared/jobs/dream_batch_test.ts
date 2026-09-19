@@ -103,3 +103,70 @@ Deno.test('the runs are in flight together rather than one after another', async
     await stub.close();
   }
 });
+
+Deno.test('an unexpected run failure does not discard a sibling result', async () => {
+  const stub = stubDb(claimsAllBut([]));
+  try {
+    const outcome = await runDreamBatch(
+      [dreamRun('run-a'), dreamRun('run-b')],
+      jobDeps(stub.db),
+      (run) => {
+        if (run.id === 'run-a') throw new Error('unexpected');
+        return Promise.resolve(SUCCEEDED);
+      },
+    );
+    assertEquals(outcome.results.map((result) => result.kind), ['failed', 'succeeded']);
+    assertEquals(
+      stub.requests.some((request) => request.query.includes('status=eq.running')),
+      true,
+    );
+  } finally {
+    await stub.close();
+  }
+});
+
+Deno.test('two workers observing the same queued run execute it once', async () => {
+  let queued = true;
+  let executed = 0;
+  const stub = stubDb(() => {
+    const won = queued;
+    queued = false;
+    return { body: won ? [{ id: 'run-a' }] : [] };
+  });
+  try {
+    const runOne = (): Promise<DreamResult> => {
+      executed++;
+      return Promise.resolve(SUCCEEDED);
+    };
+    const outcomes = await Promise.all([
+      runDreamBatch([dreamRun('run-a')], jobDeps(stub.db), runOne),
+      runDreamBatch([dreamRun('run-a')], jobDeps(stub.db), runOne),
+    ]);
+    assertEquals(executed, 1);
+    assertEquals(outcomes.reduce((total, outcome) => total + outcome.contended, 0), 1);
+  } finally {
+    await stub.close();
+  }
+});
+
+Deno.test('a failed claim waits for already started siblings before rejecting the batch', async () => {
+  let siblingFinished = false;
+  const stub = stubDb((request) =>
+    request.query.includes('id=eq.run-a')
+      ? { status: 500, body: { message: 'database unavailable' } }
+      : { body: [{ id: 'run-b' }] }
+  );
+  try {
+    await runDreamBatch([dreamRun('run-a'), dreamRun('run-b')], jobDeps(stub.db), async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      siblingFinished = true;
+      return SUCCEEDED;
+    }).then(() => {
+      throw new Error('the claim failure must reach the polling loop');
+    }, () => {
+      assertEquals(siblingFinished, true);
+    });
+  } finally {
+    await stub.close();
+  }
+});

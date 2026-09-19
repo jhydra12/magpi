@@ -28,6 +28,9 @@ import type { EntityDraft, KnownEntity, MentionDraft, SpaceChunkRow } from './sp
  */
 const MAX_INPUT_CHUNKS = 400;
 
+/** Writes a few documents at a time so the graph can show discoveries during a run. */
+const ENTITY_BATCH_CHUNKS = 40;
+
 /** Names held in memory for the matcher. Beyond this the oldest-touched entities wait a night. */
 const MAX_KNOWN_ENTITIES = 5000;
 
@@ -226,27 +229,40 @@ export async function dreamEntities(pass: Pass): Promise<DreamOutcome> {
   // should find the Tuesday note that already said it.
   const chunks = counted(pass, await db.recentChunks(sinceIso(deps, WEEK_MS), MAX_INPUT_CHUNKS));
   if (chunks.length === 0) return NOTHING;
-  const known = await db.knownEntities(MAX_KNOWN_ENTITIES);
+  let known = await db.knownEntities(MAX_KNOWN_ENTITIES);
+  let produced = 0;
+  const batches = Array.from(
+    { length: Math.ceil(chunks.length / ENTITY_BATCH_CHUNKS) },
+    (_, index) => chunks.slice(index * ENTITY_BATCH_CHUNKS, (index + 1) * ENTITY_BATCH_CHUNKS),
+  );
 
-  // What the space already knows, matched against tonight's text. No model, no cost.
-  enter(pass, 'extract');
-  const remembered = mentionsIn(chunks, needlesFor(known));
+  for (const batch of batches) {
+    // What the space already knows, matched against this batch's text. No model, no cost.
+    enter(pass, 'extract');
+    const remembered = mentionsIn(batch, needlesFor(known));
 
-  enter(pass, 'synthesize');
-  const drafts = await discover(pass, chunks, new Set(known.map(keyOf)));
+    enter(pass, 'synthesize');
+    const drafts = await discover(pass, batch, new Set(known.map(keyOf)));
 
-  enter(pass, 'extract');
-  const discovered = await fileDiscovered(pass, chunks, drafts);
-  const mentions = [...remembered, ...discovered.mentions];
+    enter(pass, 'extract');
+    const discovered = await fileDiscovered(pass, batch, drafts);
+    const mentions = [...remembered, ...discovered.mentions];
+    produced += mentions.length;
 
-  enter(pass, 'write');
-  await db.insertMentions(mentions);
+    enter(pass, 'write');
+    await db.insertMentions(mentions);
 
-  const counts = await db.mentionCounts([...new Set(mentions.map((mention) => mention.entityId))]);
-  const due = [...known, ...discovered.added]
-    .filter((entity) => !entity.hasSummary && (counts.get(entity.id) ?? 0) >= ENRICH_AFTER_MENTIONS)
-    .slice(0, MAX_ENRICHED);
-  await enrich(pass, chunks, due, mentions);
+    const counts = await db.mentionCounts([
+      ...new Set(mentions.map((mention) => mention.entityId)),
+    ]);
+    const due = [...known, ...discovered.added]
+      .filter((entity) =>
+        !entity.hasSummary && (counts.get(entity.id) ?? 0) >= ENRICH_AFTER_MENTIONS
+      )
+      .slice(0, MAX_ENRICHED);
+    await enrich(pass, batch, due, mentions);
+    known = [...known, ...discovered.added];
+  }
 
-  return { ...NOTHING, inputDocumentCount: pass.inputDocumentCount, produced: mentions.length };
+  return { ...NOTHING, inputDocumentCount: pass.inputDocumentCount, produced };
 }

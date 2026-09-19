@@ -28,4 +28,17 @@ describe('the dreams subtabs', () => {
     expect(screen.getByRole('link', { name: 'Entities' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('link', { name: 'Runs' })).not.toHaveAttribute('aria-current');
   });
+  it('places Log after Entities and selects it on the history page', () => {
+    pathname.mockReturnValue('/dreams/log');
+    render(<DreamTabs />);
+
+    expect(screen.getAllByRole('link').map((link) => link.textContent)).toEqual([
+      'Runs',
+      'Entities',
+      'Log',
+    ]);
+    expect(screen.getByRole('link', { name: 'Log' })).toHaveAttribute('href', '/dreams/log');
+    expect(screen.getByRole('link', { name: 'Log' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('link', { name: 'Runs' })).not.toHaveAttribute('aria-current');
+  });
 });

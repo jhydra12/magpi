@@ -25,7 +25,38 @@ export interface DreamOutcome {
 /** Stages a run can die in. The web client parses dream_runs.error as "<stage>: <message>". */
 export type DreamStage = 'collect' | 'extract' | 'synthesize' | 'write';
 
-/** The five things every phase needs, so no phase grows a sixth. */
+export interface DreamEvent {
+  event: 'started' | 'stage' | 'completed' | 'failed' | 'timeout';
+  run_id: string;
+  kind: DreamRunRecord['kind'];
+  stage: DreamStage;
+  elapsed_ms: number;
+  input_document_count: number;
+  produced?: number;
+  output_document_id?: string | null;
+}
+
+/** Reports only metadata; logging failures must not interrupt a job. */
+export function observe(pass: Pass, event: DreamEvent['event'], outcome?: DreamOutcome): void {
+  if (!pass.deps.observeDream) return;
+  try {
+    pass.deps.observeDream({
+      event,
+      run_id: pass.run.id,
+      kind: pass.run.kind,
+      stage: pass.stage,
+      elapsed_ms: pass.budget.elapsedMs(),
+      input_document_count: pass.inputDocumentCount,
+      ...(outcome
+        ? { produced: outcome.produced, output_document_id: outcome.outputDocumentId }
+        : {}),
+    });
+  } catch {
+    console.error('dream observer failed');
+  }
+}
+
+/** Shared execution state for one Dream pass. */
 export interface Pass {
   run: DreamRunRecord;
   deps: JobDeps;
@@ -47,6 +78,7 @@ export function counted(pass: Pass, chunks: SpaceChunkRow[]): SpaceChunkRow[] {
 export function enter(pass: Pass, stage: DreamStage): void {
   pass.stage = stage;
   pass.budget.checkpoint(stage);
+  observe(pass, 'stage');
 }
 
 /** How far back a run reads. One day covers everything since the nightly run before it. */

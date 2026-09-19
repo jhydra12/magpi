@@ -6,10 +6,11 @@ import DreamsLayout from './layout';
 vi.mock('next/navigation', () => ({ usePathname: () => '/dreams' }));
 
 describe('the dreams route', () => {
-  it('defines the word in one sentence the first time it appears', () => {
+  it('shows the Dreams heading without explanatory copy', () => {
     render(<DreamsLayout>{null}</DreamsLayout>);
 
-    expect(screen.getByText(/dreaming is overnight processing/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Dreams' })).toBeInTheDocument();
+    expect(screen.queryByText(/dreaming is overnight processing/i)).not.toBeInTheDocument();
   });
 
   it('keeps the subtabs above the content, so a loading or error state cannot move them', () => {

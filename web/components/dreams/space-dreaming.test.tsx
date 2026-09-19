@@ -1,165 +1,372 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { successState } from '@/lib/actions/state';
-import type { DreamRunOutcome } from '@/lib/dreams/edge';
+import type { DreamActivitySnapshot } from '@/lib/dreams/activity';
 
+import { getActivityRun, RUN_ID } from './activity-test-fixtures';
 import { SpaceDreaming, type DreamingSpace } from './space-dreaming';
 
+const refresh = vi.fn();
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
+afterEach(() => {
+  vi.useRealTimers();
+  vi.clearAllMocks();
+});
+
+const SPACE_ID = '33333333-3333-4333-8333-333333333333';
 const getSpace = (overrides?: Partial<DreamingSpace>): DreamingSpace => ({
-  id: 'space-1',
+  id: SPACE_ID,
   name: 'Engineering',
   dreaming_enabled: true,
   ...overrides,
 });
-
-const getOutcome = (overrides?: Partial<DreamRunOutcome>): DreamRunOutcome => ({
-  dreamRunId: '11111111-2222-4333-8444-555555555555',
-  status: 'succeeded',
-  outputDocumentId: '22222222-3333-4444-8555-666666666666',
-  ...overrides,
+const getInitial = (runs: DreamActivitySnapshot['runs'] = []): DreamActivitySnapshot => ({
+  runs,
+  observedAt: '2026-09-18T10:00:10.000Z',
 });
-
 const getActions = () => ({
-  onToggle: vi.fn().mockResolvedValue(successState(undefined)),
-  onRun: vi.fn().mockResolvedValue(successState(getOutcome())),
+  nextDreamLabel: '1:55am UTC',
+  onRun: vi.fn().mockResolvedValue(
+    successState({
+      dreamRunId: RUN_ID,
+      dreamRunIds: [RUN_ID],
+      status: 'queued',
+      outputDocumentId: null,
+    }),
+  ),
 });
 
-describe('dreaming, per space', () => {
-  it('says what the switch controls before asking anyone to use it', () => {
-    render(<SpaceDreaming spaces={[getSpace()]} {...getActions()} />);
-
-    expect(screen.getByText(/suspend dreaming for a space/i)).toBeInTheDocument();
+describe('dreaming in each space row', () => {
+  it('measures all three tasks and stays active until the last task finishes', () => {
+    vi.useFakeTimers();
+    const props = { spaces: [getSpace()], ...getActions() };
+    const tasks = [
+      getActivityRun({
+        id: '22222222-2222-4222-8222-222222222222',
+        kind: 'entities',
+        status: 'running',
+        started_at: '2026-09-18T10:00:00.000Z',
+      }),
+      getActivityRun(),
+      getActivityRun({ id: '44444444-4444-4444-8444-444444444444', kind: 'connections' }),
+    ];
+    const { rerender } = render(<SpaceDreaming {...props} initial={getInitial(tasks)} />);
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '0 of 3 tasks completed · Finding entities',
+    );
+    const twoDone = tasks.map((run) => ({
+      ...run,
+      status: run.kind === 'connections' ? ('running' as const) : ('succeeded' as const),
+      finished_at: run.kind === 'connections' ? null : '2026-09-18T10:00:08.000Z',
+    }));
+    rerender(<SpaceDreaming {...props} initial={getInitial(twoDone)} />);
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '66');
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '2 of 3 tasks completed · Finding related documents',
+    );
+    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
+    act(() => vi.advanceTimersByTime(1000));
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '66');
+    rerender(
+      <SpaceDreaming
+        {...props}
+        initial={getInitial(
+          twoDone.map((run) => ({
+            ...run,
+            status: 'succeeded',
+            finished_at: '2026-09-18T10:00:10.000Z',
+          })),
+        )}
+      />,
+    );
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
   });
 
-  it('turns dreaming off for one space', async () => {
-    const actions = getActions();
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
-
-    await userEvent.click(screen.getByRole('switch', { name: /dreaming in engineering/i }));
-
-    expect(actions.onToggle).toHaveBeenCalledWith('space-1', false);
+  it('preserves partial completion and shows a failed task instead of claiming success', () => {
+    const props = { spaces: [getSpace()], ...getActions() };
+    const { rerender } = render(
+      <SpaceDreaming {...props} initial={getInitial([getActivityRun()])} />,
+    );
+    rerender(
+      <SpaceDreaming
+        {...props}
+        initial={getInitial([
+          getActivityRun({ status: 'succeeded' }),
+          getActivityRun({
+            id: '22222222-2222-4222-8222-222222222222',
+            kind: 'entities',
+            status: 'failed',
+            error: 'synthesize: model unavailable',
+          }),
+          getActivityRun({
+            id: '44444444-4444-4444-8444-444444444444',
+            kind: 'connections',
+            status: 'succeeded',
+          }),
+        ])}
+      />,
+    );
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '66');
+    expect(screen.getByRole('status')).toHaveTextContent('2 of 3 tasks completed · 1 failed');
+    expect(screen.getByRole('alert')).toHaveTextContent(/model unavailable/i);
   });
 
-  it('turns dreaming back on', async () => {
+  it('starts all tasks without switches, a selector, or a separate activity section', async () => {
     const actions = getActions();
-    render(<SpaceDreaming spaces={[getSpace({ dreaming_enabled: false })]} {...actions} />);
-
-    await userEvent.click(screen.getByRole('switch', { name: /dreaming in engineering/i }));
-
-    expect(actions.onToggle).toHaveBeenCalledWith('space-1', true);
+    render(<SpaceDreaming spaces={[getSpace()]} initial={getInitial()} {...actions} />);
+    expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
+    expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(screen.queryByText('Recent Dream activity')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Start dreaming' }));
+    expect(actions.onRun).toHaveBeenCalledWith(SPACE_ID, 'all');
+    expect(refresh).toHaveBeenCalled();
+    expect(screen.queryByText('Next dream: 1:55am UTC')).not.toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    expect(screen.getByRole('status')).toHaveTextContent('Queued');
   });
 
-  it('runs one kind of dream over one space, on demand', async () => {
-    const actions = getActions();
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
+  it('keeps the page interactive while the all-spaces requests are pending', async () => {
+    const onRun = vi.fn().mockReturnValue(new Promise(() => {}));
+    render(
+      <SpaceDreaming
+        spaces={[getSpace(), getSpace({ id: 'other-space', name: 'Finance' })]}
+        initial={getInitial()}
+        nextDreamLabel="1:55am UTC"
+        onRun={onRun}
+      />,
+    );
 
-    const row = screen.getByRole('group', { name: 'Engineering' });
-    await userEvent.selectOptions(within(row).getByLabelText(/kind/i), 'entities');
-    await userEvent.click(within(row).getByRole('button', { name: /run now/i }));
-
-    expect(actions.onRun).toHaveBeenCalledWith('space-1', 'entities');
+    await userEvent.click(screen.getByRole('button', { name: 'Start dreaming in all spaces' }));
+    expect(onRun).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole('button', { name: 'Start dreaming in all spaces' })).toBeEnabled();
   });
 
-  it('shows a creeping bar while the run is in flight, and drops it when the run comes back', async () => {
-    const actions = getActions();
-    let finish!: (value: ReturnType<typeof successState<DreamRunOutcome>>) => void;
-    actions.onRun.mockReturnValue(new Promise((resolve) => (finish = resolve)));
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
+  it('replaces the schedule immediately, then follows the saved run', async () => {
+    const pending = Promise.withResolvers<
+      ReturnType<
+        typeof successState<{
+          dreamRunId: string;
+          dreamRunIds: readonly string[];
+          status: 'queued';
+          outputDocumentId: null;
+        }>
+      >
+    >();
+    const props = {
+      spaces: [getSpace()],
+      nextDreamLabel: '1:55am UTC',
+      onRun: vi.fn().mockReturnValue(pending.promise),
+    };
+    const { rerender } = render(<SpaceDreaming {...props} initial={getInitial()} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Start dreaming' }));
+    expect(screen.queryByText('Next dream: 1:55am UTC')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Starting');
+    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
+    await act(async () => {
+      pending.resolve(
+        successState({
+          dreamRunId: RUN_ID,
+          dreamRunIds: [RUN_ID],
+          status: 'queued',
+          outputDocumentId: null,
+        }),
+      );
+    });
+    expect(screen.getByRole('status')).toHaveTextContent('Queued');
+    rerender(
+      <SpaceDreaming
+        {...props}
+        initial={getInitial([
+          getActivityRun({
+            status: 'running',
+            started_at: '2026-09-18T10:00:00.000Z',
+          }),
+        ])}
+      />,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('Running');
+    expect(screen.getByLabelText('Engineering elapsed time')).toHaveTextContent('00:10');
+  });
 
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: /run now/i }));
-
+  it('shows running progress and the elapsed timer in the matching space only', () => {
+    render(
+      <SpaceDreaming
+        spaces={[getSpace(), getSpace({ id: 'other-space', name: 'Finance' })]}
+        initial={getInitial([
+          getActivityRun({ status: 'running', started_at: '2026-09-18T10:00:00.000Z' }),
+        ])}
+        {...getActions()}
+      />,
+    );
+    const row = within(screen.getByRole('group', { name: 'Engineering' }));
+    expect(row.getByRole('progressbar')).toHaveAttribute('aria-valuetext', 'Running');
+    expect(row.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    expect(row.getByLabelText('Engineering elapsed time')).toHaveTextContent('00:10');
+    expect(row.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
     expect(
-      await screen.findByRole('progressbar', { name: 'Digest over Engineering' }),
-    ).toBeInTheDocument();
-
-    finish(successState(getOutcome()));
-    await waitFor(() => expect(screen.queryByRole('progressbar')).not.toBeInTheDocument());
-    expect(screen.getByText(/finished and wrote a document/i)).toBeInTheDocument();
+      within(screen.getByRole('group', { name: 'Finance' })).queryByRole('progressbar'),
+    ).not.toBeInTheDocument();
   });
 
-  it('will not run a dream in a space where dreaming is switched off', () => {
-    render(<SpaceDreaming spaces={[getSpace({ dreaming_enabled: false })]} {...getActions()} />);
-
-    expect(screen.getByRole('button', { name: /run now/i })).toBeDisabled();
-    expect(screen.getByText(/dreaming is off in this space/i)).toBeInTheDocument();
-  });
-
-  it('keeps the switch where the save left it', async () => {
-    const actions = getActions();
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
-
-    await userEvent.click(screen.getByRole('switch', { name: /dreaming in engineering/i }));
-
-    expect(await screen.findByText(/dreaming is off in this space/i)).toBeInTheDocument();
-  });
-
-  it('leaves the switch alone when the save was refused', async () => {
-    const actions = getActions();
-    actions.onToggle.mockResolvedValue({ status: 'error', message: 'Not allowed.' });
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
-
-    await userEvent.click(screen.getByRole('switch', { name: /dreaming in engineering/i }));
-
-    expect(await screen.findByRole('alert')).toBeInTheDocument();
-    expect(screen.getByRole('switch', { name: /dreaming in engineering/i })).toBeChecked();
-  });
-
-  it('says how a run it started actually ended, since the run is done when the call returns', async () => {
-    const actions = getActions();
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
-
-    await userEvent.click(screen.getByRole('button', { name: /run now/i }));
-
-    expect(await screen.findByText(/wrote a document/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /open the run/i })).toHaveAttribute(
+  it('advances elapsed time each second and stops at the saved finish time', () => {
+    vi.useFakeTimers();
+    const props = { spaces: [getSpace()], ...getActions() };
+    const { rerender } = render(
+      <SpaceDreaming
+        {...props}
+        initial={getInitial([
+          getActivityRun({ status: 'running', started_at: '2026-09-18T10:00:00.000Z' }),
+        ])}
+      />,
+    );
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(screen.getByLabelText('Engineering elapsed time')).toHaveTextContent('00:11');
+    rerender(
+      <SpaceDreaming
+        {...props}
+        initial={getInitial([
+          getActivityRun({
+            status: 'succeeded',
+            started_at: '2026-09-18T10:00:00.000Z',
+            finished_at: '2026-09-18T11:02:03.000Z',
+            output_document_id: '44444444-4444-4444-8444-444444444444',
+          }),
+        ])}
+      />,
+    );
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+    expect(screen.getByLabelText('Engineering elapsed time')).toHaveTextContent('01:02:03');
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+    expect(screen.getByRole('link', { name: 'Open output' })).toHaveAttribute(
       'href',
-      '/dreams/11111111-2222-4333-8444-555555555555',
+      `/dreams/${RUN_ID}`,
     );
+    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
   });
 
-  it('says a run timed out rather than calling it a success', async () => {
-    const actions = getActions();
-    actions.onRun.mockResolvedValue(
-      successState(getOutcome({ status: 'timeout', outputDocumentId: null })),
+  it('shows a queued job ahead of an older completed run', () => {
+    render(
+      <SpaceDreaming
+        spaces={[getSpace()]}
+        initial={getInitial([
+          getActivityRun(),
+          getActivityRun({ id: '22222222-2222-4222-8222-222222222222', status: 'succeeded' }),
+        ])}
+        {...getActions()}
+      />,
     );
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
-
-    await userEvent.click(screen.getByRole('button', { name: /run now/i }));
-
-    expect(await screen.findByText(/timed out/i)).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuetext', 'Queued');
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
   });
 
-  it('says a run that wrote nothing produced nothing, rather than implying a document', async () => {
-    const actions = getActions();
-    actions.onRun.mockResolvedValue(successState(getOutcome({ outputDocumentId: null })));
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
-
-    await userEvent.click(screen.getByRole('button', { name: /run now/i }));
-
-    expect(await screen.findByText(/produced nothing/i)).toBeInTheDocument();
+  it('shows a failed job beside its space and allows another attempt', () => {
+    const props = { spaces: [getSpace()], ...getActions() };
+    const { rerender } = render(
+      <SpaceDreaming {...props} initial={getInitial([getActivityRun({ status: 'running' })])} />,
+    );
+    rerender(
+      <SpaceDreaming
+        {...props}
+        initial={getInitial([
+          getActivityRun({
+            status: 'failed',
+            started_at: '2026-09-18T10:00:00.000Z',
+            error: 'synthesize: model unavailable',
+            finished_at: '2026-09-18T10:00:08.000Z',
+          }),
+        ])}
+        {...getActions()}
+      />,
+    );
+    expect(
+      within(screen.getByRole('group', { name: 'Engineering' })).getByRole('alert'),
+    ).toHaveTextContent(/model unavailable/i);
+    expect(screen.getByLabelText('Engineering elapsed time')).toHaveTextContent('00:08');
+    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
   });
 
-  it('offers each kind by name and keeps the one the reader picks', async () => {
-    render(<SpaceDreaming spaces={[getSpace()]} {...getActions()} />);
-    const kind = screen.getByLabelText(/kind/i);
-
-    expect(screen.getByRole('option', { name: 'Document links' })).toBeInTheDocument();
-
-    await userEvent.selectOptions(kind, 'connections');
-
-    expect(kind).toHaveValue('connections');
+  it('hides finished progress on a fresh page load', () => {
+    render(
+      <SpaceDreaming
+        spaces={[getSpace()]}
+        initial={getInitial([
+          getActivityRun({ status: 'succeeded', finished_at: '2026-09-18T10:00:09.000Z' }),
+        ])}
+        {...getActions()}
+      />,
+    );
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
   });
 
-  it('reports a refused run', async () => {
-    const actions = getActions();
-    actions.onRun.mockResolvedValue({ status: 'error', message: 'A run is already going.' });
-    render(<SpaceDreaming spaces={[getSpace()]} {...actions} />);
+  it('shows the last Dream time even when it is outside recent manual activity', () => {
+    render(
+      <SpaceDreaming
+        spaces={[getSpace()]}
+        initial={getInitial()}
+        lastDreamTimes={{ [SPACE_ID]: '2026-09-16T02:05:00.000Z' }}
+        {...getActions()}
+      />,
+    );
+    expect(screen.getByText('Last dream: 2:05am UTC')).toHaveAttribute(
+      'title',
+      'Wed, 16 Sep 2026 02:05:00 GMT',
+    );
+    expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
 
-    await userEvent.click(screen.getByRole('button', { name: /run now/i }));
+  it('keeps active progress beyond five minutes and hides a result five minutes after completion', () => {
+    vi.useFakeTimers();
+    const props = { spaces: [getSpace()], ...getActions() };
+    const active = getInitial([getActivityRun({ status: 'running' })]);
+    const { rerender, unmount } = render(<SpaceDreaming {...props} initial={active} />);
+    act(() => vi.advanceTimersByTime(300_000));
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    const completed = getInitial([
+      getActivityRun({
+        status: 'succeeded',
+        finished_at: active.observedAt,
+      }),
+    ]);
+    rerender(<SpaceDreaming {...props} initial={completed} />);
+    act(() => vi.advanceTimersByTime(299_999));
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+    act(() => vi.advanceTimersByTime(1));
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
+    unmount();
+  });
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('A run is already going.');
+  it('respects a space where dreaming is disabled', () => {
+    render(
+      <SpaceDreaming
+        spaces={[getSpace({ dreaming_enabled: false })]}
+        initial={getInitial()}
+        {...getActions()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
+  });
+
+  it('reports a refused start in its space row', async () => {
+    const actions = {
+      nextDreamLabel: '1:55am UTC',
+      onRun: vi.fn().mockResolvedValue({ status: 'error', message: 'Not allowed.' }),
+    };
+    render(<SpaceDreaming spaces={[getSpace()]} initial={getInitial()} {...actions} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Start dreaming' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Not allowed.');
+    expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
   });
 });

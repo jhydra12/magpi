@@ -1,35 +1,42 @@
-import { act, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
+import { getActivityRun } from './activity-test-fixtures';
 import { RunProgress } from './run-progress';
 
-const valueNow = () => Number(screen.getByRole('progressbar').getAttribute('aria-valuenow'));
+const observedAt = '2026-09-18T10:01:00.000Z';
 
-describe('the progress of a dream run', () => {
-  beforeEach(() => vi.useFakeTimers());
-  afterEach(() => vi.useRealTimers());
-
-  it('names what is running and where, and starts from nothing', () => {
-    render(<RunProgress spaceName="Engineering" kindLabel="Digest" />);
-
-    expect(
-      screen.getByRole('progressbar', { name: 'Digest over Engineering' }),
-    ).toBeInTheDocument();
-    expect(valueNow()).toBe(0);
-    expect(screen.getByText('0:00')).toBeInTheDocument();
+describe('persisted Dream progress', () => {
+  it('shows queued without inventing progress or runtime', () => {
+    render(<RunProgress run={getActivityRun()} observedAt={observedAt} />);
+    expect(screen.getByText('Queued')).toBeInTheDocument();
+    expect(screen.getByText('Not started')).toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
-
-  it('creeps: a quarter of the way after ten seconds, and still short of full after two minutes', () => {
-    render(<RunProgress spaceName="Engineering" kindLabel="Digest" />);
-
-    act(() => vi.advanceTimersByTime(10_000));
-    expect(valueNow()).toBeGreaterThanOrEqual(18);
-    expect(valueNow()).toBeLessThanOrEqual(25);
-    expect(screen.getByText('0:10')).toBeInTheDocument();
-
-    act(() => vi.advanceTimersByTime(110_000));
-    expect(valueNow()).toBeGreaterThan(85);
-    expect(valueNow()).toBeLessThan(100);
-    expect(screen.getByText('2:00')).toBeInTheDocument();
+  it('measures elapsed time from the saved start, including after reload', () => {
+    render(
+      <RunProgress
+        run={getActivityRun({ status: 'running', started_at: '2026-09-18T10:00:00.000Z' })}
+        observedAt={observedAt}
+      />,
+    );
+    expect(screen.getByText('1m 0s')).toBeInTheDocument();
+  });
+  it('uses saved finish time and reports timeout details', () => {
+    render(
+      <RunProgress
+        run={getActivityRun({
+          status: 'timeout',
+          started_at: '2026-09-18T10:00:00.000Z',
+          finished_at: '2026-09-18T10:00:20.000Z',
+          error: 'extract: Model deadline exceeded',
+        })}
+        observedAt={observedAt}
+      />,
+    );
+    expect(screen.getByText('20s')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Timed out during extract. Model deadline exceeded.',
+    );
   });
 });
