@@ -9,6 +9,7 @@ import type { JobDeps } from './types.ts';
 export async function drainDreamQueue(
   deps: JobDeps,
   limit: number,
+  executor: 'edge' | 'compute' = 'compute',
 ): Promise<BatchOutcome & { selected: number }> {
   await retireAbandoned(
     deps.db,
@@ -21,7 +22,10 @@ export async function drainDreamQueue(
     deps.http.now(),
   );
   const { data, error } = await deps.db
-    .rpc('claim_dream_runs', { p_limit: limit })
+    .rpc(
+      executor === 'edge' ? 'claim_edge_dream_run' : 'claim_dream_runs',
+      executor === 'edge' ? {} : { p_limit: limit },
+    )
     .returns<unknown>();
   if (error) {
     throw new ApiError(500, 'dream_queue_unavailable', 'the Dream queue could not be read');

@@ -8,14 +8,21 @@ import { parseBody, workerBatchSchema } from '../_shared/validate.ts';
 import { drainDreamQueue } from '../_shared/jobs/dream_queue.ts';
 import { jobDepsFromEnv, requireWorkerCaller } from '../_shared/jobs/runtime.ts';
 
-// A night's runs go together. A failure is recorded on its own row and leaves the others alone.
-const DEFAULT_BATCH = 8;
+// The runtime keeps this promise alive after the wake request receives its response.
+declare const EdgeRuntime: { waitUntil(work: Promise<unknown>): void } | undefined;
 
 serveFunction('dream-worker', async (core) => {
   requireWorkerCaller(core.headers);
-  const input = parseBody(workerBatchSchema, core.body ?? {});
+  parseBody(workerBatchSchema, core.body ?? {});
   const deps = { ...jobDepsFromEnv(), budgetMs: dreamBudgetMs(denoEnv.get('SB_DREAM_BUDGET_MS')) };
 
-  const { results, contended } = await drainDreamQueue(deps, input.batch ?? DEFAULT_BATCH);
+  const work = drainDreamQueue(deps, 1, 'edge');
+  if (typeof EdgeRuntime !== 'undefined') {
+    EdgeRuntime.waitUntil(
+      work.catch(() => console.error('Edge Dream wake failed; cron will retry')),
+    );
+    return jsonResponse({ accepted: true }, { status: 202 });
+  }
+  const { results, contended } = await work;
   return jsonResponse({ claimed: results.length, contended, results });
 });

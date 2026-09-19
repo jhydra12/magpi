@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { deployedInstanceCount } from './compute-deployment.mjs';
+import { cutoverDreams } from './dream-cutover.mjs';
 import { fixtureId, fixtureDocument } from './seed-fixtures.mjs';
 import { drainIngestion, pendingCounts } from './seed-drain.mjs';
 import { seedSource, readAllPages } from './seed-source.mjs';
@@ -106,12 +106,31 @@ test('successful retries resolve historical failures without hiding unfinished d
   );
 });
 
-test('worker deployment preserves scale and refuses an unknown current configuration', () => {
-  assert.equal(deployedInstanceCount({ declared_instances: 8, instances: { ready: 5 } }), 8);
-  assert.equal(deployedInstanceCount({ instances: { declared: 11 } }), 11);
-  assert.throws(() => deployedInstanceCount({}), /instance count unavailable/);
-  assert.throws(
-    () => deployedInstanceCount({ declared_instances: 0 }),
-    /instance count unavailable/,
-  );
+test('manual cutover stops Edge claims and waits for active work before deployment', async () => {
+  const events = [];
+  const active = [1, 0];
+  await cutoverDreams({
+    setMode: async (mode) => events.push(mode),
+    activeRuns: async () => active.shift(),
+    deploy: async () => events.push('deploy-one'),
+    wait: async () => events.push('wait'),
+  });
+  assert.deepEqual(events, ['compute', 'wait', 'deploy-one']);
+});
+test('manual cutover restores Edge if deployment fails or processing never finishes', async () => {
+  for (const failure of ['deploy', 'timeout']) {
+    const modes = [];
+    await assert.rejects(
+      cutoverDreams({
+        setMode: async (mode) => modes.push(mode),
+        activeRuns: async () => (failure === 'timeout' ? 1 : 0),
+        deploy: async () => {
+          throw new Error('deployment failed');
+        },
+        wait: async () => {},
+        maxPolls: 1,
+      }),
+    );
+    assert.deepEqual(modes, ['compute', 'edge']);
+  }
 });

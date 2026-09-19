@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { createClient } from '@supabase/supabase-js';
+import { projectServiceKey } from './lib/project-service.mjs';
 import { ingestSeed } from './lib/ingest-seed.mjs';
 
 const project = process.env.PROJECT_ID;
@@ -7,18 +8,7 @@ const slug = process.env.DEMO_ORG_SLUG;
 if (!project || !/^[a-z]{20}$/.test(project) || !slug) {
   throw new Error('PROJECT_ID and DEMO_ORG_SLUG must identify the existing demo organization');
 }
-const keys = spawnSync(
-  'supabase',
-  ['projects', 'api-keys', '--project-ref', project, '-o', 'json'],
-  { encoding: 'utf8' },
-);
-if (keys.status !== 0) throw new Error('Unable to retrieve the demo service key');
-const parsed = JSON.parse(keys.stdout);
-const serviceKey = parsed.find((key) => key.name === 'service_role')?.api_key;
-if (typeof serviceKey !== 'string' || !serviceKey.startsWith('eyJ')) {
-  throw new Error('The project must expose its service_role key for source deployment');
-}
-if (process.env.GITHUB_ACTIONS) console.log(`::add-mask::${serviceKey}`);
+const serviceKey = projectServiceKey(project);
 const url = `https://${project}.supabase.co`;
 const client = createClient(url, serviceKey, { auth: { persistSession: false } });
 const { data: org, error } = await client

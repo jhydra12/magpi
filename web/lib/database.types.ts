@@ -1150,6 +1150,29 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      claim_edge_dream_run: {
+        Args: { p_org_id?: string }
+        Returns: {
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          input_document_count: number
+          kind: Database["public"]["Enums"]["dream_kind"]
+          org_id: string
+          output_document_id: string | null
+          space_id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["dream_status"]
+          triggered_by: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "dream_runs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       claim_ingest_jobs: {
         Args: { p_limit: number; p_org_id?: string }
         Returns: {
@@ -1207,6 +1230,7 @@ export type Database = {
         Args: { p_description?: string; p_name: string; p_org_id: string }
         Returns: string
       }
+      dream_execution_mode: { Args: never; Returns: string }
       enqueue_document: {
         Args: { p_document: Json; p_force?: boolean }
         Returns: {
@@ -1311,8 +1335,10 @@ export type Database = {
           space_id: string
         }[]
       }
+      set_dream_execution_mode: { Args: { p_mode: string }; Returns: undefined }
       text_search_query: { Args: { p_text: string }; Returns: unknown }
       visible_space_ids: { Args: never; Returns: string[] }
+      wake_edge_dream_worker: { Args: never; Returns: undefined }
     }
     Enums: {
       connection_status: "active" | "syncing" | "error" | "revoked" | "expired"

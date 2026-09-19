@@ -1,6 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(13);
+select public.set_dream_execution_mode('compute');
 insert into auth.users(id,email,instance_id,aud,role) values
 ('a3000000-0000-4000-8000-000000000001','worker-transactions@test.invalid','00000000-0000-0000-0000-000000000000','authenticated','authenticated');
 create temp table scope as select s.id space_id,s.org_id from public.spaces s join public.space_members m on m.space_id=s.id where m.user_id='a3000000-0000-4000-8000-000000000001' limit 1;

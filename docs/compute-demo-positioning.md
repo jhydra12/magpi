@@ -30,7 +30,7 @@ Sources: [positioning thread](https://supabase.slack.com/archives/C0BB4MAJW58/p1
 
 The worker uses Supabase's HTTP client and Data API. This demonstration doesn't currently establish a direct Postgres connection or measure private-network latency.
 
-The current default already expects Compute to drain Dreams. `dream-run` authorizes and queues tasks. `schedule_workers()` schedules nightly queue creation, without scheduling an Edge Dream drain. The Edge `dream-worker` still exists and uses the shared processing code. A genuine Edge before-state requires an explicit Edge-only execution phase with Compute stopped. Pressing Start dreaming alone doesn't establish that phase.
+The starting state uses Edge Functions only. `dream-run` authorizes and queues tasks, and the Edge driver drains the durable queue sequentially. No Compute service should be running before the recording. During the demo, the operator disables Edge queue drivers and deploys exactly one Compute instance. After confirming readiness, scale that service to eleven. CI deploys Edge Functions and source documents only; it never performs this cutover.
 
 Each Dream has an application processing budget; Compute defaults to five minutes. Treat a timeout as a measured outcome and preserve partial-progress evidence. Do not describe the application as unlimited.
 

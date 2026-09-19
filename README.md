@@ -62,8 +62,9 @@ holds anything real.
   Security is on for every table, and search runs inside it, so two people can
   ask the same question and get different answers with no error.
 - Search is hybrid: pgvector plus full text, merged with reciprocal rank fusion.
-- Ingestion and queued Dream jobs run on the Node Compute service. The manual
-  Dream Edge Function validates access and queues a run. See `docs/demo.md`.
+- Ingestion and queued Dream jobs start on Edge Functions. The manual
+  Dream endpoint validates access and queues the work. During the demo, an explicit
+  cutover moves queue processing to one Compute instance; scaling then adds ten. See `docs/demo.md`.
 - The MCP server is the Supabase Library's MCP Server block with five tools on
   it. Agents sign in through the library's OAuth Consent flow and act as the
   person who approved them.
@@ -72,7 +73,8 @@ More in `docs/`: `mcp.md`, `limits.md`, `retrieval.md`, `decisions.md`.
 
 ## Deploying
 
-Ingestion and Dream processing run on the Node 2 GB `dream` instance. See
+The deployed starting state uses Edge Functions for ingestion and Dream processing.
+Compute deployment and scaling are manual demo actions. See
 [deployment, checks, and rollback](docs/ingestion-compute.md).
 
 Every push to `main` runs `.github/workflows/deploy.yml`: migrations, then
@@ -93,7 +95,7 @@ The web app builds from Vercel's Git integration. Production promotion waits for
 
 `pnpm gate:light` is format, lint, typecheck, unit tests and build. It runs on
 pre-push and in CI. `pnpm gate` adds pgTAP, integration, browser journeys and
-coverage. The light gate also runs Compute, rehearsal, and source-seeding regression tests. Supabase deployment waits for that gate on the same commit. The Vercel production project requires the GitHub check `Production release ready` before assigning production domains. That job succeeds only after validation and Supabase migration, Edge Function, Compute deployment, and source-document ingestion succeed for the same commit. Compute deployment preserves the current declared instance count.
+coverage. The light gate also runs Compute, rehearsal, and source-seeding regression tests. Supabase deployment waits for that gate on the same commit. The Vercel production project requires the GitHub check `Production release ready` before assigning production domains. That job succeeds only after validation and Supabase migration, Edge Function deployment and source-document ingestion through Edge succeed for the same commit. CI never deploys or scales Compute.
 
 ## Demo run sheet, Theme 1
 
@@ -154,7 +156,7 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    the runtime, application budget, and concurrency used in each take. See
    [Dream rehearsal](docs/dream-rehearsal.md) for the full three-task, one-versus-eleven comparison and [demo positioning](docs/compute-demo-positioning.md) for the claims to verify.
 
-6. Confirm Compute answers. This prints an empty list.
+6. Confirm no hosted Compute instances are running before the demo.
 
    ```bash
    supabase-beta compute list --project-ref vvfegdrzrzjyekvrfyoj
@@ -168,6 +170,12 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    ```bash
    supabase-beta compute delete dream --project-ref vvfegdrzrzjyekvrfyoj --yes
    supabase-beta compute list --project-ref vvfegdrzrzjyekvrfyoj
+   ```
+
+   After it has stopped, restore Edge drivers in the privileged SQL editor:
+
+   ```sql
+   select public.set_dream_execution_mode('edge');
    ```
 
 2. Throw away what Codex built last time.
@@ -289,14 +297,16 @@ server or a Dockerfile, you have already written a Compute instance.
 
 ```bash
 cd ~/Developer/supabase/magpi-compute
-pnpm compute:push --project-ref vvfegdrzrzjyekvrfyoj
+pnpm compute:build
+# Disable Edge queue drivers, then deploy exactly one Compute instance.
+node scripts/dream-cutover.mjs --project-ref vvfegdrzrzjyekvrfyoj
 supabase-beta compute status dream --project-ref vvfegdrzrzjyekvrfyoj
 curl https://vvfegdrzrzjyekvrfyoj.supabase.co/compute/v1/dream/
 ```
 
 Say: Deploying works like an Edge Function. One command. Let's check its status.
 
-Do: With the queue-only endpoint deployed, return to Dreams, Engineering,
+Do: After cutover confirms one ready Compute instance, return to Dreams, Engineering,
 Start dreaming. Follow all three run IDs in the logs:
 
 ```bash

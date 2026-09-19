@@ -33,6 +33,10 @@ it('lets one worker claim a Dream while readers see only their own runs', async 
     throw membership.error;
   }
   const orgId = membership.data.org_id;
+  const previousMode = await db.rpc('dream_execution_mode');
+  if (previousMode.error) throw previousMode.error;
+  const mode = await db.rpc('set_dream_execution_mode', { p_mode: 'compute' });
+  if (mode.error) throw mode.error;
   try {
     const signIn = await member.auth.signInWithPassword({ email, password });
     if (signIn.error) throw signIn.error;
@@ -108,6 +112,8 @@ it('lets one worker claim a Dream while readers see only their own runs', async 
     await member.auth.signOut();
     const removedOrg = await db.from('organizations').delete().eq('id', orgId);
     const removedUser = await db.auth.admin.deleteUser(userId);
+    const restoredMode = await db.rpc('set_dream_execution_mode', { p_mode: previousMode.data });
+    if (restoredMode.error) throw restoredMode.error;
     if (removedOrg.error) throw removedOrg.error;
     if (removedUser.error) throw removedUser.error;
   }

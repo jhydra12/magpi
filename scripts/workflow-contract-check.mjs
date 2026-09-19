@@ -107,6 +107,10 @@ function main() {
     failures.push('production release check must wait for validation and Supabase deploy');
   }
 
+  if (/compute (?:push|deploy)|deploy-compute\.mjs/.test(deploy)) {
+    failures.push('automatic deployment must leave the demo on Edge Functions');
+  }
+
   if (failures.length > 0) {
     console.error('workflow contract FAILED\n');
     for (const f of failures) console.error(`  ${f}`);

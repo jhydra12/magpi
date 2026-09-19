@@ -1,0 +1,32 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select plan(16);
+-- Isolate the global single-worker invariant inside this rolled-back transaction.
+update public.dream_runs set status='failed' where status in ('queued','running');
+insert into auth.users(id,email,instance_id,aud,role) values
+('a4000000-0000-4000-8000-000000000001','edge-execution@test.invalid','00000000-0000-0000-0000-000000000000','authenticated','authenticated');
+create temp table scope as select s.id space_id,s.org_id from public.spaces s join public.space_members m on m.space_id=s.id where m.user_id='a4000000-0000-4000-8000-000000000001' limit 1;
+select public.set_dream_execution_mode('edge');
+select is(public.dream_execution_mode(),'edge','Edge is an explicit execution mode');
+select ok(exists(select 1 from cron.job where jobname='dream-edge-worker' and active),'durable Edge wake is enabled');
+select ok(exists(select 1 from cron.job where jobname='ingest-worker' and active),'ingestion runs on Edge in baseline');
+create temp table dreams as select r.id from scope s,lateral public.enqueue_dream(s.org_id,s.space_id,'a4000000-0000-4000-8000-000000000001',array['entities','digest','connections']::public.dream_kind[]) r;
+select is((select count(*) from public.claim_dream_runs(11)),0::bigint,'Compute cannot consume baseline queue');
+select is((select count(*) from public.claim_edge_dream_run()),1::bigint,'Edge claims exactly one task');
+select is((select count(*) from public.claim_edge_dream_run()),0::bigint,'overlapping wake cannot start another task');
+update public.dream_runs set status='succeeded',finished_at=now() where status='running';
+select is((select count(*) from public.claim_edge_dream_run()),1::bigint,'finishing a task allows its successor');
+update public.dream_runs set started_at=now()-interval '16 minutes' where status='running';
+select is((select count(*) from public.claim_edge_dream_run()),1::bigint,'interrupted Edge task does not permanently block queue');
+select is((select count(*) from public.dream_runs where id in(select id from dreams) and status='timeout'),1::bigint,'interrupted work reports timeout truthfully');
+select public.set_dream_execution_mode('compute');
+select is(public.dream_execution_mode(),'compute','operator can switch to Compute');
+select ok(not exists(select 1 from cron.job where jobname in ('dream-edge-worker','ingest-worker')),'cutover disables Edge queue drivers');
+select is((select count(*) from public.claim_edge_dream_run()),0::bigint,'old Edge wake cannot claim after cutover');
+select public.schedule_workers();
+select is(public.dream_execution_mode(),'compute','ordinary schedule setup preserves intentional cutover');
+select throws_ok($$select public.set_dream_execution_mode('invalid')$$,'P0001','execution mode must be edge or compute','invalid execution mode rejected');
+select ok(not has_function_privilege('authenticated','public.set_dream_execution_mode(text)','execute'),'users cannot change worker mode');
+select ok(not has_function_privilege('authenticated','public.claim_edge_dream_run(uuid)','execute'),'users cannot claim Edge tasks');
+select * from finish();
+rollback;

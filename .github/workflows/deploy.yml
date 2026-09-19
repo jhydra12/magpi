@@ -5,6 +5,7 @@ name: deploy supabase
 # env() and the CLI refuses to parse a config whose hook secret is empty.
 # Function secrets are pushed by hand from supabase/.env.hosted, see README.
 # The web app deploys from Vercel's Git integration on the same push.
+# Compute is built for validation only; its deployment is a manual demo action.
 on:
   push:
     branches: [main]
@@ -47,8 +48,6 @@ jobs:
       - run: supabase db push
 
       - run: supabase functions deploy --project-ref "$PROJECT_ID"
-
-      - run: node scripts/deploy-compute.mjs
 
       - name: Reconcile and ingest demo source documents
         run: node scripts/deploy-corpus.mjs

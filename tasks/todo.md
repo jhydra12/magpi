@@ -93,12 +93,20 @@
 - [x] Fix and verify review finding 25.
 
 - [x] Run combined application, worker, database, seed, browser, lint, type, and build checks.
-- [ ] Verify real Compute and OAuth BYO MCP demo paths; record release status.
+- [x] Verify real Edge processing and OAuth BYO MCP; test the manual Compute cutover without deploying it.
 - [ ] Commit reviewed changes and leave the working tree clean.
 
 ## Cleanup review
 
 - All 25 findings have implemented repairs and regression evidence in `docs/codebase-review-2026-09-19.md`.
 - The final local 20-step gate passed with no skipped checks; database, HTTP integration, browser navigation, real Dream output, and OAuth MCP checks also passed.
-- Production source reconciliation now follows migration, Edge, and Compute deployment. Release promotion waits for the same commit to complete that sequence.
+- Production source reconciliation now follows migration and Edge Function deployment. Compute deployment remains a manual demo action. Release promotion waits for the same commit to complete that sequence.
 - Deployed graph visibility and the first gated production release remain the final verification steps.
+
+# Restore the Edge-only opening state
+
+- [x] Process queued Dreams on Edge Functions with one active task and durable wakeups; keep submission and navigation responsive.
+- [x] Remove automatic Compute deployment from CI and keep source ingestion on Edge in the initial state.
+- [x] Document and test an explicit handover from Edge to one Compute instance, followed by eleven instances.
+- [x] Verify all three Dream outputs locally with the Compute process stopped.
+- [ ] Release the Edge-only baseline, remove the previously deployed Compute service, and verify production graph and processing.

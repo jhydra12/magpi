@@ -1,18 +1,6 @@
 -- Service-only queue and persistence operations. Each call commits all its changes together.
 create index if not exists dream_runs_queued_idx on public.dream_runs (created_at, id) where status = 'queued';
 
-create or replace function public.claim_dream_runs(p_limit integer, p_org_id uuid default null)
-returns setof public.dream_runs language sql security definer set search_path = '' as $$
-  update public.dream_runs r set status = 'running', started_at = now()
-  where r.id in (
-    select q.id from public.dream_runs q where q.status = 'queued' and (p_org_id is null or q.org_id = p_org_id)
-    order by q.created_at, q.id limit greatest(least(p_limit, 100), 0)
-    for update skip locked
-  ) returning r.*;
-$$;
-revoke all on function public.claim_dream_runs(integer, uuid) from public, anon, authenticated;
-grant execute on function public.claim_dream_runs(integer, uuid) to service_role;
-
 create or replace function public.enqueue_dream(p_org_id uuid, p_space_id uuid, p_user_id uuid, p_kinds public.dream_kind[])
 returns setof public.dream_runs language plpgsql security definer set search_path = '' as $$
 begin

@@ -460,17 +460,18 @@ select ok(
   'but never move it between organizations or change what kind of space it is'
 );
 
--- Compute drains ingestion and dreams; the remaining schedules create work.
+-- The demo starts with Edge ingestion and Dream processing.
+select public.set_dream_execution_mode('edge');
 select is(
   (select count(*)::int from cron.job
    where jobname in ('ingest-worker', 'sync-worker', 'dream-worker')),
-  1, 'only the sync worker remains scheduled'
+  2, 'Edge ingestion and sync workers are scheduled'
 );
 
 select is(
   (select count(*)::int from cron.job where jobname = 'ingest-worker'),
-  0,
-  'Compute owns ingestion polling'
+  1,
+  'Edge owns baseline ingestion polling'
 );
 
 -- cron.job.command is readable from the catalog, so secrets stay in Vault.
