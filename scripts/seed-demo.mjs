@@ -7,8 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import { createClient } from '@supabase/supabase-js';
 
-import { readAllPages } from './lib/seed-source.mjs';
-import { drainIngestion, pendingCounts } from './lib/seed-drain.mjs';
+import { ingestSeed } from './lib/ingest-seed.mjs';
 
 import { DEMO_TEAM_SPACE_NAMES } from './demo-spaces.mjs';
 
@@ -193,39 +192,6 @@ async function ensureTeamSpaces(client, orgId, people) {
 
 const FUNCTIONS_URL = process.env.SB_FUNCTIONS_BASE_URL ?? `${API_URL}/functions/v1`;
 
-const BATCH = 25;
-
-/** Counts and worker claims are scoped to the selected demo organization. */
-async function ingestEverything(client, orgId) {
-  const snapshot = async () =>
-    pendingCounts(
-      await readAllPages(() =>
-        client
-          .from('ingest_jobs')
-          .select('document_id,status')
-          .eq('org_id', orgId)
-          .order('created_at', { ascending: false })
-          .order('id', { ascending: false }),
-      ),
-    );
-  await drainIngestion({
-    snapshot,
-    runBatch: async () => {
-      const response = await fetch(`${FUNCTIONS_URL}/ingest-worker`, {
-        method: 'POST',
-        signal: AbortSignal.timeout(120_000),
-        headers: { Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ batch: BATCH, org_id: orgId }),
-      });
-      if (!response.ok) throw new Error(`ingest worker returned ${response.status}`);
-      const result = await response.json();
-      console.log(`ingestion: ${result.claimed ?? 0} claimed`);
-    },
-    wait: () => new Promise((resolveWait) => setTimeout(resolveWait, 1000)),
-  });
-  console.log("Ingestion complete: every document's latest job succeeded.");
-}
-
 async function main() {
   const client = db();
 
@@ -286,7 +252,7 @@ async function main() {
     return;
   }
 
-  await ingestEverything(client, org.id);
+  await ingestSeed(client, org.id, { functionsUrl: FUNCTIONS_URL, serviceKey: SERVICE_KEY });
 
   if (!process.argv.includes('--with-history-fixtures')) return;
 
@@ -299,7 +265,7 @@ async function main() {
   );
   if (dreams.status !== 0) process.exit(dreams.status ?? 1);
 
-  await ingestEverything(client, org.id);
+  await ingestSeed(client, org.id, { functionsUrl: FUNCTIONS_URL, serviceKey: SERVICE_KEY });
 }
 
 await main();

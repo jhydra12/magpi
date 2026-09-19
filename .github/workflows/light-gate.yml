@@ -1,12 +1,8 @@
 name: light gate
 
-# Push on the default branch, and pull_request everywhere else. Listening for
-# both on every branch ran the gate twice for each push to a PR branch, and the
-# concurrency group below cannot dedupe them because the two events carry
-# different refs.
+# Pull requests validate directly; production deploy calls this same workflow.
 on:
-  push:
-    branches: [main]
+  workflow_call:
   pull_request:
 
 concurrency:
@@ -16,7 +12,7 @@ concurrency:
 jobs:
   gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 
@@ -34,6 +30,8 @@ jobs:
           deno-version: v2.x
 
       - run: pnpm install --frozen-lockfile
+
+      - run: pnpm exec playwright install --with-deps chromium
 
       # No secrets: every light step runs on the checkout alone. The web build
       # validates env at request time, not at build time, and the secrets check

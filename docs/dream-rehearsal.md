@@ -1,8 +1,7 @@
 # Dream rehearsal
 
 **Start dreaming** queues three real tasks: a daily summary, entity extraction,
-and document links. Verify their saved output. The bar advances when tasks
-finish; it measures completed tasks out of three. Keep elapsed-time labels
+and document links. Verify their saved output. The bar uses worker-reported task progress and completed tasks. Keep elapsed-time labels
 when cutting waits.
 
 ## Deploy order
@@ -26,7 +25,7 @@ to an operator.
 to 300000 and accepts at most 600000. Keep both fixed when comparing instance
 counts. Ingestion runs alongside Dreams with its existing concurrency setting.
 
-The shared Edge job budget defaults to 45 seconds. These budgets are application
+For a fair comparison, explicitly set the same 300000 ms application budget for both Edge and Compute. These budgets are application
 settings. Hosted [Edge Function limits](https://supabase.com/docs/guides/functions/limits)
 currently include 150 seconds of worker wall time on Free and 400 seconds on
 paid plans, 2 seconds of CPU time per request excluding async I/O, and a
@@ -42,11 +41,9 @@ Each instance claims separate queued Dream runs. An interrupted run is marked
 as timed out after the abandonment interval. It is not automatically retried.
 Start a fresh run after inspecting any partial output.
 
-## Prepare a summary-only batch
+## Prepare a full Dream batch
 
-This optional tool submits one summary job per temporary space. It exercises
-queue throughput; the app's full Dream also runs entities and document links.
-Use a separate rehearsal dataset to keep temporary spaces out of the demo app.
+The CLI defaults to `--kind all`: summary, entities, and document links for each temporary space. `--kind digest` remains available for a summary-only test. Use a separate rehearsal dataset to keep temporary spaces out of the demo app.
 
 Choose an existing space with ingested source documents and a user who belongs
 to that organization. Use a trusted demo dataset. The script copies source
@@ -59,7 +56,7 @@ Keep the manifest outside Git; it contains fixture IDs and no credentials.
 
 ```bash
 node --env-file=web/.env.local --experimental-strip-types scripts/dream-rehearsal.mts prepare \
-  --source-space <space-id> --user <user-id> --count 24 \
+  --source-space <space-id> --user <user-id> --count 37 --kind all \
   --manifest /tmp/dream-one.json
 ```
 
@@ -81,7 +78,7 @@ supabase-beta compute logs dream --kind app -f --project-ref <project-ref>
 While the batch has work waiting, scale and return to its page:
 
 ```bash
-supabase-beta compute push dream --instances 8 --project-ref <project-ref>
+supabase-beta compute push dream --instances 11 --project-ref <project-ref>
 supabase-beta compute status dream --project-ref <project-ref>
 ```
 
@@ -98,7 +95,7 @@ before the added instances are ready, prepare a larger batch with `--count`
 For a numerical comparison, record separate complete batches using the same
 source text, starting entity/link state, job kinds, job count, and model. Record
 application budgets, worker count, and concurrency per worker. Compare one and
-eight Compute instances with fixed per-instance concurrency. For Edge versus
+eleven Compute instances with fixed per-instance concurrency. For Edge versus
 Compute, also record invocation frequency and total concurrency. Wait for the
 intended workers before queuing each batch.
 Use a fresh manifest and temporary spaces for each. Collect status afterward:
@@ -108,10 +105,10 @@ node --env-file=web/.env.local --experimental-strip-types scripts/dream-rehearsa
   --manifest /tmp/dream-one.json
 ```
 
-Report measured completion time and successful outputs. Include failures in the
+Status reads run IDs in batches, so 37 spaces cover all 111 tasks. It reports nonempty digest outputs and saved entity, mention, and link counts. Inspect sample outputs and source citations for each task kind. Report measured completion time and successful outputs. Include failures in the
 comparison. Model-provider limits and uneven job durations can affect throughput.
 
-More source documents only add work within the current caps: 120 chunks for a
+Inspect current processing caps before increasing source volume. Previously configured caps were: 120 chunks for a
 summary, 400 chunks for entities, and 40 documents for links. Entity discovery
 is capped at 100 names, entity summaries at 25, and links at 30. Processing a
 larger corpus requires paginated batches before generating extra documents can
@@ -139,4 +136,25 @@ logs identified eight distinct workers. Browser checks confirmed the live
 queue and the manual submission-to-output flow. Temporary spaces were removed.
 
 These measurements cover local worker processes. Rehearse hosted Compute
-startup and the one-to-eight transition before recording the keynote.
+startup and the one-to-eleven transition before recording the keynote.
+
+## Record the actual before and after
+
+See [Compute demo positioning](compute-demo-positioning.md) for the claims the recording must prove.
+The Edge take requires an Edge-only queue driver. There is no automatic Edge
+Dream cron to assume is running. Stop Compute Dream consumers before starting
+the Edge take, explicitly drive the Edge worker, and record its invocation rate
+and concurrency. Keep source data, model, application budget, and total submitted
+jobs identical across takes. Restore the intended Compute service afterwards.
+
+For one versus eleven Compute instances, first record the existing deployment's
+instance count with `supabase-beta compute status dream --project-ref <project-ref> -o json`.
+Deploy one instance, wait until it is ready, prepare the first 37-space full batch,
+and save its final status. Then deploy eleven instances, wait until all eleven
+are ready, and prepare an identical batch using a fresh manifest. Restore the
+original count after both batches finish and cleanup succeeds. A deployment of
+new code preserves the existing instance count; rehearsal scaling is explicit.
+
+Production deployment waits for the same-commit validation, then applies
+migrations and Edge Functions and updates Compute before the GitHub
+`Production release ready` check allows Vercel to assign production domains.

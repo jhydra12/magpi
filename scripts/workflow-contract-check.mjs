@@ -31,7 +31,11 @@ const HEAVY_COMMANDS = [
  * is the one heavy suite hosted CI runs. `supabase db push` reaches the linked project over the
  * network and starts no database of its own, so it is a deploy, and the deploy runs on push.
  */
-const ALLOWED_INVOCATIONS = ['scripts/gate.mjs --light', 'supabase db push'];
+const ALLOWED_INVOCATIONS = [
+  'scripts/gate.mjs --light',
+  'supabase db push',
+  'pnpm exec playwright install --with-deps chromium',
+];
 
 const HOSTED_RUNNERS_ALLOWED = ['ubuntu-latest', 'ubuntu-24.04', 'ubuntu-22.04'];
 const NATIVE_RUNNER_PREFIXES = ['macos', 'windows'];
@@ -89,6 +93,18 @@ function main() {
     if (hasMatrix(text)) {
       failures.push(`${file}: matrix expansion on ${automatic.join(', ')}`);
     }
+  }
+
+  const deploy = readFileSync(join(WORKFLOWS, 'deploy.yml'), 'utf8');
+  if (
+    !/checks:\s*\n\s*uses: \.\/\.github\/workflows\/light-gate\.yml/.test(deploy) ||
+    !/deploy:\s*\n\s*needs: checks/.test(deploy)
+  ) {
+    failures.push('deploy.yml must require the reusable gate for this commit');
+  }
+
+  if (!/name: Production release ready\s*\n\s*needs: \[checks, deploy\]/.test(deploy)) {
+    failures.push('production release check must wait for validation and Supabase deploy');
   }
 
   if (failures.length > 0) {

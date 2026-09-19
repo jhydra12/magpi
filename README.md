@@ -34,22 +34,22 @@ another project you have running.
 ## The demo company
 
 `supabase/corpus/` is Supaphone, a fictional maker of a folding phone. Seven
-people, four shared spaces. This loads it into the project `web/.env.local`
+people, 34 shared spaces and three personal spaces. This loads it into the project `web/.env.local`
 points at:
 
 ```bash
 node --env-file=web/.env.local scripts/seed-demo.mjs
 ```
 
-| Person            | Email             | Sees                                     |
-| ----------------- | ----------------- | ---------------------------------------- |
-| Jane Okonkwo, CEO | jane@example.com  | Company, Marketing, Engineering, Finance |
-| Sam Lindqvist     | sam@example.com   | Company, Engineering                     |
-| Ben Achilov       | ben@example.com   | Company, Marketing, Engineering          |
-| Maya Restrepo     | maya@example.com  | Company, Marketing                       |
-| Priya Raghunathan | priya@example.com | Company, Marketing                       |
-| John Mbeki        | john@example.com  | Company, Engineering, Finance            |
-| Dana Provenzano   | dana@example.com  | Company, Finance                         |
+| Person            | Email             | Sees                            |
+| ----------------- | ----------------- | ------------------------------- |
+| Jane Okonkwo, CEO | jane@example.com  | All shared spaces               |
+| Sam Lindqvist     | sam@example.com   | Company, Engineering            |
+| Ben Achilov       | ben@example.com   | Company, Marketing, Engineering |
+| Maya Restrepo     | maya@example.com  | Company, Marketing              |
+| Priya Raghunathan | priya@example.com | Company, Marketing              |
+| John Mbeki        | john@example.com  | Company, Engineering, Finance   |
+| Dana Provenzano   | dana@example.com  | Company, Finance                |
 
 Every account uses the password `supabasedemo`. Jane is in every shared space,
 so she is the account the demo signs in as. `SB_DEMO_LOGIN=true` adds three
@@ -87,13 +87,13 @@ pushes them:
 pnpm secrets:push
 ```
 
-The web app deploys from Vercel's Git integration.
+The web app builds from Vercel's Git integration. Production promotion waits for the `Production release ready` GitHub check. On main, deployment also reconciles the source corpus into the existing organization named by the `DEMO_ORG_SLUG` repository variable and waits for ingestion. This step preserves users and existing Dream outputs and creates no synthetic history. The configured Supabase project must expose its service-role key to the authenticated deployment CLI.
 
 ## Tests
 
 `pnpm gate:light` is format, lint, typecheck, unit tests and build. It runs on
 pre-push and in CI. `pnpm gate` adds pgTAP, integration, browser journeys and
-coverage.
+coverage. The light gate also runs Compute, rehearsal, and source-seeding regression tests. Supabase deployment waits for that gate on the same commit. The Vercel production project requires the GitHub check `Production release ready` before assigning production domains. That job succeeds only after validation and Supabase migration, Edge Function, Compute deployment, and source-document ingestion succeed for the same commit. Compute deployment preserves the current declared instance count.
 
 ## Demo run sheet, Theme 1
 
@@ -130,20 +130,29 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    (cd ../magpi-feature-b && supabase-beta start -x imgproxy,logflare,vector,supavisor)
    ```
 
-4. Seed the hosted project if it is empty. Seven accounts, the spaces, 196
-   documents, then ingest, then five nights of dreams for the dream log, cited
-   to the chunks the ingest wrote. Running it twice writes nothing the second
-   time. The digests come from `supabase/corpus/dreams`, written once by
-   `scripts/generate-dream-digests.mjs`, so the seed spends no tokens on them.
+4. Seed source documents and ingest them. The source manifest defines the document count;
+   `pnpm check:corpus` validates and reports it. The default seed creates no Dream
+   results or model-usage fixtures. Reruns update source bytes, repair missing jobs,
+   and let the worker skip embeddings when processed content is unchanged.
+   Apply database migrations and deploy the ingest worker before seeding.
 
    ```bash
    node --env-file=web/.env.local scripts/seed-demo.mjs
    ```
 
+   Completion requires every document's latest ingestion attempt in the target
+   organization to succeed. Earlier failed attempts remain as history. Errors require investigation and a retry.
+
+   For an explicitly synthetic history, use `--with-history-fixtures`. This
+   adds fabricated historical runs, model-usage records, and prewritten digests.
+   It uses fixed corpus dates and deterministic IDs so retries repair partial
+   fixture writes. It does not demonstrate actual Dream execution. Existing
+   history from earlier seeds is preserved by source-only seeding.
+
 5. Rehearse the full Dream: **Start dreaming** queues a daily summary, entity
    extraction, and document links. Verify saved results for all three. Record
    the runtime, application budget, and concurrency used in each take. See
-   [Dream rehearsal](docs/dream-rehearsal.md) for comparison requirements.
+   [Dream rehearsal](docs/dream-rehearsal.md) for the full three-task, one-versus-eleven comparison and [demo positioning](docs/compute-demo-positioning.md) for the claims to verify.
 
 6. Confirm Compute answers. This prints an empty list.
 
@@ -199,7 +208,7 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
 Recording: retain elapsed-time labels when cutting waits. Use actual logs and
 saved output. The progress bar measures completed tasks out of three; elapsed
 time continues during each task. Keep `SB_DREAM_CONCURRENCY=1` fixed when
-comparing one and eight Compute instances. Hosted Edge-to-Compute speedup
+comparing one and eleven Compute instances. Hosted Edge-to-Compute speedup
 remains unverified. See [Dream rehearsal](docs/dream-rehearsal.md).
 
 **1. Ask the brain.**
@@ -207,8 +216,7 @@ remains unverified. See [Dream rehearsal](docs/dream-rehearsal.md).
 Do: Chat. Type "When will the Fold product ship?"
 
 Say: This is my company's digital brain. Notion, Linear, Slack and Drive all
-feed it. I ask it a question and it answers with citations, in under a second,
-without burning tokens on a search. Every night it dreams: it re-reads what came
+feed it. I ask it a question and it answers with citations. Every night it dreams: it re-reads what came
 in that day and links it to everything it already knows.
 
 **2. Start dreaming.**
@@ -303,14 +311,14 @@ the documents it used.
 
 **8. Scale it.**
 
-Do: Prepare the optional summary-only batch described in `docs/dream-rehearsal.md`.
-It creates temporary spaces; use it in a separate rehearsal dataset. Open its
-printed Dreams URL. With one instance, show jobs waiting, one job running,
+Do: Prepare the full batch with `--count 37 --kind all` as described in
+`docs/dream-rehearsal.md`. It queues 111 summary, entity, and document-link jobs
+in temporary spaces. Open its printed Dreams URL. With one instance, show jobs waiting, one job running,
 the remaining count, and completions in the last 30 seconds. Scale while there
 is still work waiting:
 
 ```bash
-supabase-beta compute push dream --instances 8 --project-ref vvfegdrzrzjyekvrfyoj
+supabase-beta compute push dream --instances 11 --project-ref vvfegdrzrzjyekvrfyoj
 supabase-beta compute status dream --project-ref vvfegdrzrzjyekvrfyoj
 ```
 
@@ -319,7 +327,9 @@ and completions in the last 30 seconds. Keep batch elapsed
 time visible. Quote a speed comparison only from separate rehearsals with the
 same source documents, job count, and per-instance concurrency.
 
-Say: There are more summaries waiting. I will add seven instances. Each
+Do: Open Entities while jobs run. Show the graph updating from saved entity mentions.
+
+Say: There are more Dreams waiting. I will add ten instances. Each
 instance picks up separate jobs. Watch the completion count and elapsed time.
 
 **9. Give the brain to ChatGPT.**
