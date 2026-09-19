@@ -42,3 +42,9 @@
 ## Review
 
 - Spaces is hidden from the main navigation. Entities now shows aggregate document and member counts plus the latest completed Dream time in UTC.
+
+# Repair production graph rendering
+
+- [ ] Reproduce production renderer error and convert every graph color to sRGB bytes.
+- [ ] Size the canvas to its container and remove fixed positioning offsets.
+- [ ] Add real-browser color regression coverage and verify production in both themes.

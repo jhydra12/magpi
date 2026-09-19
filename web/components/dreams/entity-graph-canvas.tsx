@@ -6,6 +6,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { EntityGroup } from '@/lib/dreams/entities';
 
+import { readGraphColors } from './graph-colors';
+
 type GraphNode = {
   id: string;
   label: string;
@@ -30,25 +32,6 @@ function entityKey(kind: string, name: string): string {
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .trim()}`;
 }
-
-function readToken(token: string): string {
-  if (typeof document === 'undefined') return token;
-  const name = token.match(/^var\((--[^)]+)\)$/)?.[1];
-  if (!name) return token;
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  if (!value) return 'transparent';
-  const context = document.createElement('canvas').getContext('2d');
-  if (!context) return value;
-  context.fillStyle = value;
-  return context.fillStyle;
-}
-
-const ENTITY_COLORS: Record<string, string> = {
-  person: 'var(--graph-person)',
-  project: 'var(--graph-project)',
-  customer: 'var(--graph-customer)',
-  decision: 'var(--graph-decision)',
-};
 
 export function buildGraph(groups: readonly EntityGroup[]): GraphData {
   const nodes: GraphNode[] = [];
@@ -138,12 +121,18 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
   const [hoveredLink, setHoveredLink] = useState<GraphLink | null>(null);
   const [isArranging, setIsArranging] = useState(true);
   const detailNode = hoveredNode;
-  const [backgroundColor, setBackgroundColor] = useState(() => readToken('var(--background)'));
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const [colors, setColors] = useState<ReturnType<typeof readGraphColors> | null>(null);
 
   useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setBackgroundColor(readToken('var(--background)'));
+    const updateColors = () => setColors(readGraphColors());
+    const frame = requestAnimationFrame(updateColors);
+    const observer = new MutationObserver(updateColors);
+    const resize = new ResizeObserver(([entry]) => {
+      setSize({ width: entry.contentRect.width, height: entry.contentRect.height });
     });
+    if (containerRef.current) resize.observe(containerRef.current);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme'],
@@ -151,21 +140,26 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
     const timeout = window.setTimeout(() => setIsArranging(false), 5000);
     return () => {
       observer.disconnect();
+      resize.disconnect();
+      cancelAnimationFrame(frame);
       window.clearTimeout(timeout);
     };
   }, [graph]);
 
   return (
     <section
-      className="relative overflow-hidden rounded-[var(--radius-panel)] border border-border bg-(--muted)"
+      className="relative overflow-hidden rounded-[var(--radius-panel)] border border-border bg-background"
       aria-label="Entity graph"
     >
-      <div className="h-[min(70vh,680px)] min-h-[520px] w-full overflow-hidden">
-        <div className="h-full w-full -translate-x-[32%] -translate-y-[32%]">
+      <div ref={containerRef} className="h-[min(70vh,680px)] min-h-[520px] w-full overflow-hidden">
+        {colors && size.width > 0 && size.height > 0 ? (
           <ForceGraph3D
             ref={graphRef}
             graphData={graph}
-            backgroundColor={backgroundColor}
+            backgroundColor={colors.background}
+            width={size.width}
+            height={size.height}
+            cooldownTime={5000}
             showNavInfo={false}
             nodeLabel={(node) => {
               const item = node as GraphNode;
@@ -174,14 +168,18 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
             nodeColor={(node) => {
               const item = node as GraphNode;
               return item.kind === 'document'
-                ? readToken('var(--muted-foreground)')
-                : readToken(ENTITY_COLORS[item.entityKind ?? 'person']);
+                ? colors.document
+                : item.entityKind === 'project'
+                  ? colors.project
+                  : item.entityKind === 'customer'
+                    ? colors.customer
+                    : item.entityKind === 'decision'
+                      ? colors.decision
+                      : colors.person;
             }}
             nodeVal={(node) => ((node as GraphNode).kind === 'entity' ? 5 : 1.4)}
             linkColor={(link) =>
-              (link as GraphLink).kind === 'shared'
-                ? readToken('var(--primary)')
-                : readToken('var(--muted-foreground)')
+              (link as GraphLink).kind === 'shared' ? colors.link : colors.document
             }
             linkWidth={(link) => ((link as GraphLink).kind === 'shared' ? 1.8 : 0.45)}
             linkDirectionalParticles={(link) => ((link as GraphLink).kind === 'shared' ? 2 : 0)}
@@ -199,7 +197,7 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
               graphRef.current?.zoomToFit(500, 48);
             }}
           />
-        </div>
+        ) : null}
       </div>
       {isArranging ? (
         <div className="pointer-events-none absolute inset-0 animate-pulse bg-foreground/[0.04]" />
