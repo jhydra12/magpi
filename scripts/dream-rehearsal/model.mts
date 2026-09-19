@@ -28,6 +28,10 @@ export const manifestSchema = z
         z.object({
           id: uuid,
           runId: uuid,
+          additionalRuns: z
+            .array(z.object({ id: uuid, kind: z.enum(['entities', 'connections']) }))
+            .max(2)
+            .default([]),
           documents: z
             .array(
               z.object({
@@ -46,6 +50,7 @@ export const manifestSchema = z
     const ids = manifest.spaces.flatMap((space) => [
       space.id,
       space.runId,
+      ...space.additionalRuns.map((run) => run.id),
       ...space.documents.flatMap((document) => [
         document.id,
         ...document.chunks.map((chunk) => chunk.id),
@@ -68,6 +73,7 @@ export function options(args: string[]): {
   sourceSpace?: string;
   user?: string;
   count: number;
+  kind: 'digest' | 'all';
 } {
   const command = z.enum(['prepare', 'status', 'cleanup']).parse(args[0]);
   const flags = new Map<string, string>();
@@ -75,7 +81,7 @@ export function options(args: string[]): {
     const flag = args[i];
     const value = args[i + 1];
     if (
-      !['--manifest', '--source-space', '--user', '--count'].includes(flag) ||
+      !['--manifest', '--source-space', '--user', '--count', '--kind'].includes(flag) ||
       !value ||
       value.startsWith('--') ||
       flags.has(flag)
@@ -93,6 +99,7 @@ export function options(args: string[]): {
   return {
     command,
     manifest,
+    kind: z.enum(['digest', 'all']).parse(flags.get('--kind') ?? 'all'),
     sourceSpace: command === 'prepare' ? uuid.parse(flags.get('--source-space')) : undefined,
     user: command === 'prepare' ? uuid.parse(flags.get('--user')) : undefined,
     count: z.coerce
@@ -109,9 +116,17 @@ export function targetUrl(value: string | undefined): string {
   return new URL(httpUrl.parse(value)).origin;
 }
 
+/** All jobs in a batch, including manifests written by the original digest-only CLI. */
+export function manifestRunIds(manifest: Manifest): string[] {
+  return manifest.spaces.flatMap((space) => [
+    space.runId,
+    ...space.additionalRuns.map((run) => run.id),
+  ]);
+}
+
 /** Links directly to the exact runs owned by this rehearsal. */
 export function batchUrl(manifest: Manifest): string {
-  return `${manifest.webUrl}/dreams?runs=${manifest.spaces.map((space) => space.runId).join(',')}`;
+  return `${manifest.webUrl}/dreams?runs=${manifestRunIds(manifest).join(',')}`;
 }
 
 /** Produces the exact identifying name checked before deleting a rehearsal space. */
@@ -173,7 +188,7 @@ export function summarize(
   nonemptyOutputIds: Set<string>,
   now = Date.now(),
 ): BatchSummary {
-  const requested = new Set(manifest.spaces.map((space) => space.runId));
+  const requested = new Set(manifestRunIds(manifest));
   const selected = runs.filter((run) => requested.has(run.id));
   const count = (status: string): number => selected.filter((run) => run.status === status).length;
   const terminal = selected.filter((run) =>

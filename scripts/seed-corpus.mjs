@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /** Loads supabase/corpus into a seeded org: node scripts/seed-corpus.mjs [--org-slug x]. */
 
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { createClient } from '@supabase/supabase-js';
+
+import { seedSource } from './lib/seed-source.mjs';
 
 import { DEMO_TEAM_SPACES } from './demo-spaces.mjs';
 
@@ -208,17 +209,6 @@ async function ensureBucket(db) {
   return true;
 }
 
-/** Puts the document bytes where the ingest worker can fetch them. */
-async function uploadBody(db, storagePath, body) {
-  const result = await db.storage.from(BUCKET).upload(storagePath, body, {
-    contentType: 'text/markdown',
-    upsert: true,
-  });
-  if (result.error) {
-    throw new SeedError(`uploading ${storagePath}: ${result.error.message}`);
-  }
-}
-
 /** The account each provider connects to. One company, so one workspace per tool. */
 const ACCOUNT_BY_PROVIDER = {
   notion: 'Supaphone',
@@ -349,63 +339,25 @@ async function ensureConnections(db, { orgId, spaces, spaceNames, manifest, owne
   return connections;
 }
 
-/** Writes one manifest entry. Returns 'created' or 'skipped'. */
+/** Reconcile each source document and repair missing or failed ingestion. */
 async function loadEntry(db, { entry, orgId, spaceId, authorId, connectionId }) {
-  const existing = unwrap(
-    await db
-      .from('documents')
-      .select('id')
-      .eq('org_id', orgId)
-      .eq('space_id', spaceId)
-      .eq('external_id', entry.externalId)
-      .limit(1),
-    `reading document ${entry.externalId}`,
-  );
-  if (existing.length > 0) return 'skipped';
-
-  const body = readFileSync(join(CORPUS_DIR, entry.path), 'utf8');
-  const storagePath = `${orgId}/corpus/${entry.path}`;
-  await uploadBody(db, storagePath, body);
-
-  const document = unwrap(
-    await db
-      .from('documents')
-      .insert({
-        org_id: orgId,
-        space_id: spaceId,
-        external_id: entry.externalId,
-        title: entry.title,
-        url: entry.url,
-        mime_type: 'text/markdown',
-        storage_path: storagePath,
-        content_hash: createHash('sha256').update(body).digest('hex'),
-        connection_id: connectionId,
-        origin: connectionId ? 'sync' : 'upload',
-        // Who added it. A synced document has no uploader, the same as in the real ingest path.
-        created_by: connectionId ? null : (authorId ?? null),
-        updated_at: entry.updatedAt,
-      })
-      .select('id')
-      .single(),
-    `inserting document ${entry.path}`,
-  );
-
-  unwrap(
-    await db
-      .from('ingest_jobs')
-      .insert({
-        org_id: orgId,
-        space_id: spaceId,
-        document_id: document.id,
-        stage: 'fetch',
-        status: 'queued',
-      })
-      .select('id')
-      .single(),
-    `queueing ingest for ${entry.path}`,
-  );
-
-  return 'created';
+  return seedSource(db, {
+    bucket: BUCKET,
+    body: readFileSync(join(CORPUS_DIR, entry.path), 'utf8'),
+    row: {
+      org_id: orgId,
+      space_id: spaceId,
+      external_id: entry.externalId,
+      title: entry.title,
+      url: entry.url,
+      mime_type: 'text/markdown',
+      storage_path: `${orgId}/corpus/${entry.path}`,
+      connection_id: connectionId,
+      origin: connectionId ? 'sync' : 'upload',
+      created_by: connectionId ? null : (authorId ?? null),
+      updated_at: entry.updatedAt,
+    },
+  });
 }
 
 async function main() {
@@ -443,7 +395,7 @@ async function main() {
     `members ${members.length}, spaces ${Object.keys(spaces).length}, connections ${connections.size}`,
   );
 
-  const counts = { created: 0, skipped: 0 };
+  const counts = { reconciled: 0 };
   const perSpace = {};
   for (const entry of manifest) {
     const spaceId = spaces[entry.space];
@@ -465,7 +417,7 @@ async function main() {
     perSpace[entry.space] = (perSpace[entry.space] ?? 0) + 1;
   }
 
-  console.log(`documents created ${counts.created}, already present ${counts.skipped}`);
+  console.log(`documents reconciled ${counts.reconciled}`);
   for (const [space, total] of Object.entries(perSpace)) {
     console.log(`  ${space}: ${total}`);
   }

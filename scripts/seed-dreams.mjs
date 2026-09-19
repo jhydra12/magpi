@@ -10,7 +10,7 @@
  * by the same code. Runs after the corpus is ingested, since the citations and similarities
  * come from its chunks.
  *
- * Idempotent: a night that already has runs for its space is skipped.
+ * Fixtures use stable identifiers so reruns repair interrupted persistence.
  */
 
 import { createHash } from 'node:crypto';
@@ -19,6 +19,9 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { createClient } from '@supabase/supabase-js';
+
+import { readAllPages } from './lib/seed-source.mjs';
+import { fixtureId, fixtureDocument } from './lib/seed-fixtures.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS_DIR = resolve(ROOT, 'supabase/corpus');
@@ -104,15 +107,14 @@ async function resolveSpaces(db, orgId) {
 
 /** Every corpus document's id and opening chunk, keyed by external id. */
 async function resolveCorpus(db, orgId) {
-  const documents = unwrap(
-    await db
+  const documents = await readAllPages(() =>
+    db
       .from('documents')
       .select('id, external_id, space_id')
       .eq('org_id', orgId)
       .neq('origin', 'dream')
       .not('external_id', 'is', null)
-      .limit(2000),
-    'reading documents',
+      .order('id'),
   );
   const documentIds = documents.map((document) => document.id);
   const chunks = [];
@@ -137,52 +139,24 @@ async function resolveCorpus(db, orgId) {
   );
 }
 
-async function nightExists(db, spaceId, night) {
-  const rows = unwrap(
-    await db
-      .from('dream_runs')
-      .select('id')
-      .eq('space_id', spaceId)
-      .gte('created_at', `${night}T00:00:00.000Z`)
-      .lt('created_at', `${night}T23:59:59.999Z`)
-      .limit(1),
-    'reading dream runs',
-  );
-  return rows.length > 0;
-}
-
 async function insertRun(db, row) {
   const inserted = unwrap(
-    await db.from('dream_runs').insert(row).select('id').single(),
+    await db
+      .from('dream_runs')
+      .upsert({
+        ...row,
+        id: fixtureId(`${row.org_id}:${row.space_id}:${row.created_at}:${row.kind}`),
+      })
+      .select('id')
+      .single(),
     `inserting the ${row.kind} run`,
   );
   return inserted.id;
 }
 
-/**
- * The manifest names the corpus days its digests read. The log shows nights counted back from
- * today, so the seeded nights land on the nights before the seed runs: the last manifest night
- * becomes last night, the one before it two nights ago, and so on.
- */
-function shiftNights(dreams, today) {
-  const nights = [...new Set(dreams.map((dream) => dream.night))].sort();
-  const shifted = new Map(
-    nights.map((night, index) => {
-      const date = new Date(`${today}T00:00:00.000Z`);
-      date.setUTCDate(date.getUTCDate() - (nights.length - index));
-      return [night, date.toISOString().slice(0, 10)];
-    }),
-  );
-  return dreams.map((dream) => ({
-    ...dream,
-    corpusNight: dream.night,
-    night: shifted.get(dream.night),
-  }));
-}
-
 async function seedNight(db, { org, spaces, corpus, dream }) {
   const spaceId = spaces[dream.space];
-  const cited = dream.cited.map((externalId) => corpus.get(externalId)).filter(Boolean);
+  const cited = dream.cited.map((externalId) => fixtureDocument(corpus, externalId));
   const citedChunks = cited.map((document) => document.opener).filter(Boolean);
   const inputTokens = citedChunks.reduce((total, chunk) => total + (chunk.token_count ?? 0), 0);
   const timedOut = dream.space === TIMED_OUT.space && dream.corpusNight === TIMED_OUT.night;
@@ -240,7 +214,8 @@ async function seedNight(db, { org, spaces, corpus, dream }) {
     const document = unwrap(
       await db
         .from('documents')
-        .insert({
+        .upsert({
+          id: fixtureId(`${digestRunId}:document`),
           org_id: org.id,
           space_id: spaceId,
           title: `Digest for ${dream.night}`,
@@ -248,7 +223,6 @@ async function seedNight(db, { org, spaces, corpus, dream }) {
           dream_run_id: digestRunId,
           mime_type: 'text/markdown',
           storage_path: storagePath,
-          content_hash: createHash('sha256').update(body).digest('hex'),
           source_chunk_ids: citedChunks.map((chunk) => chunk.id),
           created_at: at(queuedAt, digestEnd),
           updated_at: at(queuedAt, digestEnd),
@@ -262,18 +236,18 @@ async function seedNight(db, { org, spaces, corpus, dream }) {
       'pointing the run at its digest',
     );
     unwrap(
-      await db
-        .from('ingest_jobs')
-        .insert({
+      await db.rpc('enqueue_document', {
+        p_document: {
+          id: document.id,
           org_id: org.id,
           space_id: spaceId,
-          document_id: document.id,
-          stage: 'fetch',
-          status: 'queued',
-        })
-        .select('id')
-        .single(),
-      `queueing ingest for ${dream.path}`,
+          storage_path: storagePath,
+          origin: 'dream',
+          mime_type: 'text/markdown',
+        },
+        p_force: true,
+      }),
+      `queueing fixture digest ${dream.path}`,
     );
     calls.push({
       purpose: 'dream',
@@ -298,8 +272,8 @@ async function seedNight(db, { org, spaces, corpus, dream }) {
   });
 
   const links = dream.links.flatMap((link, index) => {
-    const a = corpus.get(link.a);
-    const b = corpus.get(link.b);
+    const a = fixtureDocument(corpus, link.a);
+    const b = fixtureDocument(corpus, link.b);
     if (!a?.opener?.embedding || !b?.opener?.embedding || a.id === b.id) return [];
     const [first, second] = a.id < b.id ? [a, b] : [b, a];
     const similarity = cosine(parseVector(a.opener.embedding), parseVector(b.opener.embedding));
@@ -338,9 +312,14 @@ async function seedNight(db, { org, spaces, corpus, dream }) {
   }
 
   unwrap(
-    await db
-      .from('model_calls')
-      .insert(calls.map((call) => ({ ...call, org_id: org.id, succeeded: true }))),
+    await db.from('model_calls').upsert(
+      calls.map((call, index) => ({
+        ...call,
+        id: fixtureId(`${org.id}:${spaceId}:${dream.night}:call:${index}`),
+        org_id: org.id,
+        succeeded: true,
+      })),
+    ),
     'recording model calls',
   );
 
@@ -348,6 +327,8 @@ async function seedNight(db, { org, spaces, corpus, dream }) {
 }
 
 async function main() {
+  if (!process.argv.includes('--fixtures'))
+    throw new Error('Synthetic history requires --fixtures');
   const slugFlag = process.argv.indexOf('--org-slug');
   const slug = slugFlag === -1 ? null : process.argv[slugFlag + 1];
   if (!slug) throw new Error('pass --org-slug <slug>');
@@ -360,19 +341,16 @@ async function main() {
     },
   );
 
-  const today = new Date().toISOString().slice(0, 10);
-  const dreams = shiftNights(JSON.parse(readFileSync(DREAMS_MANIFEST, 'utf8')), today);
+  const dreams = JSON.parse(readFileSync(DREAMS_MANIFEST, 'utf8')).map((dream) => ({
+    ...dream,
+    corpusNight: dream.night,
+  }));
   const org = await resolveOrg(db, slug);
   const spaces = await resolveSpaces(db, org.id);
   const corpus = await resolveCorpus(db, org.id);
 
   let seeded = 0;
-  let skipped = 0;
   for (const dream of dreams) {
-    if (await nightExists(db, spaces[dream.space], dream.night)) {
-      skipped += 1;
-      continue;
-    }
     const outcome = await seedNight(db, { org, spaces, corpus, dream });
     seeded += 1;
     console.log(
@@ -381,7 +359,7 @@ async function main() {
     );
   }
 
-  console.log(`\nseeded ${seeded} night(s), skipped ${skipped} already there`);
+  console.log(`\nreconciled ${seeded} synthetic fixture night(s)`);
   if (seeded > 0) console.log('the digests are queued to ingest');
 }
 

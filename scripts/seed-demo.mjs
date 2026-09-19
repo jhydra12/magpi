@@ -7,6 +7,9 @@ import { fileURLToPath } from 'node:url';
 
 import { createClient } from '@supabase/supabase-js';
 
+import { readAllPages } from './lib/seed-source.mjs';
+import { drainIngestion, pendingCounts } from './lib/seed-drain.mjs';
+
 import { DEMO_TEAM_SPACE_NAMES } from './demo-spaces.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -190,99 +193,37 @@ async function ensureTeamSpaces(client, orgId, people) {
 
 const FUNCTIONS_URL = process.env.SB_FUNCTIONS_BASE_URL ?? `${API_URL}/functions/v1`;
 
-/** The one failure worth spelling out, because the fix is a command rather than a code change. */
-function notServing(detail) {
-  console.error(`\nthe ingest worker is not serving at ${FUNCTIONS_URL} (${detail})`);
-  console.error('start it with:  supabase functions serve --env-file supabase/.env.local');
-  console.error('the documents are seeded, so running this again picks up where it stopped');
-  process.exit(1);
-}
 const BATCH = 25;
 
-/** How many jobs are still waiting, so the loop stops when there is nothing left. */
-async function queuedCount(client) {
-  const { count, error } = await client
-    .from('ingest_jobs')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'queued');
-  if (error) throw new Error(`counting ingest jobs: ${error.message}`);
-  return count ?? 0;
-}
-
-/**
- * Chunks and embeds everything the corpus just wrote. Without this a seeded database holds
- * documents nobody can ask about, which looks like a broken product rather than an unfinished
- * seed. It calls the same worker the cron calls, so nothing here is demo-only machinery.
- */
-async function ingestEverything(client) {
-  const waiting = await queuedCount(client);
-  if (waiting === 0) {
-    console.log('\nNothing queued to ingest.');
-    return;
-  }
-
-  console.log(`\ningesting ${waiting} document(s), in batches of ${BATCH}`);
-
-  let done = 0;
-  const failures = [];
-  for (let pass = 1; pass <= 200; pass += 1) {
-    let response;
-    try {
-      response = await fetch(`${FUNCTIONS_URL}/ingest-worker`, {
+/** Counts and worker claims are scoped to the selected demo organization. */
+async function ingestEverything(client, orgId) {
+  const snapshot = async () =>
+    pendingCounts(
+      await readAllPages(() =>
+        client
+          .from('ingest_jobs')
+          .select('document_id,status')
+          .eq('org_id', orgId)
+          .order('created_at', { ascending: false })
+          .order('id', { ascending: false }),
+      ),
+    );
+  await drainIngestion({
+    snapshot,
+    runBatch: async () => {
+      const response = await fetch(`${FUNCTIONS_URL}/ingest-worker`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${SERVICE_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ batch: BATCH }),
+        signal: AbortSignal.timeout(120_000),
+        headers: { Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batch: BATCH, org_id: orgId }),
       });
-    } catch {
-      notServing('nothing answered at all');
-    }
-
-    // A gateway 5xx means the runtime is not up. Kong stays running and answers for it, so this
-    // arrives as a status rather than as a refused connection.
-    if (response.status >= 500) notServing(`the gateway answered ${response.status}`);
-
-    if (!response.ok) {
-      const body = await response.text();
-      console.error(`\ningest worker answered ${response.status}: ${body.slice(0, 200)}`);
-      if (response.status === 401) console.error('SB_SERVICE_ROLE_KEY does not match this stack');
-      process.exit(1);
-    }
-
-    const { claimed = 0, results = [] } = await response.json();
-
-    // 'unchanged' is a success: the content hash matched, so there was nothing to redo.
-    // 'retrying' goes back on the queue by itself. Only a timeout or a failure is a problem.
-    const finished = results.filter((r) => r.kind === 'succeeded' || r.kind === 'unchanged');
-    const broken = results.filter((r) => r.kind === 'timeout' || r.kind === 'failed');
-    done += finished.length;
-    failures.push(...broken);
-
-    for (const failure of broken) {
-      console.error(`  ${failure.kind} at ${failure.stage}: ${failure.detail ?? ''}`);
-    }
-
-    const left = await queuedCount(client);
-    console.log(`  pass ${pass}: ${claimed} claimed, ${left} left`);
-    if (left === 0) break;
-    if (claimed === 0) {
-      console.error('  the worker claimed nothing while jobs are still queued, stopping');
-      break;
-    }
-  }
-
-  const { count: chunks } = await client
-    .from('chunks')
-    .select('id', { count: 'exact', head: true });
-
-  console.log(`\ningested ${done} document(s) into ${chunks ?? 0} chunk(s)`);
-
-  if (failures.length > 0) {
-    console.error(`${failures.length} document(s) did not ingest, so answers will have holes`);
-    process.exit(1);
-  }
+      if (!response.ok) throw new Error(`ingest worker returned ${response.status}`);
+      const result = await response.json();
+      console.log(`ingestion: ${result.claimed ?? 0} claimed`);
+    },
+    wait: () => new Promise((resolveWait) => setTimeout(resolveWait, 1000)),
+  });
+  console.log("Ingestion complete: every document's latest job succeeded.");
 }
 
 async function main() {
@@ -345,18 +286,20 @@ async function main() {
     return;
   }
 
-  await ingestEverything(client);
+  await ingestEverything(client, org.id);
+
+  if (!process.argv.includes('--with-history-fixtures')) return;
 
   // A history of nights for the dream log, cited to the chunks the ingest just wrote. The
   // digests then ingest the same way, so the second pass embeds them.
   const dreams = spawnSync(
     'node',
-    [resolve(ROOT, 'scripts/seed-dreams.mjs'), '--org-slug', org.slug],
+    [resolve(ROOT, 'scripts/seed-dreams.mjs'), '--org-slug', org.slug, '--fixtures'],
     { cwd: ROOT, stdio: 'inherit', env: process.env },
   );
   if (dreams.status !== 0) process.exit(dreams.status ?? 1);
 
-  await ingestEverything(client);
+  await ingestEverything(client, org.id);
 }
 
 await main();

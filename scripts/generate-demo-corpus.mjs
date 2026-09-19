@@ -23,7 +23,25 @@ const CUSTOMERS = [
   'Harbor Bank',
   'Juniper Labs',
 ];
-const SOURCES = ['notion', 'slack', 'drive', 'linear'];
+const SOURCE_NOTES = {
+  notion:
+    'The specification records the acceptance criteria and the dependencies agreed with both partner teams.',
+  slack:
+    'The discussion records an open question from the handoff: who confirms the rollout window after validation finishes?',
+  drive:
+    'The review document compares the customer request with the delivery checklist and records the evidence required for approval.',
+  linear:
+    'The tracked issue requires a test report, an assigned reviewer, and a completed dependency check before it can close.',
+};
+const KIND_NOTES = {
+  'weekly-review':
+    'This week the team completed the initial review. Next week it will verify the rollout checklist with the customer and report any unresolved dependencies.',
+  'decision-log':
+    'The team agreed to keep the rollout limited to the pilot until support has reviewed the recovery procedure. A later expansion requires a new approval.',
+  'delivery-notes':
+    'Delivery includes the customer handoff, validation notes, and an owner for follow-up questions. The receiving team will confirm each item before deployment.',
+};
+const SOURCES = Object.keys(SOURCE_NOTES);
 
 function slug(value) {
   return value
@@ -46,6 +64,12 @@ function writeDocument(space, index, source, kind) {
 Updated: 2026-09-09
 
 ${person} is coordinating ${project} for ${customer} in ${space.name}. The plan is shared with ${next.name} and ${previous.name}, which own the adjacent launch, customer, and risk decisions. The team is tracking the same ${project} milestone, the ${customer} rollout, and the decision to ship the September release together. Follow-up owners, dates, and open questions are recorded here so the company can connect the work across spaces.
+
+${KIND_NOTES[kind]}
+
+${SOURCE_NOTES[source]}
+
+The dependency review also covers Atlas ${String(((index + 1) % DEMO_TEAM_SPACES.length) + 1).padStart(2, '0')} in ${next.name}; its delivery owner and ${person} will review the shared customer checklist.
 `;
   const directory = join(CORPUS, space.key);
   mkdirSync(directory, { recursive: true });

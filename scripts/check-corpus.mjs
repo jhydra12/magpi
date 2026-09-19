@@ -5,6 +5,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { DEMO_TEAM_SPACES } from './demo-spaces.mjs';
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS = join(ROOT, 'supabase/corpus');
 
@@ -21,6 +23,7 @@ const EVERYONE = [
 /** Who may write, own, assign or comment in each space. Mentions are not restricted. */
 const MEMBERS = {
   company: EVERYONE,
+  ...Object.fromEntries(DEMO_TEAM_SPACES.map(({ key }) => [key, EVERYONE])),
   marketing: ['Jane Okonkwo', 'Maya Restrepo', 'Priya Raghunathan', 'Ben Achilov'],
   engineering: ['Jane Okonkwo', 'Sam Lindqvist', 'Ben Achilov', 'John Mbeki'],
   finance: ['Jane Okonkwo', 'John Mbeki', 'Dana Provenzano'],
@@ -125,7 +128,17 @@ function main() {
   // A document that names a future launch or booking must not inherit that date as its own.
   try {
     const manifest = JSON.parse(readFileSync(join(CORPUS, 'manifest.json'), 'utf8'));
+    const paths = new Set(manifest.map((entry) => entry.path));
+    if (paths.size !== manifest.length) failures.push('manifest contains duplicate paths');
+    if (files !== manifest.length)
+      failures.push(`validated ${files} files but manifest has ${manifest.length}`);
     for (const entry of manifest) {
+      if (!MEMBERS[entry.space]) failures.push(`${entry.path}: unknown space ${entry.space}`);
+      try {
+        readFileSync(join(CORPUS, entry.path), 'utf8');
+      } catch {
+        failures.push(`${entry.path}: source file missing`);
+      }
       const day = entry.updatedAt.slice(0, 10);
       if (day > LAST_DAY || day < FIRST_DAY) {
         failures.push(`${entry.path}: manifest date ${day} falls outside the corpus`);

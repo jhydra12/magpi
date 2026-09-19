@@ -24,3 +24,15 @@ test('every generated space uses all four synced providers', () => {
     );
   }
 });
+
+test('every added space has distinct source text and valid neighbor references', () => {
+  for (const [index, { key }] of DEMO_TEAM_SPACES.entries()) {
+    const entries = manifest.filter((entry) => entry.space === key);
+    const bodies = entries.map((entry) =>
+      readFileSync(new URL(`../supabase/corpus/${entry.path}`, import.meta.url), 'utf8'),
+    );
+    assert.equal(new Set(bodies).size, entries.length, key);
+    const neighbor = DEMO_TEAM_SPACES[(index + 1) % DEMO_TEAM_SPACES.length];
+    for (const body of bodies) assert.ok(body.includes(neighbor.name), key);
+  }
+});
