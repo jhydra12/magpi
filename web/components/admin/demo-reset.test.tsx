@@ -29,13 +29,14 @@ it('waits for each real stage and shows a dismissable toast only after all succe
   expect(rows[2]).toHaveTextContent('Pending');
   expect(screen.getByRole('button', { name: 'Resetting…' })).toBeDisabled();
   expect(screen.queryByText('Demo is reset. Good luck!')).not.toBeInTheDocument();
-  expect(resetStep.mock.calls.map(([step]) => step)).toEqual(['pause', 'compute']);
+  expect(resetStep.mock.calls.map(([step]) => step)).toEqual(['pause', 'chats']);
   await act(async () => {
     await vi.advanceTimersByTimeAsync(2000);
   });
   expect(resetStep.mock.calls.map(([step]) => step)).toEqual([
     'pause',
-    'compute',
+    'chats',
+    'chats',
     'compute',
     'data',
     'edge',
@@ -51,6 +52,7 @@ it('stops on failure and retries the entire sequence without a false success toa
   resetStep
     .mockResolvedValue(completed)
     .mockResolvedValueOnce(completed)
+    .mockResolvedValueOnce(completed)
     .mockResolvedValueOnce({ status: 'error', message: 'Compute deletion failed.' });
   render(<DemoReset />);
   await act(async () => {
@@ -58,16 +60,18 @@ it('stops on failure and retries the entire sequence without a false success toa
   });
   expect(screen.getByRole('alert')).toHaveTextContent('Compute deletion failed.');
   const rows = within(screen.getByRole('list')).getAllByRole('listitem');
-  expect(rows[1]).toHaveTextContent('Failed');
-  expect(rows[2]).toHaveTextContent('Pending');
+  expect(rows[2]).toHaveTextContent('Failed');
+  expect(rows[3]).toHaveTextContent('Pending');
   expect(screen.queryByText('Demo is reset. Good luck!')).not.toBeInTheDocument();
   await act(async () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
   });
   expect(resetStep.mock.calls.map(([step]) => step)).toEqual([
     'pause',
+    'chats',
     'compute',
     'pause',
+    'chats',
     'compute',
     'data',
     'edge',

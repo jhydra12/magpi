@@ -9,6 +9,18 @@
 
 - Typecheck and lint pass; the authenticated browser shows Demo below Billing with the red Reset button. The action was not clicked during verification.
 
+# Repair production demo reset
+
+- [x] Add an explicit chat-history deletion stage to the reset flow.
+- [x] Add regression coverage for chat deletion and reset-stage ordering.
+- [x] Run the focused and release checks.
+- [x] Deploy the missing execution-mode migrations and verify the production reset RPC.
+
+## Review
+
+- Production was missing the execution-mode and transactional queue migrations because the deploy workflow stopped at the outdated Supabase CLI action before `supabase db push`. The migrations were applied manually, production returned to Edge mode, and the queued Dream completed.
+- The deploy action now uses the current setup action, and the reset includes conversation and folder deletion after workers pause.
+
 # Connected Dream graph
 
 - [x] Add bridge documents to the company corpus and seed them into the demo organization.

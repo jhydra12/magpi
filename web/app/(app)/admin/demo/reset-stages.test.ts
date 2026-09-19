@@ -18,8 +18,9 @@ import { resetDemoStep } from './actions';
 function setup({ active = false, mode = 'paused' } = {}) {
   vi.resetAllMocks();
   const result = { count: active ? 1 : 0, error: null, data: [] };
-  const query = { select: vi.fn(), eq: vi.fn() };
+  const query = { select: vi.fn(), delete: vi.fn(), eq: vi.fn() };
   query.select.mockReturnValue(query);
+  query.delete.mockReturnValue(query);
   query.eq.mockResolvedValue(result);
   const rpc = vi.fn(async (name: string) => ({
     data: name === 'dream_execution_mode' ? mode : null,
@@ -61,6 +62,20 @@ describe('verified demo reset stages', () => {
     const { rpc } = setup({ active: true });
     expect(await resetDemoStep('pause')).toEqual({ status: 'success', data: { complete: false } });
     expect(rpc).toHaveBeenCalledWith('set_dream_execution_mode', { p_mode: 'paused' });
+  });
+  it('deletes conversations and folders only after processing is paused', async () => {
+    const { rpc, from } = setup();
+    expect(await resetDemoStep('chats')).toEqual({
+      status: 'success',
+      data: { complete: true },
+    });
+    expect(rpc).toHaveBeenCalledWith('dream_execution_mode');
+    expect(from.mock.calls.map(([table]) => table)).toEqual([
+      'dream_runs',
+      'ingest_jobs',
+      'conversations',
+      'conversation_folders',
+    ]);
   });
   it('rejects deletion if workers have not been paused', async () => {
     setup({ mode: 'edge' });

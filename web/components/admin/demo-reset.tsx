@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 
 const STEPS = [
   { id: 'pause', label: 'Stop Dream processing' },
+  { id: 'chats', label: 'Delete chat history' },
   { id: 'compute', label: 'Delete Compute' },
   { id: 'data', label: 'Delete generated Dream data' },
   { id: 'edge', label: 'Restore Edge Functions' },
@@ -16,6 +17,7 @@ type Step = (typeof STEPS)[number]['id'];
 type Status = 'pending' | 'running' | 'complete' | 'failed';
 const initialStatuses: Record<Step, Status> = {
   pause: 'pending',
+  chats: 'pending',
   compute: 'pending',
   data: 'pending',
   edge: 'pending',

@@ -69,6 +69,27 @@ async function deleteGeneratedDreamData(
   return successState({ deleted: dreamDocuments?.length ?? 0 });
 }
 
+async function deleteDemoChatHistory(
+  access: Extract<Awaited<ReturnType<typeof resolveAdminAccess>>, { kind: 'granted' }>,
+): Promise<ActionState<{ complete: boolean }>> {
+  const { elevated: db, context } = access;
+  const { error: conversationsError } = await db
+    .from('conversations')
+    .delete()
+    .eq('org_id', context.orgId);
+  if (conversationsError)
+    return errorState(`Chat history could not be deleted: ${conversationsError.message}`);
+
+  const { error: foldersError } = await db
+    .from('conversation_folders')
+    .delete()
+    .eq('org_id', context.orgId);
+  if (foldersError) return errorState(`Chat folders could not be deleted: ${foldersError.message}`);
+
+  revalidatePath('/chat');
+  return successState({ complete: true });
+}
+
 /** Runs one verified reset stage; repeated calls resume waiting without a long request. */
 export async function resetDemoStep(step: string): Promise<ActionState<{ complete: boolean }>> {
   const access = await resolveAdminAccess();
@@ -76,7 +97,7 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
   if (access.kind === 'forbidden') return errorState('Only an owner or admin can reset the demo.');
   const db = access.elevated;
   try {
-    if (!['pause', 'compute', 'data', 'edge'].includes(step))
+    if (!['pause', 'chats', 'compute', 'data', 'edge'].includes(step))
       return errorState('Unknown reset step.');
     assertComputeResetConfigured();
     if (step === 'pause') {
@@ -89,6 +110,7 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
       return errorState('Start Reset again to pause Dream processing.');
     if (!(await hasNoActiveWorkers(db)))
       return errorState('Dream work is still finishing. Start Reset again to wait for it.');
+    if (step === 'chats') return deleteDemoChatHistory(access);
     if (step === 'compute') return successState(await resetDreamCompute());
     if (!(await isDreamComputeAbsent()))
       return errorState('Compute deletion has not finished. Start Reset again.');

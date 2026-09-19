@@ -18,3 +18,5 @@
 - When stopping live entity polling after jobs complete, read activity before entity evidence so the final committed output is included in the last response.
 - Keep Compute positioning tied to current product sources and measured runs. Distinguish private-alpha capabilities from future networking and runtime plans.
 - The clean demo starts with Edge Functions only. Never deploy Compute automatically during cleanup or CI. The presenter deploys one Compute instance, cuts over queue processing, then scales to eleven during the demo.
+- The full demo reset must delete chat conversations and folders after Dream processing pauses, so the chat screen returns to a clean state.
+- Keep the Supabase setup action current in the production workflow. An old action can fail before `supabase db push`, leaving production migrations behind even when the GitHub deployment job starts.
