@@ -114,18 +114,20 @@ async function resolveCorpus(db, orgId) {
       .limit(2000),
     'reading documents',
   );
-  const chunks = unwrap(
-    await db
-      .from('chunks')
-      .select('id, document_id, token_count, embedding')
-      .eq('org_id', orgId)
-      .eq('ordinal', 0)
-      .in(
-        'document_id',
-        documents.map((document) => document.id),
-      ),
-    'reading opening chunks',
-  );
+  const documentIds = documents.map((document) => document.id);
+  const chunks = [];
+  for (let start = 0; start < documentIds.length; start += 100) {
+    const batch = unwrap(
+      await db
+        .from('chunks')
+        .select('id, document_id, token_count, embedding')
+        .eq('org_id', orgId)
+        .eq('ordinal', 0)
+        .in('document_id', documentIds.slice(start, start + 100)),
+      'reading opening chunks',
+    );
+    chunks.push(...batch);
+  }
   const openers = new Map(chunks.map((chunk) => [chunk.document_id, chunk]));
   return new Map(
     documents.map((document) => [
