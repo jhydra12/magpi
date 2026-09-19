@@ -49,7 +49,7 @@ describe('space descriptions', () => {
   it("says who can see each kind of space in the user's own terms", () => {
     expect(describeKind('personal')).toBe('Only you');
     expect(describeKind('team')).toBe('The people you add');
-    expect(describeKind('org')).toBe('Everyone in the organization');
+    expect(describeKind('org')).toBe('Organization space');
   });
 });
 
