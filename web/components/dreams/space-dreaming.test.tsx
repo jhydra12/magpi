@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -127,7 +127,7 @@ describe('dreaming in each space row', () => {
     expect(refresh).not.toHaveBeenCalled();
     expect(screen.queryByText('Next dream: 1:55am UTC')).not.toBeInTheDocument();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
-    expect(screen.getByRole('status')).toHaveTextContent('Queued');
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Queued'));
   });
 
   it('keeps the page interactive while the all-spaces requests are pending', async () => {
