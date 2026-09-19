@@ -4,7 +4,7 @@ import type { EntityRecord, EntityMentionRecord } from './entities';
 import { recordingContext } from '@/lib/supabase/test-support';
 
 vi.mock('server-only', () => ({}));
-const { loadEntities } = await import('./queries');
+const { loadEntities, loadDreamSpaces } = await import('./queries');
 const { loadDreamActivity, loadLatestDreamTime, loadLastDreamTimes } =
   await import('./activity-queries');
 
@@ -173,4 +173,15 @@ it('reads one latest completion per space without scanning historical rows', asy
     { referencedTable: 'dream_runs' },
   ]);
   expect(fixture.callsFor('dream_runs')).toEqual([]);
+});
+
+it('keeps graph entities and visible spaces within the current organization', async () => {
+  const fixture = recordingContext({
+    responses: { entities: [{ data: [] }], spaces: [{ data: [] }] },
+  });
+  await loadEntities(fixture.context);
+  await loadDreamSpaces(fixture.context);
+  for (const table of ['entities', 'spaces']) {
+    expect(fixture.callsFor(table)).toContainEqual(['eq', 'org_id', fixture.context.orgId]);
+  }
 });

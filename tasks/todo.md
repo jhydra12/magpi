@@ -47,7 +47,11 @@
 
 - [x] Reproduce production renderer error and convert every graph color to sRGB bytes.
 - [x] Size the canvas to its container and remove fixed positioning offsets.
-- [ ] Add real-browser color regression coverage and verify production in both themes.
+- [x] Add real-browser color regression coverage and verify production in both themes.
+
+## Review
+
+- The production browser check paints visible nodes and links in Light and Dark themes, reports no page errors, and returns to Chat successfully. The test uses a disposable account and removes it after the run.
 
 # Whole-codebase review before release
 
@@ -94,7 +98,7 @@
 
 - [x] Run combined application, worker, database, seed, browser, lint, type, and build checks.
 - [x] Verify real Edge processing and OAuth BYO MCP; test the manual Compute cutover without deploying it.
-- [ ] Commit reviewed changes and leave the working tree clean.
+- [x] Commit reviewed changes and leave the working tree clean.
 
 ## Cleanup review
 

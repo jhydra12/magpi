@@ -29,6 +29,7 @@ export async function loadDreamSpaces(context: SessionContext): Promise<readonly
   const { data, error } = await context.supabase
     .from('spaces')
     .select('id, name, dreaming_enabled')
+    .eq('org_id', context.orgId)
     .order('name');
   if (error) throw new Error(`Could not read spaces: ${error.message}`);
   return data;
@@ -278,6 +279,7 @@ export async function loadEntities(
     const query = context.supabase
       .from('entities')
       .select('id, kind, name, summary, space_id')
+      .eq('org_id', context.orgId)
       .order('id')
       .range(from, to);
     return spaceId ? query.eq('space_id', spaceId) : query;

@@ -134,3 +134,80 @@ test('manual cutover restores Edge if deployment fails or processing never finis
     assert.deepEqual(modes, ['compute', 'edge']);
   }
 });
+
+test('fixture links reject sources without usable embeddings', async () => {
+  const { fixtureLinkDocument } = await import('./seed-fixtures.mjs');
+  for (const embedding of [null, [], [NaN], '[]']) {
+    assert.throws(
+      () => fixtureLinkDocument(new Map([['source', { opener: { embedding } }]]), 'source'),
+      /embedding/,
+    );
+  }
+  const document = { opener: { embedding: '[0.1,0.2]' } };
+  assert.equal(fixtureLinkDocument(new Map([['source', document]]), 'source'), document);
+});
+
+test('ingestion snapshots and worker requests remain scoped to the selected organization', async () => {
+  const { ingestSeed } = await import('./ingest-seed.mjs');
+  const filters = [];
+  const requests = [];
+  const snapshots = [
+    [{ document_id: 'own', status: 'queued' }],
+    [{ document_id: 'own', status: 'succeeded' }],
+  ];
+  const client = {
+    from: (table) => {
+      assert.equal(table, 'ingest_jobs');
+      const query = {
+        select: () => query,
+        eq: (column, value) => {
+          filters.push([column, value]);
+          return query;
+        },
+        order: () => query,
+        range: async () => ({ data: snapshots.shift(), error: null }),
+      };
+      return query;
+    },
+  };
+  await ingestSeed(client, 'selected-org', {
+    functionsUrl: 'https://example.test/functions/v1',
+    serviceKey: 'test',
+    wait: async () => {},
+    fetcher: async (_url, options) => {
+      requests.push(JSON.parse(options.body));
+      return Response.json({ claimed: 1 });
+    },
+  });
+  assert.deepEqual(filters, [
+    ['org_id', 'selected-org'],
+    ['org_id', 'selected-org'],
+  ]);
+  assert.deepEqual(requests, [{ batch: 25, org_id: 'selected-org' }]);
+});
+
+test('schedule validation includes mode-controlled quoted and dollar-quoted jobs', async () => {
+  const { scheduledJobs } = await import('../check-scheduled-workers.mjs');
+  const { readFileSync } = await import('node:fs');
+  const jobs = scheduledJobs(
+    readFileSync(new URL('../../supabase/schemas/97_execution_mode.sql', import.meta.url), 'utf8'),
+  );
+  assert.ok(
+    jobs.some(
+      ({ name, body }) =>
+        name === 'dream-edge-worker' && body === 'select public.wake_edge_dream_worker()',
+    ),
+  );
+  assert.ok(
+    jobs.some(
+      ({ name, body }) =>
+        name === 'ingest-worker' && body.includes("invoke_worker('ingest-worker', 8)"),
+    ),
+  );
+  assert.deepEqual(
+    scheduledJobs(
+      "cron.schedule('example', '* * * * *', 'select public.invoke_worker(''example'', 1)')",
+    ),
+    [{ name: 'example', body: "select public.invoke_worker('example', 1)" }],
+  );
+});

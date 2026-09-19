@@ -36,3 +36,19 @@ test('every added space has distinct source text and valid neighbor references',
     for (const body of bodies) assert.ok(body.includes(neighbor.name), key);
   }
 });
+
+test('validation rejects a malformed body in an added space', async () => {
+  const { cpSync, mkdtempSync, rmSync, writeFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { checkCorpus } = await import('./check-corpus.mjs');
+  const temporary = mkdtempSync(join(tmpdir(), 'corpus-validation-'));
+  try {
+    cpSync(new URL('../supabase/corpus/', import.meta.url), temporary, { recursive: true });
+    const entry = manifest.find(({ space }) => space === DEMO_TEAM_SPACES[0].key);
+    writeFileSync(join(temporary, entry.path), 'missing title');
+    assert.ok(checkCorpus(temporary).failures.includes(`${entry.path}: no title`));
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});

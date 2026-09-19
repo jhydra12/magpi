@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 
 import { readAllPages } from './lib/seed-source.mjs';
-import { fixtureId, fixtureDocument } from './lib/seed-fixtures.mjs';
+import { fixtureId, fixtureDocument, fixtureLinkDocument } from './lib/seed-fixtures.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS_DIR = resolve(ROOT, 'supabase/corpus');
@@ -154,7 +154,8 @@ async function insertRun(db, row) {
   return inserted.id;
 }
 
-async function seedNight(db, { org, spaces, corpus, dream }) {
+/** Reconcile one explicitly synthetic history fixture, safe to replay after interruption. */
+export async function seedNight(db, { org, spaces, corpus, dream }) {
   const spaceId = spaces[dream.space];
   const cited = dream.cited.map((externalId) => fixtureDocument(corpus, externalId));
   const citedChunks = cited.map((document) => document.opener).filter(Boolean);
@@ -272,9 +273,9 @@ async function seedNight(db, { org, spaces, corpus, dream }) {
   });
 
   const links = dream.links.flatMap((link, index) => {
-    const a = fixtureDocument(corpus, link.a);
-    const b = fixtureDocument(corpus, link.b);
-    if (!a?.opener?.embedding || !b?.opener?.embedding || a.id === b.id) return [];
+    const a = fixtureLinkDocument(corpus, link.a);
+    const b = fixtureLinkDocument(corpus, link.b);
+    if (a.id === b.id) throw new Error(`Fixture link repeats document: ${link.a}`);
     const [first, second] = a.id < b.id ? [a, b] : [b, a];
     const similarity = cosine(parseVector(a.opener.embedding), parseVector(b.opener.embedding));
     // Older nights have been looked at: the first pair confirmed, the last dismissed.
@@ -363,4 +364,4 @@ async function main() {
   if (seeded > 0) console.log('the digests are queued to ingest');
 }
 
-await main();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();

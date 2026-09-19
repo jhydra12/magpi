@@ -17,6 +17,7 @@ export async function GET(request: Request): Promise<Response> {
     const query = context.supabase
       .from('dream_runs')
       .select('id')
+      .eq('org_id', context.orgId)
       .in('status', ['queued', 'running'])
       .limit(1);
     const activity = await (space ? query.eq('space_id', space) : query);

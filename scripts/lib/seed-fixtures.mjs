@@ -12,3 +12,16 @@ export function fixtureDocument(corpus, externalId) {
   if (!document?.opener) throw new Error(`Missing ingested fixture citation: ${externalId}`);
   return document;
 }
+
+/** Links require an embedding for each resolved source. */
+export function fixtureLinkDocument(corpus, externalId) {
+  const document = fixtureDocument(corpus, externalId);
+  const embedding =
+    typeof document.opener.embedding === 'string'
+      ? JSON.parse(document.opener.embedding)
+      : document.opener.embedding;
+  if (!Array.isArray(embedding) || !embedding.length || !embedding.every(Number.isFinite)) {
+    throw new Error(`Missing valid fixture embedding: ${externalId}`);
+  }
+  return document;
+}

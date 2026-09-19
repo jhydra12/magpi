@@ -2,7 +2,16 @@ import { drainIngestion, pendingCounts } from './seed-drain.mjs';
 import { readAllPages } from './seed-source.mjs';
 
 /** Drain existing source jobs for one organization using the deployed worker. */
-export async function ingestSeed(client, orgId, { functionsUrl, serviceKey }) {
+export async function ingestSeed(
+  client,
+  orgId,
+  {
+    functionsUrl,
+    serviceKey,
+    fetcher = fetch,
+    wait = () => new Promise((resolveWait) => setTimeout(resolveWait, 1000)),
+  },
+) {
   const snapshot = async () =>
     pendingCounts(
       await readAllPages(() =>
@@ -17,7 +26,7 @@ export async function ingestSeed(client, orgId, { functionsUrl, serviceKey }) {
   await drainIngestion({
     snapshot,
     runBatch: async () => {
-      const response = await fetch(`${functionsUrl}/ingest-worker`, {
+      const response = await fetcher(`${functionsUrl}/ingest-worker`, {
         method: 'POST',
         signal: AbortSignal.timeout(120_000),
         headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
@@ -27,7 +36,7 @@ export async function ingestSeed(client, orgId, { functionsUrl, serviceKey }) {
       const result = await response.json();
       console.log(`ingestion: ${result.claimed ?? 0} claimed`);
     },
-    wait: () => new Promise((resolveWait) => setTimeout(resolveWait, 1000)),
+    wait,
   });
   console.log("Ingestion complete: every document's latest job succeeded.");
 }

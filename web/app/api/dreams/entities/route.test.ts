@@ -41,7 +41,7 @@ describe('entity refresh endpoint', () => {
         committed = true;
         return { data: [], error: null };
       });
-    const query = { select: () => query, in: () => query, limit: activity };
+    const query = { select: () => query, eq: () => query, in: () => query, limit: activity };
     dependencies.session.mockResolvedValue({
       ...context,
       supabase: { from: () => query },
@@ -63,4 +63,11 @@ describe('entity refresh endpoint', () => {
     );
     expect((await GET(request())).status).toBe(500);
   });
+});
+
+it('checks activity only in the current organization', async () => {
+  const fixture = recordingContext({ responses: { dream_runs: [{ data: [] }] } });
+  dependencies.session.mockResolvedValue(fixture.context);
+  await GET(request());
+  expect(fixture.callsFor('dream_runs')).toContainEqual(['eq', 'org_id', fixture.context.orgId]);
 });

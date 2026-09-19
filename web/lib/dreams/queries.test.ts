@@ -622,7 +622,7 @@ describe('the entities a dream extracted', () => {
     expect(callsFor('entities')).toContainEqual(['eq', 'space_id', SPACE_ID]);
   });
 
-  it('reads every space the caller holds when no space is picked', async () => {
+  it('reads current-organization entities when no space is picked', async () => {
     const { context, callsFor } = recordingContext({
       responses: { spaces: [{ data: [getSpace()] }], entities: [{ data: [] }] },
     });
@@ -630,7 +630,7 @@ describe('the entities a dream extracted', () => {
     await loadEntities(context);
 
     const filters = callsFor('entities').filter((call) => call[0] === 'eq');
-    expect(filters).toEqual([]);
+    expect(filters).toEqual([['eq', 'org_id', context.orgId]]);
   });
 
   it('asks nothing further of the database when a space has no entities yet', async () => {

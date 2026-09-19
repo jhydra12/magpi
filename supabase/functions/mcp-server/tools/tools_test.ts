@@ -417,3 +417,40 @@ Deno.test('whoami names no client for a session the product forwarded', async ()
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
+
+Deno.test('a note retries an uncertain enqueue using the same uploaded bytes and document identity', async () => {
+  let attempts = 0;
+  const standard = replies();
+  const stub = stubDb((request) => {
+    if (request.table === 'rpc/enqueue_document' && ++attempts === 1) {
+      return { status: 500, body: { message: 'uncertain response' } };
+    }
+    return standard(request);
+  });
+  const stored = new Map<string, string>();
+  const notes: NoteStore = {
+    write: (path, body) => {
+      stored.set(path, body);
+      return Promise.resolve();
+    },
+  };
+  const input = { space_id: ENGINEERING, title: 'Retry this note', content: 'One durable note.' };
+  try {
+    await assertRejects(
+      () => addNote(context(stub, { notes }), input),
+      Error,
+      'could not be queued',
+    );
+    const second = await addNote(context(stub, { notes }), input);
+    const replay = await addNote(context(stub, { notes }), input);
+    assertEquals(second.document_id, replay.document_id);
+    assertEquals(second.ingest_job_id, replay.ingest_job_id);
+    assertEquals(stored.size, 1);
+    const submissions = requestsFor(stub, 'rpc/enqueue_document').map((request) => request.body);
+    assertEquals(submissions.length, 3);
+    assertEquals(submissions[0], submissions[1]);
+    assertEquals(submissions[1], submissions[2]);
+  } finally {
+    await stub.close();
+  }
+});
