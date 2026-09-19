@@ -1336,6 +1336,7 @@ export type Database = {
         }[]
       }
       set_dream_execution_mode: { Args: { p_mode: string }; Returns: undefined }
+      sweep_stale_worker_runs: { Args: never; Returns: undefined }
       text_search_query: { Args: { p_text: string }; Returns: unknown }
       visible_space_ids: { Args: never; Returns: string[] }
       wake_edge_dream_worker: { Args: never; Returns: undefined }
