@@ -31,6 +31,13 @@ function entityKey(kind: string, name: string): string {
     .trim()}`;
 }
 
+function readToken(token: string): string {
+  if (typeof document === 'undefined') return token;
+  const name = token.match(/^var\((--[^)]+)\)$/)?.[1];
+  if (!name) return token;
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || 'transparent';
+}
+
 const ENTITY_COLORS: Record<string, string> = {
   person: 'var(--primary)',
   project: 'var(--demo)',
@@ -126,15 +133,11 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
   const [hoveredLink, setHoveredLink] = useState<GraphLink | null>(null);
   const [isArranging, setIsArranging] = useState(true);
   const detailNode = hoveredNode;
-  const [backgroundColor, setBackgroundColor] = useState(() =>
-    typeof document !== 'undefined' && document.documentElement.dataset.theme === 'light'
-      ? 'var(--background)'
-      : 'var(--background)',
-  );
+  const [backgroundColor, setBackgroundColor] = useState(() => readToken('var(--background)'));
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      setBackgroundColor('var(--background)');
+      setBackgroundColor(readToken('var(--background)'));
     });
     observer.observe(document.documentElement, {
       attributes: true,
@@ -166,12 +169,14 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
             nodeColor={(node) => {
               const item = node as GraphNode;
               return item.kind === 'document'
-                ? 'var(--muted-foreground)'
-                : ENTITY_COLORS[item.entityKind ?? 'person'];
+                ? readToken('var(--muted-foreground)')
+                : readToken(ENTITY_COLORS[item.entityKind ?? 'person']);
             }}
             nodeVal={(node) => ((node as GraphNode).kind === 'entity' ? 5 : 1.4)}
             linkColor={(link) =>
-              (link as GraphLink).kind === 'shared' ? 'var(--primary)' : 'var(--muted-foreground)'
+              (link as GraphLink).kind === 'shared'
+                ? readToken('var(--primary)')
+                : readToken('var(--muted-foreground)')
             }
             linkWidth={(link) => ((link as GraphLink).kind === 'shared' ? 1.8 : 0.45)}
             linkDirectionalParticles={(link) => ((link as GraphLink).kind === 'shared' ? 2 : 0)}
