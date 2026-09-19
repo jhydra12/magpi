@@ -33,8 +33,13 @@ describe('entity graph data', () => {
 
     const nodeIds = new Set(graph.nodes.map((node) => node.id));
     expect(graph.links).toContainEqual(
-      expect.objectContaining({ source: 'entity:person:ada lovelace', target: 'entity:project:launch plan' }),
+      expect.objectContaining({
+        source: 'entity:person:ada lovelace',
+        target: 'entity:project:launch plan',
+      }),
     );
-    expect(graph.links.every((link) => nodeIds.has(link.source) && nodeIds.has(link.target))).toBe(true);
+    expect(graph.links.every((link) => nodeIds.has(link.source) && nodeIds.has(link.target))).toBe(
+      true,
+    );
   });
 });

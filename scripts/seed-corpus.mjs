@@ -8,6 +8,8 @@ import { fileURLToPath } from 'node:url';
 
 import { createClient } from '@supabase/supabase-js';
 
+import { DEMO_TEAM_SPACES } from './demo-spaces.mjs';
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS_DIR = join(ROOT, 'supabase/corpus');
 const MANIFEST = join(CORPUS_DIR, 'manifest.json');
@@ -18,6 +20,7 @@ const TEAM_SPACES = [
   { key: 'marketing', name: 'Marketing' },
   { key: 'engineering', name: 'Engineering' },
   { key: 'finance', name: 'Finance' },
+  ...DEMO_TEAM_SPACES,
 ];
 
 /** Personal folders in the corpus, and whose personal space each one loads into. */

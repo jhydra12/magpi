@@ -19,3 +19,16 @@
 ## Review
 
 - Eight bridge documents were added and ingested. The hosted entity data now resolves to one merged graph component.
+
+# Expand the demo corpus
+
+- [x] Define 30 additional team spaces, membership, document templates, and cross-space links.
+- [x] Generate and manifest deterministic corpus documents for the 30 spaces.
+- [x] Update seed and reset flows so the expanded demo is repeatable and scoped to the demo organization.
+- [x] Update global Dream submission and rate limits for the expanded space count.
+- [x] Add tests for space counts, document routing, cross-space links, and global Dream submission.
+- [x] Reset and seed the hosted demo organization, then verify ingestion readiness.
+
+## Review
+
+- The hosted demo now has 37 spaces, 1,333 source documents, 1,788 chunks, and 1,333 successful ingest jobs. The 30 new spaces each have 12 documents across four providers.

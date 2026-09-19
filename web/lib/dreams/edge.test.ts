@@ -18,11 +18,22 @@ const DOC_ID = '22222222-3333-4444-8555-666666666666';
 describe('starting a dream run by hand', () => {
   it('requires three distinct queued jobs when starting the full Dream', async () => {
     const ids = [ENTITY_ID, RUN_ID, LINKS_ID];
-    const client = getClient({ data: { dream_run_id: ENTITY_ID, status: 'queued', output_document_id: null } });
+    const client = getClient({
+      data: { dream_run_id: ENTITY_ID, status: 'queued', output_document_id: null },
+    });
     client.functions.invoke
-      .mockResolvedValueOnce({ data: { dream_run_id: ids[0], status: 'queued', output_document_id: null }, error: null })
-      .mockResolvedValueOnce({ data: { dream_run_id: ids[1], status: 'queued', output_document_id: null }, error: null })
-      .mockResolvedValueOnce({ data: { dream_run_id: ids[2], status: 'queued', output_document_id: null }, error: null });
+      .mockResolvedValueOnce({
+        data: { dream_run_id: ids[0], status: 'queued', output_document_id: null },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { dream_run_id: ids[1], status: 'queued', output_document_id: null },
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: { dream_run_id: ids[2], status: 'queued', output_document_id: null },
+        error: null,
+      });
     const result = await requestDreamRun(client, { spaceId: 'space-1', kind: 'all' });
     expect(result).toEqual({
       ok: true,
@@ -51,7 +62,10 @@ describe('starting a dream run by hand', () => {
     client.functions.invoke.mockImplementation(async () =>
       client.functions.invoke.mock.calls.length - 1 === failedAt
         ? { data: null, error: { message: 'refused' } }
-        : { data: { dream_run_id: RUN_ID, status: 'queued', output_document_id: null }, error: null },
+        : {
+            data: { dream_run_id: RUN_ID, status: 'queued', output_document_id: null },
+            error: null,
+          },
     );
     expect((await requestDreamRun(client, { spaceId: 'space-1', kind: 'all' })).ok).toBe(false);
   });
@@ -68,7 +82,12 @@ describe('starting a dream run by hand', () => {
     });
     expect(result).toEqual({
       ok: true,
-      data: { dreamRunId: RUN_ID, dreamRunIds: [RUN_ID], status: 'succeeded', outputDocumentId: DOC_ID },
+      data: {
+        dreamRunId: RUN_ID,
+        dreamRunIds: [RUN_ID],
+        status: 'succeeded',
+        outputDocumentId: DOC_ID,
+      },
     });
   });
 

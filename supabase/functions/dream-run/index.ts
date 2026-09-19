@@ -15,7 +15,7 @@ serveFunction('dream-run', async (core) => {
 
   // Dreaming is expensive, so the per-space budget is tighter than the per-user one.
   await enforceRateLimits(db, [
-    { bucket: `dream-run:user:${user.id}`, limit: 20, windowSeconds: 3600 },
+    { bucket: `dream-run:user:${user.id}`, limit: 200, windowSeconds: 3600 },
     { bucket: `dream-run:space:${input.space_id}`, limit: 10, windowSeconds: 3600 },
   ]);
 

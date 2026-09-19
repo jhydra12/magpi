@@ -450,6 +450,3606 @@
     "author": null
   },
   {
+    "path": "product-roadmap/drive-product-roadmap-decision-log.md",
+    "title": "Product Roadmap: decision-log",
+    "space": "product-roadmap",
+    "source": "drive",
+    "externalId": "product-roadmap/drive-product-roadmap-decision-log",
+    "url": "https://docs.google.com/document/d/drive-product-roadmap-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/drive-product-roadmap-delivery-notes.md",
+    "title": "Product Roadmap: delivery-notes",
+    "space": "product-roadmap",
+    "source": "drive",
+    "externalId": "product-roadmap/drive-product-roadmap-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-product-roadmap-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/drive-product-roadmap-weekly-review.md",
+    "title": "Product Roadmap: weekly-review",
+    "space": "product-roadmap",
+    "source": "drive",
+    "externalId": "product-roadmap/drive-product-roadmap-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-product-roadmap-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/linear-product-roadmap-decision-log.md",
+    "title": "Product Roadmap: decision-log",
+    "space": "product-roadmap",
+    "source": "linear",
+    "externalId": "product-roadmap/linear-product-roadmap-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-ROADMAP-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/linear-product-roadmap-delivery-notes.md",
+    "title": "Product Roadmap: delivery-notes",
+    "space": "product-roadmap",
+    "source": "linear",
+    "externalId": "product-roadmap/linear-product-roadmap-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-ROADMAP-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/linear-product-roadmap-weekly-review.md",
+    "title": "Product Roadmap: weekly-review",
+    "space": "product-roadmap",
+    "source": "linear",
+    "externalId": "product-roadmap/linear-product-roadmap-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-ROADMAP-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/notion-product-roadmap-decision-log.md",
+    "title": "Product Roadmap: decision-log",
+    "space": "product-roadmap",
+    "source": "notion",
+    "externalId": "product-roadmap/notion-product-roadmap-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-product-roadmap-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/notion-product-roadmap-delivery-notes.md",
+    "title": "Product Roadmap: delivery-notes",
+    "space": "product-roadmap",
+    "source": "notion",
+    "externalId": "product-roadmap/notion-product-roadmap-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-product-roadmap-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/notion-product-roadmap-weekly-review.md",
+    "title": "Product Roadmap: weekly-review",
+    "space": "product-roadmap",
+    "source": "notion",
+    "externalId": "product-roadmap/notion-product-roadmap-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-product-roadmap-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/slack-product-roadmap-decision-log.md",
+    "title": "Product Roadmap: decision-log",
+    "space": "product-roadmap",
+    "source": "slack",
+    "externalId": "product-roadmap/slack-product-roadmap-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-product-roadmap-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/slack-product-roadmap-delivery-notes.md",
+    "title": "Product Roadmap: delivery-notes",
+    "space": "product-roadmap",
+    "source": "slack",
+    "externalId": "product-roadmap/slack-product-roadmap-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-product-roadmap-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-roadmap/slack-product-roadmap-weekly-review.md",
+    "title": "Product Roadmap: weekly-review",
+    "space": "product-roadmap",
+    "source": "slack",
+    "externalId": "product-roadmap/slack-product-roadmap-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-product-roadmap-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/drive-product-launches-decision-log.md",
+    "title": "Product Launches: decision-log",
+    "space": "product-launches",
+    "source": "drive",
+    "externalId": "product-launches/drive-product-launches-decision-log",
+    "url": "https://docs.google.com/document/d/drive-product-launches-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/drive-product-launches-delivery-notes.md",
+    "title": "Product Launches: delivery-notes",
+    "space": "product-launches",
+    "source": "drive",
+    "externalId": "product-launches/drive-product-launches-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-product-launches-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/drive-product-launches-weekly-review.md",
+    "title": "Product Launches: weekly-review",
+    "space": "product-launches",
+    "source": "drive",
+    "externalId": "product-launches/drive-product-launches-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-product-launches-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/linear-product-launches-decision-log.md",
+    "title": "Product Launches: decision-log",
+    "space": "product-launches",
+    "source": "linear",
+    "externalId": "product-launches/linear-product-launches-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-LAUNCHES-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/linear-product-launches-delivery-notes.md",
+    "title": "Product Launches: delivery-notes",
+    "space": "product-launches",
+    "source": "linear",
+    "externalId": "product-launches/linear-product-launches-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-LAUNCHES-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/linear-product-launches-weekly-review.md",
+    "title": "Product Launches: weekly-review",
+    "space": "product-launches",
+    "source": "linear",
+    "externalId": "product-launches/linear-product-launches-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-LAUNCHES-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/notion-product-launches-decision-log.md",
+    "title": "Product Launches: decision-log",
+    "space": "product-launches",
+    "source": "notion",
+    "externalId": "product-launches/notion-product-launches-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-product-launches-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/notion-product-launches-delivery-notes.md",
+    "title": "Product Launches: delivery-notes",
+    "space": "product-launches",
+    "source": "notion",
+    "externalId": "product-launches/notion-product-launches-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-product-launches-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/notion-product-launches-weekly-review.md",
+    "title": "Product Launches: weekly-review",
+    "space": "product-launches",
+    "source": "notion",
+    "externalId": "product-launches/notion-product-launches-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-product-launches-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/slack-product-launches-decision-log.md",
+    "title": "Product Launches: decision-log",
+    "space": "product-launches",
+    "source": "slack",
+    "externalId": "product-launches/slack-product-launches-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-product-launches-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/slack-product-launches-delivery-notes.md",
+    "title": "Product Launches: delivery-notes",
+    "space": "product-launches",
+    "source": "slack",
+    "externalId": "product-launches/slack-product-launches-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-product-launches-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-launches/slack-product-launches-weekly-review.md",
+    "title": "Product Launches: weekly-review",
+    "space": "product-launches",
+    "source": "slack",
+    "externalId": "product-launches/slack-product-launches-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-product-launches-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/drive-product-research-decision-log.md",
+    "title": "Product Research: decision-log",
+    "space": "product-research",
+    "source": "drive",
+    "externalId": "product-research/drive-product-research-decision-log",
+    "url": "https://docs.google.com/document/d/drive-product-research-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/drive-product-research-delivery-notes.md",
+    "title": "Product Research: delivery-notes",
+    "space": "product-research",
+    "source": "drive",
+    "externalId": "product-research/drive-product-research-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-product-research-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/drive-product-research-weekly-review.md",
+    "title": "Product Research: weekly-review",
+    "space": "product-research",
+    "source": "drive",
+    "externalId": "product-research/drive-product-research-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-product-research-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/linear-product-research-decision-log.md",
+    "title": "Product Research: decision-log",
+    "space": "product-research",
+    "source": "linear",
+    "externalId": "product-research/linear-product-research-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-RESEARCH-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/linear-product-research-delivery-notes.md",
+    "title": "Product Research: delivery-notes",
+    "space": "product-research",
+    "source": "linear",
+    "externalId": "product-research/linear-product-research-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-RESEARCH-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/linear-product-research-weekly-review.md",
+    "title": "Product Research: weekly-review",
+    "space": "product-research",
+    "source": "linear",
+    "externalId": "product-research/linear-product-research-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-RESEARCH-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/notion-product-research-decision-log.md",
+    "title": "Product Research: decision-log",
+    "space": "product-research",
+    "source": "notion",
+    "externalId": "product-research/notion-product-research-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-product-research-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/notion-product-research-delivery-notes.md",
+    "title": "Product Research: delivery-notes",
+    "space": "product-research",
+    "source": "notion",
+    "externalId": "product-research/notion-product-research-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-product-research-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/notion-product-research-weekly-review.md",
+    "title": "Product Research: weekly-review",
+    "space": "product-research",
+    "source": "notion",
+    "externalId": "product-research/notion-product-research-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-product-research-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/slack-product-research-decision-log.md",
+    "title": "Product Research: decision-log",
+    "space": "product-research",
+    "source": "slack",
+    "externalId": "product-research/slack-product-research-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-product-research-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/slack-product-research-delivery-notes.md",
+    "title": "Product Research: delivery-notes",
+    "space": "product-research",
+    "source": "slack",
+    "externalId": "product-research/slack-product-research-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-product-research-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-research/slack-product-research-weekly-review.md",
+    "title": "Product Research: weekly-review",
+    "space": "product-research",
+    "source": "slack",
+    "externalId": "product-research/slack-product-research-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-product-research-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/drive-product-design-decision-log.md",
+    "title": "Product Design: decision-log",
+    "space": "product-design",
+    "source": "drive",
+    "externalId": "product-design/drive-product-design-decision-log",
+    "url": "https://docs.google.com/document/d/drive-product-design-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/drive-product-design-delivery-notes.md",
+    "title": "Product Design: delivery-notes",
+    "space": "product-design",
+    "source": "drive",
+    "externalId": "product-design/drive-product-design-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-product-design-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/drive-product-design-weekly-review.md",
+    "title": "Product Design: weekly-review",
+    "space": "product-design",
+    "source": "drive",
+    "externalId": "product-design/drive-product-design-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-product-design-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/linear-product-design-decision-log.md",
+    "title": "Product Design: decision-log",
+    "space": "product-design",
+    "source": "linear",
+    "externalId": "product-design/linear-product-design-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-DESIGN-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/linear-product-design-delivery-notes.md",
+    "title": "Product Design: delivery-notes",
+    "space": "product-design",
+    "source": "linear",
+    "externalId": "product-design/linear-product-design-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-DESIGN-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/linear-product-design-weekly-review.md",
+    "title": "Product Design: weekly-review",
+    "space": "product-design",
+    "source": "linear",
+    "externalId": "product-design/linear-product-design-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-DESIGN-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/notion-product-design-decision-log.md",
+    "title": "Product Design: decision-log",
+    "space": "product-design",
+    "source": "notion",
+    "externalId": "product-design/notion-product-design-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-product-design-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/notion-product-design-delivery-notes.md",
+    "title": "Product Design: delivery-notes",
+    "space": "product-design",
+    "source": "notion",
+    "externalId": "product-design/notion-product-design-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-product-design-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/notion-product-design-weekly-review.md",
+    "title": "Product Design: weekly-review",
+    "space": "product-design",
+    "source": "notion",
+    "externalId": "product-design/notion-product-design-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-product-design-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/slack-product-design-decision-log.md",
+    "title": "Product Design: decision-log",
+    "space": "product-design",
+    "source": "slack",
+    "externalId": "product-design/slack-product-design-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-product-design-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/slack-product-design-delivery-notes.md",
+    "title": "Product Design: delivery-notes",
+    "space": "product-design",
+    "source": "slack",
+    "externalId": "product-design/slack-product-design-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-product-design-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-design/slack-product-design-weekly-review.md",
+    "title": "Product Design: weekly-review",
+    "space": "product-design",
+    "source": "slack",
+    "externalId": "product-design/slack-product-design-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-product-design-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/drive-product-mobile-decision-log.md",
+    "title": "Product Mobile: decision-log",
+    "space": "product-mobile",
+    "source": "drive",
+    "externalId": "product-mobile/drive-product-mobile-decision-log",
+    "url": "https://docs.google.com/document/d/drive-product-mobile-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/drive-product-mobile-delivery-notes.md",
+    "title": "Product Mobile: delivery-notes",
+    "space": "product-mobile",
+    "source": "drive",
+    "externalId": "product-mobile/drive-product-mobile-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-product-mobile-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/drive-product-mobile-weekly-review.md",
+    "title": "Product Mobile: weekly-review",
+    "space": "product-mobile",
+    "source": "drive",
+    "externalId": "product-mobile/drive-product-mobile-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-product-mobile-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/linear-product-mobile-decision-log.md",
+    "title": "Product Mobile: decision-log",
+    "space": "product-mobile",
+    "source": "linear",
+    "externalId": "product-mobile/linear-product-mobile-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-MOBILE-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/linear-product-mobile-delivery-notes.md",
+    "title": "Product Mobile: delivery-notes",
+    "space": "product-mobile",
+    "source": "linear",
+    "externalId": "product-mobile/linear-product-mobile-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-MOBILE-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/linear-product-mobile-weekly-review.md",
+    "title": "Product Mobile: weekly-review",
+    "space": "product-mobile",
+    "source": "linear",
+    "externalId": "product-mobile/linear-product-mobile-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-PRODUCT-MOBILE-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/notion-product-mobile-decision-log.md",
+    "title": "Product Mobile: decision-log",
+    "space": "product-mobile",
+    "source": "notion",
+    "externalId": "product-mobile/notion-product-mobile-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-product-mobile-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/notion-product-mobile-delivery-notes.md",
+    "title": "Product Mobile: delivery-notes",
+    "space": "product-mobile",
+    "source": "notion",
+    "externalId": "product-mobile/notion-product-mobile-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-product-mobile-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/notion-product-mobile-weekly-review.md",
+    "title": "Product Mobile: weekly-review",
+    "space": "product-mobile",
+    "source": "notion",
+    "externalId": "product-mobile/notion-product-mobile-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-product-mobile-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/slack-product-mobile-decision-log.md",
+    "title": "Product Mobile: decision-log",
+    "space": "product-mobile",
+    "source": "slack",
+    "externalId": "product-mobile/slack-product-mobile-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-product-mobile-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/slack-product-mobile-delivery-notes.md",
+    "title": "Product Mobile: delivery-notes",
+    "space": "product-mobile",
+    "source": "slack",
+    "externalId": "product-mobile/slack-product-mobile-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-product-mobile-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "product-mobile/slack-product-mobile-weekly-review.md",
+    "title": "Product Mobile: weekly-review",
+    "space": "product-mobile",
+    "source": "slack",
+    "externalId": "product-mobile/slack-product-mobile-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-product-mobile-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/drive-revenue-sales-decision-log.md",
+    "title": "Sales: decision-log",
+    "space": "revenue-sales",
+    "source": "drive",
+    "externalId": "revenue-sales/drive-revenue-sales-decision-log",
+    "url": "https://docs.google.com/document/d/drive-revenue-sales-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/drive-revenue-sales-delivery-notes.md",
+    "title": "Sales: delivery-notes",
+    "space": "revenue-sales",
+    "source": "drive",
+    "externalId": "revenue-sales/drive-revenue-sales-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-revenue-sales-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/drive-revenue-sales-weekly-review.md",
+    "title": "Sales: weekly-review",
+    "space": "revenue-sales",
+    "source": "drive",
+    "externalId": "revenue-sales/drive-revenue-sales-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-revenue-sales-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/linear-revenue-sales-decision-log.md",
+    "title": "Sales: decision-log",
+    "space": "revenue-sales",
+    "source": "linear",
+    "externalId": "revenue-sales/linear-revenue-sales-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-SALES-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/linear-revenue-sales-delivery-notes.md",
+    "title": "Sales: delivery-notes",
+    "space": "revenue-sales",
+    "source": "linear",
+    "externalId": "revenue-sales/linear-revenue-sales-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-SALES-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/linear-revenue-sales-weekly-review.md",
+    "title": "Sales: weekly-review",
+    "space": "revenue-sales",
+    "source": "linear",
+    "externalId": "revenue-sales/linear-revenue-sales-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-SALES-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/notion-revenue-sales-decision-log.md",
+    "title": "Sales: decision-log",
+    "space": "revenue-sales",
+    "source": "notion",
+    "externalId": "revenue-sales/notion-revenue-sales-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-revenue-sales-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/notion-revenue-sales-delivery-notes.md",
+    "title": "Sales: delivery-notes",
+    "space": "revenue-sales",
+    "source": "notion",
+    "externalId": "revenue-sales/notion-revenue-sales-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-revenue-sales-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/notion-revenue-sales-weekly-review.md",
+    "title": "Sales: weekly-review",
+    "space": "revenue-sales",
+    "source": "notion",
+    "externalId": "revenue-sales/notion-revenue-sales-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-revenue-sales-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/slack-revenue-sales-decision-log.md",
+    "title": "Sales: decision-log",
+    "space": "revenue-sales",
+    "source": "slack",
+    "externalId": "revenue-sales/slack-revenue-sales-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-sales-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/slack-revenue-sales-delivery-notes.md",
+    "title": "Sales: delivery-notes",
+    "space": "revenue-sales",
+    "source": "slack",
+    "externalId": "revenue-sales/slack-revenue-sales-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-sales-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-sales/slack-revenue-sales-weekly-review.md",
+    "title": "Sales: weekly-review",
+    "space": "revenue-sales",
+    "source": "slack",
+    "externalId": "revenue-sales/slack-revenue-sales-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-sales-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/drive-revenue-partnerships-decision-log.md",
+    "title": "Partnerships: decision-log",
+    "space": "revenue-partnerships",
+    "source": "drive",
+    "externalId": "revenue-partnerships/drive-revenue-partnerships-decision-log",
+    "url": "https://docs.google.com/document/d/drive-revenue-partnerships-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/drive-revenue-partnerships-delivery-notes.md",
+    "title": "Partnerships: delivery-notes",
+    "space": "revenue-partnerships",
+    "source": "drive",
+    "externalId": "revenue-partnerships/drive-revenue-partnerships-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-revenue-partnerships-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/drive-revenue-partnerships-weekly-review.md",
+    "title": "Partnerships: weekly-review",
+    "space": "revenue-partnerships",
+    "source": "drive",
+    "externalId": "revenue-partnerships/drive-revenue-partnerships-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-revenue-partnerships-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/linear-revenue-partnerships-decision-log.md",
+    "title": "Partnerships: decision-log",
+    "space": "revenue-partnerships",
+    "source": "linear",
+    "externalId": "revenue-partnerships/linear-revenue-partnerships-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PARTNERSHIPS-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/linear-revenue-partnerships-delivery-notes.md",
+    "title": "Partnerships: delivery-notes",
+    "space": "revenue-partnerships",
+    "source": "linear",
+    "externalId": "revenue-partnerships/linear-revenue-partnerships-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PARTNERSHIPS-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/linear-revenue-partnerships-weekly-review.md",
+    "title": "Partnerships: weekly-review",
+    "space": "revenue-partnerships",
+    "source": "linear",
+    "externalId": "revenue-partnerships/linear-revenue-partnerships-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PARTNERSHIPS-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/notion-revenue-partnerships-decision-log.md",
+    "title": "Partnerships: decision-log",
+    "space": "revenue-partnerships",
+    "source": "notion",
+    "externalId": "revenue-partnerships/notion-revenue-partnerships-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-revenue-partnerships-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/notion-revenue-partnerships-delivery-notes.md",
+    "title": "Partnerships: delivery-notes",
+    "space": "revenue-partnerships",
+    "source": "notion",
+    "externalId": "revenue-partnerships/notion-revenue-partnerships-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-revenue-partnerships-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/notion-revenue-partnerships-weekly-review.md",
+    "title": "Partnerships: weekly-review",
+    "space": "revenue-partnerships",
+    "source": "notion",
+    "externalId": "revenue-partnerships/notion-revenue-partnerships-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-revenue-partnerships-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/slack-revenue-partnerships-decision-log.md",
+    "title": "Partnerships: decision-log",
+    "space": "revenue-partnerships",
+    "source": "slack",
+    "externalId": "revenue-partnerships/slack-revenue-partnerships-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-partnerships-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/slack-revenue-partnerships-delivery-notes.md",
+    "title": "Partnerships: delivery-notes",
+    "space": "revenue-partnerships",
+    "source": "slack",
+    "externalId": "revenue-partnerships/slack-revenue-partnerships-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-partnerships-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-partnerships/slack-revenue-partnerships-weekly-review.md",
+    "title": "Partnerships: weekly-review",
+    "space": "revenue-partnerships",
+    "source": "slack",
+    "externalId": "revenue-partnerships/slack-revenue-partnerships-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-partnerships-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/drive-revenue-pricing-decision-log.md",
+    "title": "Pricing: decision-log",
+    "space": "revenue-pricing",
+    "source": "drive",
+    "externalId": "revenue-pricing/drive-revenue-pricing-decision-log",
+    "url": "https://docs.google.com/document/d/drive-revenue-pricing-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/drive-revenue-pricing-delivery-notes.md",
+    "title": "Pricing: delivery-notes",
+    "space": "revenue-pricing",
+    "source": "drive",
+    "externalId": "revenue-pricing/drive-revenue-pricing-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-revenue-pricing-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/drive-revenue-pricing-weekly-review.md",
+    "title": "Pricing: weekly-review",
+    "space": "revenue-pricing",
+    "source": "drive",
+    "externalId": "revenue-pricing/drive-revenue-pricing-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-revenue-pricing-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/linear-revenue-pricing-decision-log.md",
+    "title": "Pricing: decision-log",
+    "space": "revenue-pricing",
+    "source": "linear",
+    "externalId": "revenue-pricing/linear-revenue-pricing-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PRICING-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/linear-revenue-pricing-delivery-notes.md",
+    "title": "Pricing: delivery-notes",
+    "space": "revenue-pricing",
+    "source": "linear",
+    "externalId": "revenue-pricing/linear-revenue-pricing-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PRICING-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/linear-revenue-pricing-weekly-review.md",
+    "title": "Pricing: weekly-review",
+    "space": "revenue-pricing",
+    "source": "linear",
+    "externalId": "revenue-pricing/linear-revenue-pricing-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PRICING-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/notion-revenue-pricing-decision-log.md",
+    "title": "Pricing: decision-log",
+    "space": "revenue-pricing",
+    "source": "notion",
+    "externalId": "revenue-pricing/notion-revenue-pricing-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-revenue-pricing-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/notion-revenue-pricing-delivery-notes.md",
+    "title": "Pricing: delivery-notes",
+    "space": "revenue-pricing",
+    "source": "notion",
+    "externalId": "revenue-pricing/notion-revenue-pricing-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-revenue-pricing-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/notion-revenue-pricing-weekly-review.md",
+    "title": "Pricing: weekly-review",
+    "space": "revenue-pricing",
+    "source": "notion",
+    "externalId": "revenue-pricing/notion-revenue-pricing-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-revenue-pricing-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/slack-revenue-pricing-decision-log.md",
+    "title": "Pricing: decision-log",
+    "space": "revenue-pricing",
+    "source": "slack",
+    "externalId": "revenue-pricing/slack-revenue-pricing-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-pricing-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/slack-revenue-pricing-delivery-notes.md",
+    "title": "Pricing: delivery-notes",
+    "space": "revenue-pricing",
+    "source": "slack",
+    "externalId": "revenue-pricing/slack-revenue-pricing-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-pricing-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pricing/slack-revenue-pricing-weekly-review.md",
+    "title": "Pricing: weekly-review",
+    "space": "revenue-pricing",
+    "source": "slack",
+    "externalId": "revenue-pricing/slack-revenue-pricing-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-pricing-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/drive-revenue-pipeline-decision-log.md",
+    "title": "Pipeline: decision-log",
+    "space": "revenue-pipeline",
+    "source": "drive",
+    "externalId": "revenue-pipeline/drive-revenue-pipeline-decision-log",
+    "url": "https://docs.google.com/document/d/drive-revenue-pipeline-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/drive-revenue-pipeline-delivery-notes.md",
+    "title": "Pipeline: delivery-notes",
+    "space": "revenue-pipeline",
+    "source": "drive",
+    "externalId": "revenue-pipeline/drive-revenue-pipeline-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-revenue-pipeline-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/drive-revenue-pipeline-weekly-review.md",
+    "title": "Pipeline: weekly-review",
+    "space": "revenue-pipeline",
+    "source": "drive",
+    "externalId": "revenue-pipeline/drive-revenue-pipeline-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-revenue-pipeline-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/linear-revenue-pipeline-decision-log.md",
+    "title": "Pipeline: decision-log",
+    "space": "revenue-pipeline",
+    "source": "linear",
+    "externalId": "revenue-pipeline/linear-revenue-pipeline-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PIPELINE-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/linear-revenue-pipeline-delivery-notes.md",
+    "title": "Pipeline: delivery-notes",
+    "space": "revenue-pipeline",
+    "source": "linear",
+    "externalId": "revenue-pipeline/linear-revenue-pipeline-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PIPELINE-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/linear-revenue-pipeline-weekly-review.md",
+    "title": "Pipeline: weekly-review",
+    "space": "revenue-pipeline",
+    "source": "linear",
+    "externalId": "revenue-pipeline/linear-revenue-pipeline-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-PIPELINE-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/notion-revenue-pipeline-decision-log.md",
+    "title": "Pipeline: decision-log",
+    "space": "revenue-pipeline",
+    "source": "notion",
+    "externalId": "revenue-pipeline/notion-revenue-pipeline-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-revenue-pipeline-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/notion-revenue-pipeline-delivery-notes.md",
+    "title": "Pipeline: delivery-notes",
+    "space": "revenue-pipeline",
+    "source": "notion",
+    "externalId": "revenue-pipeline/notion-revenue-pipeline-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-revenue-pipeline-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/notion-revenue-pipeline-weekly-review.md",
+    "title": "Pipeline: weekly-review",
+    "space": "revenue-pipeline",
+    "source": "notion",
+    "externalId": "revenue-pipeline/notion-revenue-pipeline-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-revenue-pipeline-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/slack-revenue-pipeline-decision-log.md",
+    "title": "Pipeline: decision-log",
+    "space": "revenue-pipeline",
+    "source": "slack",
+    "externalId": "revenue-pipeline/slack-revenue-pipeline-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-pipeline-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/slack-revenue-pipeline-delivery-notes.md",
+    "title": "Pipeline: delivery-notes",
+    "space": "revenue-pipeline",
+    "source": "slack",
+    "externalId": "revenue-pipeline/slack-revenue-pipeline-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-pipeline-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-pipeline/slack-revenue-pipeline-weekly-review.md",
+    "title": "Pipeline: weekly-review",
+    "space": "revenue-pipeline",
+    "source": "slack",
+    "externalId": "revenue-pipeline/slack-revenue-pipeline-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-pipeline-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/drive-revenue-renewals-decision-log.md",
+    "title": "Renewals: decision-log",
+    "space": "revenue-renewals",
+    "source": "drive",
+    "externalId": "revenue-renewals/drive-revenue-renewals-decision-log",
+    "url": "https://docs.google.com/document/d/drive-revenue-renewals-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/drive-revenue-renewals-delivery-notes.md",
+    "title": "Renewals: delivery-notes",
+    "space": "revenue-renewals",
+    "source": "drive",
+    "externalId": "revenue-renewals/drive-revenue-renewals-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-revenue-renewals-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/drive-revenue-renewals-weekly-review.md",
+    "title": "Renewals: weekly-review",
+    "space": "revenue-renewals",
+    "source": "drive",
+    "externalId": "revenue-renewals/drive-revenue-renewals-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-revenue-renewals-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/linear-revenue-renewals-decision-log.md",
+    "title": "Renewals: decision-log",
+    "space": "revenue-renewals",
+    "source": "linear",
+    "externalId": "revenue-renewals/linear-revenue-renewals-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-RENEWALS-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/linear-revenue-renewals-delivery-notes.md",
+    "title": "Renewals: delivery-notes",
+    "space": "revenue-renewals",
+    "source": "linear",
+    "externalId": "revenue-renewals/linear-revenue-renewals-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-RENEWALS-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/linear-revenue-renewals-weekly-review.md",
+    "title": "Renewals: weekly-review",
+    "space": "revenue-renewals",
+    "source": "linear",
+    "externalId": "revenue-renewals/linear-revenue-renewals-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-REVENUE-RENEWALS-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/notion-revenue-renewals-decision-log.md",
+    "title": "Renewals: decision-log",
+    "space": "revenue-renewals",
+    "source": "notion",
+    "externalId": "revenue-renewals/notion-revenue-renewals-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-revenue-renewals-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/notion-revenue-renewals-delivery-notes.md",
+    "title": "Renewals: delivery-notes",
+    "space": "revenue-renewals",
+    "source": "notion",
+    "externalId": "revenue-renewals/notion-revenue-renewals-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-revenue-renewals-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/notion-revenue-renewals-weekly-review.md",
+    "title": "Renewals: weekly-review",
+    "space": "revenue-renewals",
+    "source": "notion",
+    "externalId": "revenue-renewals/notion-revenue-renewals-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-revenue-renewals-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/slack-revenue-renewals-decision-log.md",
+    "title": "Renewals: decision-log",
+    "space": "revenue-renewals",
+    "source": "slack",
+    "externalId": "revenue-renewals/slack-revenue-renewals-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-renewals-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/slack-revenue-renewals-delivery-notes.md",
+    "title": "Renewals: delivery-notes",
+    "space": "revenue-renewals",
+    "source": "slack",
+    "externalId": "revenue-renewals/slack-revenue-renewals-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-renewals-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "revenue-renewals/slack-revenue-renewals-weekly-review.md",
+    "title": "Renewals: weekly-review",
+    "space": "revenue-renewals",
+    "source": "slack",
+    "externalId": "revenue-renewals/slack-revenue-renewals-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-revenue-renewals-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/drive-customer-success-decision-log.md",
+    "title": "Customer Success: decision-log",
+    "space": "customer-success",
+    "source": "drive",
+    "externalId": "customer-success/drive-customer-success-decision-log",
+    "url": "https://docs.google.com/document/d/drive-customer-success-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/drive-customer-success-delivery-notes.md",
+    "title": "Customer Success: delivery-notes",
+    "space": "customer-success",
+    "source": "drive",
+    "externalId": "customer-success/drive-customer-success-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-customer-success-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/drive-customer-success-weekly-review.md",
+    "title": "Customer Success: weekly-review",
+    "space": "customer-success",
+    "source": "drive",
+    "externalId": "customer-success/drive-customer-success-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-customer-success-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/linear-customer-success-decision-log.md",
+    "title": "Customer Success: decision-log",
+    "space": "customer-success",
+    "source": "linear",
+    "externalId": "customer-success/linear-customer-success-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-SUCCESS-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/linear-customer-success-delivery-notes.md",
+    "title": "Customer Success: delivery-notes",
+    "space": "customer-success",
+    "source": "linear",
+    "externalId": "customer-success/linear-customer-success-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-SUCCESS-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/linear-customer-success-weekly-review.md",
+    "title": "Customer Success: weekly-review",
+    "space": "customer-success",
+    "source": "linear",
+    "externalId": "customer-success/linear-customer-success-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-SUCCESS-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/notion-customer-success-decision-log.md",
+    "title": "Customer Success: decision-log",
+    "space": "customer-success",
+    "source": "notion",
+    "externalId": "customer-success/notion-customer-success-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-customer-success-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/notion-customer-success-delivery-notes.md",
+    "title": "Customer Success: delivery-notes",
+    "space": "customer-success",
+    "source": "notion",
+    "externalId": "customer-success/notion-customer-success-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-customer-success-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/notion-customer-success-weekly-review.md",
+    "title": "Customer Success: weekly-review",
+    "space": "customer-success",
+    "source": "notion",
+    "externalId": "customer-success/notion-customer-success-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-customer-success-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/slack-customer-success-decision-log.md",
+    "title": "Customer Success: decision-log",
+    "space": "customer-success",
+    "source": "slack",
+    "externalId": "customer-success/slack-customer-success-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-customer-success-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/slack-customer-success-delivery-notes.md",
+    "title": "Customer Success: delivery-notes",
+    "space": "customer-success",
+    "source": "slack",
+    "externalId": "customer-success/slack-customer-success-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-customer-success-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-success/slack-customer-success-weekly-review.md",
+    "title": "Customer Success: weekly-review",
+    "space": "customer-success",
+    "source": "slack",
+    "externalId": "customer-success/slack-customer-success-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-customer-success-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/drive-customer-support-decision-log.md",
+    "title": "Customer Support: decision-log",
+    "space": "customer-support",
+    "source": "drive",
+    "externalId": "customer-support/drive-customer-support-decision-log",
+    "url": "https://docs.google.com/document/d/drive-customer-support-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/drive-customer-support-delivery-notes.md",
+    "title": "Customer Support: delivery-notes",
+    "space": "customer-support",
+    "source": "drive",
+    "externalId": "customer-support/drive-customer-support-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-customer-support-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/drive-customer-support-weekly-review.md",
+    "title": "Customer Support: weekly-review",
+    "space": "customer-support",
+    "source": "drive",
+    "externalId": "customer-support/drive-customer-support-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-customer-support-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/linear-customer-support-decision-log.md",
+    "title": "Customer Support: decision-log",
+    "space": "customer-support",
+    "source": "linear",
+    "externalId": "customer-support/linear-customer-support-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-SUPPORT-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/linear-customer-support-delivery-notes.md",
+    "title": "Customer Support: delivery-notes",
+    "space": "customer-support",
+    "source": "linear",
+    "externalId": "customer-support/linear-customer-support-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-SUPPORT-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/linear-customer-support-weekly-review.md",
+    "title": "Customer Support: weekly-review",
+    "space": "customer-support",
+    "source": "linear",
+    "externalId": "customer-support/linear-customer-support-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-SUPPORT-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/notion-customer-support-decision-log.md",
+    "title": "Customer Support: decision-log",
+    "space": "customer-support",
+    "source": "notion",
+    "externalId": "customer-support/notion-customer-support-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-customer-support-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/notion-customer-support-delivery-notes.md",
+    "title": "Customer Support: delivery-notes",
+    "space": "customer-support",
+    "source": "notion",
+    "externalId": "customer-support/notion-customer-support-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-customer-support-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/notion-customer-support-weekly-review.md",
+    "title": "Customer Support: weekly-review",
+    "space": "customer-support",
+    "source": "notion",
+    "externalId": "customer-support/notion-customer-support-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-customer-support-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/slack-customer-support-decision-log.md",
+    "title": "Customer Support: decision-log",
+    "space": "customer-support",
+    "source": "slack",
+    "externalId": "customer-support/slack-customer-support-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-customer-support-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/slack-customer-support-delivery-notes.md",
+    "title": "Customer Support: delivery-notes",
+    "space": "customer-support",
+    "source": "slack",
+    "externalId": "customer-support/slack-customer-support-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-customer-support-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-support/slack-customer-support-weekly-review.md",
+    "title": "Customer Support: weekly-review",
+    "space": "customer-support",
+    "source": "slack",
+    "externalId": "customer-support/slack-customer-support-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-customer-support-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/drive-customer-feedback-decision-log.md",
+    "title": "Customer Feedback: decision-log",
+    "space": "customer-feedback",
+    "source": "drive",
+    "externalId": "customer-feedback/drive-customer-feedback-decision-log",
+    "url": "https://docs.google.com/document/d/drive-customer-feedback-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/drive-customer-feedback-delivery-notes.md",
+    "title": "Customer Feedback: delivery-notes",
+    "space": "customer-feedback",
+    "source": "drive",
+    "externalId": "customer-feedback/drive-customer-feedback-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-customer-feedback-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/drive-customer-feedback-weekly-review.md",
+    "title": "Customer Feedback: weekly-review",
+    "space": "customer-feedback",
+    "source": "drive",
+    "externalId": "customer-feedback/drive-customer-feedback-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-customer-feedback-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/linear-customer-feedback-decision-log.md",
+    "title": "Customer Feedback: decision-log",
+    "space": "customer-feedback",
+    "source": "linear",
+    "externalId": "customer-feedback/linear-customer-feedback-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-FEEDBACK-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/linear-customer-feedback-delivery-notes.md",
+    "title": "Customer Feedback: delivery-notes",
+    "space": "customer-feedback",
+    "source": "linear",
+    "externalId": "customer-feedback/linear-customer-feedback-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-FEEDBACK-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/linear-customer-feedback-weekly-review.md",
+    "title": "Customer Feedback: weekly-review",
+    "space": "customer-feedback",
+    "source": "linear",
+    "externalId": "customer-feedback/linear-customer-feedback-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-FEEDBACK-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/notion-customer-feedback-decision-log.md",
+    "title": "Customer Feedback: decision-log",
+    "space": "customer-feedback",
+    "source": "notion",
+    "externalId": "customer-feedback/notion-customer-feedback-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-customer-feedback-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/notion-customer-feedback-delivery-notes.md",
+    "title": "Customer Feedback: delivery-notes",
+    "space": "customer-feedback",
+    "source": "notion",
+    "externalId": "customer-feedback/notion-customer-feedback-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-customer-feedback-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/notion-customer-feedback-weekly-review.md",
+    "title": "Customer Feedback: weekly-review",
+    "space": "customer-feedback",
+    "source": "notion",
+    "externalId": "customer-feedback/notion-customer-feedback-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-customer-feedback-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/slack-customer-feedback-decision-log.md",
+    "title": "Customer Feedback: decision-log",
+    "space": "customer-feedback",
+    "source": "slack",
+    "externalId": "customer-feedback/slack-customer-feedback-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-customer-feedback-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/slack-customer-feedback-delivery-notes.md",
+    "title": "Customer Feedback: delivery-notes",
+    "space": "customer-feedback",
+    "source": "slack",
+    "externalId": "customer-feedback/slack-customer-feedback-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-customer-feedback-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-feedback/slack-customer-feedback-weekly-review.md",
+    "title": "Customer Feedback: weekly-review",
+    "space": "customer-feedback",
+    "source": "slack",
+    "externalId": "customer-feedback/slack-customer-feedback-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-customer-feedback-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/drive-customer-implementations-decision-log.md",
+    "title": "Implementations: decision-log",
+    "space": "customer-implementations",
+    "source": "drive",
+    "externalId": "customer-implementations/drive-customer-implementations-decision-log",
+    "url": "https://docs.google.com/document/d/drive-customer-implementations-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/drive-customer-implementations-delivery-notes.md",
+    "title": "Implementations: delivery-notes",
+    "space": "customer-implementations",
+    "source": "drive",
+    "externalId": "customer-implementations/drive-customer-implementations-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-customer-implementations-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/drive-customer-implementations-weekly-review.md",
+    "title": "Implementations: weekly-review",
+    "space": "customer-implementations",
+    "source": "drive",
+    "externalId": "customer-implementations/drive-customer-implementations-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-customer-implementations-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/linear-customer-implementations-decision-log.md",
+    "title": "Implementations: decision-log",
+    "space": "customer-implementations",
+    "source": "linear",
+    "externalId": "customer-implementations/linear-customer-implementations-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-IMPLEMENTATIONS-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/linear-customer-implementations-delivery-notes.md",
+    "title": "Implementations: delivery-notes",
+    "space": "customer-implementations",
+    "source": "linear",
+    "externalId": "customer-implementations/linear-customer-implementations-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-IMPLEMENTATIONS-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/linear-customer-implementations-weekly-review.md",
+    "title": "Implementations: weekly-review",
+    "space": "customer-implementations",
+    "source": "linear",
+    "externalId": "customer-implementations/linear-customer-implementations-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-IMPLEMENTATIONS-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/notion-customer-implementations-decision-log.md",
+    "title": "Implementations: decision-log",
+    "space": "customer-implementations",
+    "source": "notion",
+    "externalId": "customer-implementations/notion-customer-implementations-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-customer-implementations-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/notion-customer-implementations-delivery-notes.md",
+    "title": "Implementations: delivery-notes",
+    "space": "customer-implementations",
+    "source": "notion",
+    "externalId": "customer-implementations/notion-customer-implementations-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-customer-implementations-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/notion-customer-implementations-weekly-review.md",
+    "title": "Implementations: weekly-review",
+    "space": "customer-implementations",
+    "source": "notion",
+    "externalId": "customer-implementations/notion-customer-implementations-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-customer-implementations-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/slack-customer-implementations-decision-log.md",
+    "title": "Implementations: decision-log",
+    "space": "customer-implementations",
+    "source": "slack",
+    "externalId": "customer-implementations/slack-customer-implementations-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-customer-implementations-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/slack-customer-implementations-delivery-notes.md",
+    "title": "Implementations: delivery-notes",
+    "space": "customer-implementations",
+    "source": "slack",
+    "externalId": "customer-implementations/slack-customer-implementations-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-customer-implementations-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-implementations/slack-customer-implementations-weekly-review.md",
+    "title": "Implementations: weekly-review",
+    "space": "customer-implementations",
+    "source": "slack",
+    "externalId": "customer-implementations/slack-customer-implementations-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-customer-implementations-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/drive-customer-accounts-decision-log.md",
+    "title": "Strategic Accounts: decision-log",
+    "space": "customer-accounts",
+    "source": "drive",
+    "externalId": "customer-accounts/drive-customer-accounts-decision-log",
+    "url": "https://docs.google.com/document/d/drive-customer-accounts-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/drive-customer-accounts-delivery-notes.md",
+    "title": "Strategic Accounts: delivery-notes",
+    "space": "customer-accounts",
+    "source": "drive",
+    "externalId": "customer-accounts/drive-customer-accounts-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-customer-accounts-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/drive-customer-accounts-weekly-review.md",
+    "title": "Strategic Accounts: weekly-review",
+    "space": "customer-accounts",
+    "source": "drive",
+    "externalId": "customer-accounts/drive-customer-accounts-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-customer-accounts-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/linear-customer-accounts-decision-log.md",
+    "title": "Strategic Accounts: decision-log",
+    "space": "customer-accounts",
+    "source": "linear",
+    "externalId": "customer-accounts/linear-customer-accounts-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-ACCOUNTS-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/linear-customer-accounts-delivery-notes.md",
+    "title": "Strategic Accounts: delivery-notes",
+    "space": "customer-accounts",
+    "source": "linear",
+    "externalId": "customer-accounts/linear-customer-accounts-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-ACCOUNTS-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/linear-customer-accounts-weekly-review.md",
+    "title": "Strategic Accounts: weekly-review",
+    "space": "customer-accounts",
+    "source": "linear",
+    "externalId": "customer-accounts/linear-customer-accounts-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-CUSTOMER-ACCOUNTS-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/notion-customer-accounts-decision-log.md",
+    "title": "Strategic Accounts: decision-log",
+    "space": "customer-accounts",
+    "source": "notion",
+    "externalId": "customer-accounts/notion-customer-accounts-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-customer-accounts-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/notion-customer-accounts-delivery-notes.md",
+    "title": "Strategic Accounts: delivery-notes",
+    "space": "customer-accounts",
+    "source": "notion",
+    "externalId": "customer-accounts/notion-customer-accounts-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-customer-accounts-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/notion-customer-accounts-weekly-review.md",
+    "title": "Strategic Accounts: weekly-review",
+    "space": "customer-accounts",
+    "source": "notion",
+    "externalId": "customer-accounts/notion-customer-accounts-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-customer-accounts-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/slack-customer-accounts-decision-log.md",
+    "title": "Strategic Accounts: decision-log",
+    "space": "customer-accounts",
+    "source": "slack",
+    "externalId": "customer-accounts/slack-customer-accounts-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-customer-accounts-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/slack-customer-accounts-delivery-notes.md",
+    "title": "Strategic Accounts: delivery-notes",
+    "space": "customer-accounts",
+    "source": "slack",
+    "externalId": "customer-accounts/slack-customer-accounts-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-customer-accounts-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "customer-accounts/slack-customer-accounts-weekly-review.md",
+    "title": "Strategic Accounts: weekly-review",
+    "space": "customer-accounts",
+    "source": "slack",
+    "externalId": "customer-accounts/slack-customer-accounts-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-customer-accounts-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/drive-operations-finance-decision-log.md",
+    "title": "Finance Ops: decision-log",
+    "space": "operations-finance",
+    "source": "drive",
+    "externalId": "operations-finance/drive-operations-finance-decision-log",
+    "url": "https://docs.google.com/document/d/drive-operations-finance-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/drive-operations-finance-delivery-notes.md",
+    "title": "Finance Ops: delivery-notes",
+    "space": "operations-finance",
+    "source": "drive",
+    "externalId": "operations-finance/drive-operations-finance-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-operations-finance-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/drive-operations-finance-weekly-review.md",
+    "title": "Finance Ops: weekly-review",
+    "space": "operations-finance",
+    "source": "drive",
+    "externalId": "operations-finance/drive-operations-finance-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-operations-finance-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/linear-operations-finance-decision-log.md",
+    "title": "Finance Ops: decision-log",
+    "space": "operations-finance",
+    "source": "linear",
+    "externalId": "operations-finance/linear-operations-finance-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-FINANCE-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/linear-operations-finance-delivery-notes.md",
+    "title": "Finance Ops: delivery-notes",
+    "space": "operations-finance",
+    "source": "linear",
+    "externalId": "operations-finance/linear-operations-finance-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-FINANCE-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/linear-operations-finance-weekly-review.md",
+    "title": "Finance Ops: weekly-review",
+    "space": "operations-finance",
+    "source": "linear",
+    "externalId": "operations-finance/linear-operations-finance-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-FINANCE-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/notion-operations-finance-decision-log.md",
+    "title": "Finance Ops: decision-log",
+    "space": "operations-finance",
+    "source": "notion",
+    "externalId": "operations-finance/notion-operations-finance-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-operations-finance-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/notion-operations-finance-delivery-notes.md",
+    "title": "Finance Ops: delivery-notes",
+    "space": "operations-finance",
+    "source": "notion",
+    "externalId": "operations-finance/notion-operations-finance-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-operations-finance-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/notion-operations-finance-weekly-review.md",
+    "title": "Finance Ops: weekly-review",
+    "space": "operations-finance",
+    "source": "notion",
+    "externalId": "operations-finance/notion-operations-finance-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-operations-finance-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/slack-operations-finance-decision-log.md",
+    "title": "Finance Ops: decision-log",
+    "space": "operations-finance",
+    "source": "slack",
+    "externalId": "operations-finance/slack-operations-finance-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-operations-finance-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/slack-operations-finance-delivery-notes.md",
+    "title": "Finance Ops: delivery-notes",
+    "space": "operations-finance",
+    "source": "slack",
+    "externalId": "operations-finance/slack-operations-finance-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-operations-finance-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-finance/slack-operations-finance-weekly-review.md",
+    "title": "Finance Ops: weekly-review",
+    "space": "operations-finance",
+    "source": "slack",
+    "externalId": "operations-finance/slack-operations-finance-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-operations-finance-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/drive-operations-legal-decision-log.md",
+    "title": "Legal: decision-log",
+    "space": "operations-legal",
+    "source": "drive",
+    "externalId": "operations-legal/drive-operations-legal-decision-log",
+    "url": "https://docs.google.com/document/d/drive-operations-legal-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/drive-operations-legal-delivery-notes.md",
+    "title": "Legal: delivery-notes",
+    "space": "operations-legal",
+    "source": "drive",
+    "externalId": "operations-legal/drive-operations-legal-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-operations-legal-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/drive-operations-legal-weekly-review.md",
+    "title": "Legal: weekly-review",
+    "space": "operations-legal",
+    "source": "drive",
+    "externalId": "operations-legal/drive-operations-legal-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-operations-legal-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/linear-operations-legal-decision-log.md",
+    "title": "Legal: decision-log",
+    "space": "operations-legal",
+    "source": "linear",
+    "externalId": "operations-legal/linear-operations-legal-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-LEGAL-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/linear-operations-legal-delivery-notes.md",
+    "title": "Legal: delivery-notes",
+    "space": "operations-legal",
+    "source": "linear",
+    "externalId": "operations-legal/linear-operations-legal-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-LEGAL-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/linear-operations-legal-weekly-review.md",
+    "title": "Legal: weekly-review",
+    "space": "operations-legal",
+    "source": "linear",
+    "externalId": "operations-legal/linear-operations-legal-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-LEGAL-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/notion-operations-legal-decision-log.md",
+    "title": "Legal: decision-log",
+    "space": "operations-legal",
+    "source": "notion",
+    "externalId": "operations-legal/notion-operations-legal-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-operations-legal-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/notion-operations-legal-delivery-notes.md",
+    "title": "Legal: delivery-notes",
+    "space": "operations-legal",
+    "source": "notion",
+    "externalId": "operations-legal/notion-operations-legal-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-operations-legal-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/notion-operations-legal-weekly-review.md",
+    "title": "Legal: weekly-review",
+    "space": "operations-legal",
+    "source": "notion",
+    "externalId": "operations-legal/notion-operations-legal-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-operations-legal-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/slack-operations-legal-decision-log.md",
+    "title": "Legal: decision-log",
+    "space": "operations-legal",
+    "source": "slack",
+    "externalId": "operations-legal/slack-operations-legal-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-operations-legal-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/slack-operations-legal-delivery-notes.md",
+    "title": "Legal: delivery-notes",
+    "space": "operations-legal",
+    "source": "slack",
+    "externalId": "operations-legal/slack-operations-legal-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-operations-legal-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-legal/slack-operations-legal-weekly-review.md",
+    "title": "Legal: weekly-review",
+    "space": "operations-legal",
+    "source": "slack",
+    "externalId": "operations-legal/slack-operations-legal-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-operations-legal-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/drive-operations-procurement-decision-log.md",
+    "title": "Procurement: decision-log",
+    "space": "operations-procurement",
+    "source": "drive",
+    "externalId": "operations-procurement/drive-operations-procurement-decision-log",
+    "url": "https://docs.google.com/document/d/drive-operations-procurement-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/drive-operations-procurement-delivery-notes.md",
+    "title": "Procurement: delivery-notes",
+    "space": "operations-procurement",
+    "source": "drive",
+    "externalId": "operations-procurement/drive-operations-procurement-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-operations-procurement-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/drive-operations-procurement-weekly-review.md",
+    "title": "Procurement: weekly-review",
+    "space": "operations-procurement",
+    "source": "drive",
+    "externalId": "operations-procurement/drive-operations-procurement-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-operations-procurement-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/linear-operations-procurement-decision-log.md",
+    "title": "Procurement: decision-log",
+    "space": "operations-procurement",
+    "source": "linear",
+    "externalId": "operations-procurement/linear-operations-procurement-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-PROCUREMENT-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/linear-operations-procurement-delivery-notes.md",
+    "title": "Procurement: delivery-notes",
+    "space": "operations-procurement",
+    "source": "linear",
+    "externalId": "operations-procurement/linear-operations-procurement-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-PROCUREMENT-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/linear-operations-procurement-weekly-review.md",
+    "title": "Procurement: weekly-review",
+    "space": "operations-procurement",
+    "source": "linear",
+    "externalId": "operations-procurement/linear-operations-procurement-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-PROCUREMENT-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/notion-operations-procurement-decision-log.md",
+    "title": "Procurement: decision-log",
+    "space": "operations-procurement",
+    "source": "notion",
+    "externalId": "operations-procurement/notion-operations-procurement-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-operations-procurement-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/notion-operations-procurement-delivery-notes.md",
+    "title": "Procurement: delivery-notes",
+    "space": "operations-procurement",
+    "source": "notion",
+    "externalId": "operations-procurement/notion-operations-procurement-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-operations-procurement-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/notion-operations-procurement-weekly-review.md",
+    "title": "Procurement: weekly-review",
+    "space": "operations-procurement",
+    "source": "notion",
+    "externalId": "operations-procurement/notion-operations-procurement-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-operations-procurement-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/slack-operations-procurement-decision-log.md",
+    "title": "Procurement: decision-log",
+    "space": "operations-procurement",
+    "source": "slack",
+    "externalId": "operations-procurement/slack-operations-procurement-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-operations-procurement-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/slack-operations-procurement-delivery-notes.md",
+    "title": "Procurement: delivery-notes",
+    "space": "operations-procurement",
+    "source": "slack",
+    "externalId": "operations-procurement/slack-operations-procurement-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-operations-procurement-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-procurement/slack-operations-procurement-weekly-review.md",
+    "title": "Procurement: weekly-review",
+    "space": "operations-procurement",
+    "source": "slack",
+    "externalId": "operations-procurement/slack-operations-procurement-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-operations-procurement-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/drive-operations-people-decision-log.md",
+    "title": "People Ops: decision-log",
+    "space": "operations-people",
+    "source": "drive",
+    "externalId": "operations-people/drive-operations-people-decision-log",
+    "url": "https://docs.google.com/document/d/drive-operations-people-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/drive-operations-people-delivery-notes.md",
+    "title": "People Ops: delivery-notes",
+    "space": "operations-people",
+    "source": "drive",
+    "externalId": "operations-people/drive-operations-people-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-operations-people-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/drive-operations-people-weekly-review.md",
+    "title": "People Ops: weekly-review",
+    "space": "operations-people",
+    "source": "drive",
+    "externalId": "operations-people/drive-operations-people-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-operations-people-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/linear-operations-people-decision-log.md",
+    "title": "People Ops: decision-log",
+    "space": "operations-people",
+    "source": "linear",
+    "externalId": "operations-people/linear-operations-people-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-PEOPLE-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/linear-operations-people-delivery-notes.md",
+    "title": "People Ops: delivery-notes",
+    "space": "operations-people",
+    "source": "linear",
+    "externalId": "operations-people/linear-operations-people-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-PEOPLE-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/linear-operations-people-weekly-review.md",
+    "title": "People Ops: weekly-review",
+    "space": "operations-people",
+    "source": "linear",
+    "externalId": "operations-people/linear-operations-people-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-PEOPLE-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/notion-operations-people-decision-log.md",
+    "title": "People Ops: decision-log",
+    "space": "operations-people",
+    "source": "notion",
+    "externalId": "operations-people/notion-operations-people-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-operations-people-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/notion-operations-people-delivery-notes.md",
+    "title": "People Ops: delivery-notes",
+    "space": "operations-people",
+    "source": "notion",
+    "externalId": "operations-people/notion-operations-people-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-operations-people-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/notion-operations-people-weekly-review.md",
+    "title": "People Ops: weekly-review",
+    "space": "operations-people",
+    "source": "notion",
+    "externalId": "operations-people/notion-operations-people-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-operations-people-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/slack-operations-people-decision-log.md",
+    "title": "People Ops: decision-log",
+    "space": "operations-people",
+    "source": "slack",
+    "externalId": "operations-people/slack-operations-people-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-operations-people-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/slack-operations-people-delivery-notes.md",
+    "title": "People Ops: delivery-notes",
+    "space": "operations-people",
+    "source": "slack",
+    "externalId": "operations-people/slack-operations-people-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-operations-people-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-people/slack-operations-people-weekly-review.md",
+    "title": "People Ops: weekly-review",
+    "space": "operations-people",
+    "source": "slack",
+    "externalId": "operations-people/slack-operations-people-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-operations-people-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/drive-operations-recruiting-decision-log.md",
+    "title": "Recruiting: decision-log",
+    "space": "operations-recruiting",
+    "source": "drive",
+    "externalId": "operations-recruiting/drive-operations-recruiting-decision-log",
+    "url": "https://docs.google.com/document/d/drive-operations-recruiting-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/drive-operations-recruiting-delivery-notes.md",
+    "title": "Recruiting: delivery-notes",
+    "space": "operations-recruiting",
+    "source": "drive",
+    "externalId": "operations-recruiting/drive-operations-recruiting-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-operations-recruiting-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/drive-operations-recruiting-weekly-review.md",
+    "title": "Recruiting: weekly-review",
+    "space": "operations-recruiting",
+    "source": "drive",
+    "externalId": "operations-recruiting/drive-operations-recruiting-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-operations-recruiting-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/linear-operations-recruiting-decision-log.md",
+    "title": "Recruiting: decision-log",
+    "space": "operations-recruiting",
+    "source": "linear",
+    "externalId": "operations-recruiting/linear-operations-recruiting-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-RECRUITING-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/linear-operations-recruiting-delivery-notes.md",
+    "title": "Recruiting: delivery-notes",
+    "space": "operations-recruiting",
+    "source": "linear",
+    "externalId": "operations-recruiting/linear-operations-recruiting-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-RECRUITING-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/linear-operations-recruiting-weekly-review.md",
+    "title": "Recruiting: weekly-review",
+    "space": "operations-recruiting",
+    "source": "linear",
+    "externalId": "operations-recruiting/linear-operations-recruiting-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-OPERATIONS-RECRUITING-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/notion-operations-recruiting-decision-log.md",
+    "title": "Recruiting: decision-log",
+    "space": "operations-recruiting",
+    "source": "notion",
+    "externalId": "operations-recruiting/notion-operations-recruiting-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-operations-recruiting-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/notion-operations-recruiting-delivery-notes.md",
+    "title": "Recruiting: delivery-notes",
+    "space": "operations-recruiting",
+    "source": "notion",
+    "externalId": "operations-recruiting/notion-operations-recruiting-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-operations-recruiting-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/notion-operations-recruiting-weekly-review.md",
+    "title": "Recruiting: weekly-review",
+    "space": "operations-recruiting",
+    "source": "notion",
+    "externalId": "operations-recruiting/notion-operations-recruiting-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-operations-recruiting-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/slack-operations-recruiting-decision-log.md",
+    "title": "Recruiting: decision-log",
+    "space": "operations-recruiting",
+    "source": "slack",
+    "externalId": "operations-recruiting/slack-operations-recruiting-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-operations-recruiting-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/slack-operations-recruiting-delivery-notes.md",
+    "title": "Recruiting: delivery-notes",
+    "space": "operations-recruiting",
+    "source": "slack",
+    "externalId": "operations-recruiting/slack-operations-recruiting-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-operations-recruiting-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "operations-recruiting/slack-operations-recruiting-weekly-review.md",
+    "title": "Recruiting: weekly-review",
+    "space": "operations-recruiting",
+    "source": "slack",
+    "externalId": "operations-recruiting/slack-operations-recruiting-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-operations-recruiting-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/drive-technology-platform-decision-log.md",
+    "title": "Platform: decision-log",
+    "space": "technology-platform",
+    "source": "drive",
+    "externalId": "technology-platform/drive-technology-platform-decision-log",
+    "url": "https://docs.google.com/document/d/drive-technology-platform-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/drive-technology-platform-delivery-notes.md",
+    "title": "Platform: delivery-notes",
+    "space": "technology-platform",
+    "source": "drive",
+    "externalId": "technology-platform/drive-technology-platform-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-technology-platform-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/drive-technology-platform-weekly-review.md",
+    "title": "Platform: weekly-review",
+    "space": "technology-platform",
+    "source": "drive",
+    "externalId": "technology-platform/drive-technology-platform-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-technology-platform-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/linear-technology-platform-decision-log.md",
+    "title": "Platform: decision-log",
+    "space": "technology-platform",
+    "source": "linear",
+    "externalId": "technology-platform/linear-technology-platform-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-PLATFORM-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/linear-technology-platform-delivery-notes.md",
+    "title": "Platform: delivery-notes",
+    "space": "technology-platform",
+    "source": "linear",
+    "externalId": "technology-platform/linear-technology-platform-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-PLATFORM-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/linear-technology-platform-weekly-review.md",
+    "title": "Platform: weekly-review",
+    "space": "technology-platform",
+    "source": "linear",
+    "externalId": "technology-platform/linear-technology-platform-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-PLATFORM-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/notion-technology-platform-decision-log.md",
+    "title": "Platform: decision-log",
+    "space": "technology-platform",
+    "source": "notion",
+    "externalId": "technology-platform/notion-technology-platform-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-technology-platform-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/notion-technology-platform-delivery-notes.md",
+    "title": "Platform: delivery-notes",
+    "space": "technology-platform",
+    "source": "notion",
+    "externalId": "technology-platform/notion-technology-platform-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-technology-platform-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/notion-technology-platform-weekly-review.md",
+    "title": "Platform: weekly-review",
+    "space": "technology-platform",
+    "source": "notion",
+    "externalId": "technology-platform/notion-technology-platform-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-technology-platform-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/slack-technology-platform-decision-log.md",
+    "title": "Platform: decision-log",
+    "space": "technology-platform",
+    "source": "slack",
+    "externalId": "technology-platform/slack-technology-platform-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-technology-platform-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/slack-technology-platform-delivery-notes.md",
+    "title": "Platform: delivery-notes",
+    "space": "technology-platform",
+    "source": "slack",
+    "externalId": "technology-platform/slack-technology-platform-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-technology-platform-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-platform/slack-technology-platform-weekly-review.md",
+    "title": "Platform: weekly-review",
+    "space": "technology-platform",
+    "source": "slack",
+    "externalId": "technology-platform/slack-technology-platform-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-technology-platform-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/drive-technology-infrastructure-decision-log.md",
+    "title": "Infrastructure: decision-log",
+    "space": "technology-infrastructure",
+    "source": "drive",
+    "externalId": "technology-infrastructure/drive-technology-infrastructure-decision-log",
+    "url": "https://docs.google.com/document/d/drive-technology-infrastructure-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/drive-technology-infrastructure-delivery-notes.md",
+    "title": "Infrastructure: delivery-notes",
+    "space": "technology-infrastructure",
+    "source": "drive",
+    "externalId": "technology-infrastructure/drive-technology-infrastructure-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-technology-infrastructure-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/drive-technology-infrastructure-weekly-review.md",
+    "title": "Infrastructure: weekly-review",
+    "space": "technology-infrastructure",
+    "source": "drive",
+    "externalId": "technology-infrastructure/drive-technology-infrastructure-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-technology-infrastructure-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/linear-technology-infrastructure-decision-log.md",
+    "title": "Infrastructure: decision-log",
+    "space": "technology-infrastructure",
+    "source": "linear",
+    "externalId": "technology-infrastructure/linear-technology-infrastructure-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-INFRASTRUCTURE-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/linear-technology-infrastructure-delivery-notes.md",
+    "title": "Infrastructure: delivery-notes",
+    "space": "technology-infrastructure",
+    "source": "linear",
+    "externalId": "technology-infrastructure/linear-technology-infrastructure-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-INFRASTRUCTURE-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/linear-technology-infrastructure-weekly-review.md",
+    "title": "Infrastructure: weekly-review",
+    "space": "technology-infrastructure",
+    "source": "linear",
+    "externalId": "technology-infrastructure/linear-technology-infrastructure-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-INFRASTRUCTURE-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/notion-technology-infrastructure-decision-log.md",
+    "title": "Infrastructure: decision-log",
+    "space": "technology-infrastructure",
+    "source": "notion",
+    "externalId": "technology-infrastructure/notion-technology-infrastructure-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-technology-infrastructure-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/notion-technology-infrastructure-delivery-notes.md",
+    "title": "Infrastructure: delivery-notes",
+    "space": "technology-infrastructure",
+    "source": "notion",
+    "externalId": "technology-infrastructure/notion-technology-infrastructure-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-technology-infrastructure-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/notion-technology-infrastructure-weekly-review.md",
+    "title": "Infrastructure: weekly-review",
+    "space": "technology-infrastructure",
+    "source": "notion",
+    "externalId": "technology-infrastructure/notion-technology-infrastructure-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-technology-infrastructure-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/slack-technology-infrastructure-decision-log.md",
+    "title": "Infrastructure: decision-log",
+    "space": "technology-infrastructure",
+    "source": "slack",
+    "externalId": "technology-infrastructure/slack-technology-infrastructure-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-technology-infrastructure-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/slack-technology-infrastructure-delivery-notes.md",
+    "title": "Infrastructure: delivery-notes",
+    "space": "technology-infrastructure",
+    "source": "slack",
+    "externalId": "technology-infrastructure/slack-technology-infrastructure-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-technology-infrastructure-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-infrastructure/slack-technology-infrastructure-weekly-review.md",
+    "title": "Infrastructure: weekly-review",
+    "space": "technology-infrastructure",
+    "source": "slack",
+    "externalId": "technology-infrastructure/slack-technology-infrastructure-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-technology-infrastructure-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/drive-technology-security-decision-log.md",
+    "title": "Security: decision-log",
+    "space": "technology-security",
+    "source": "drive",
+    "externalId": "technology-security/drive-technology-security-decision-log",
+    "url": "https://docs.google.com/document/d/drive-technology-security-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/drive-technology-security-delivery-notes.md",
+    "title": "Security: delivery-notes",
+    "space": "technology-security",
+    "source": "drive",
+    "externalId": "technology-security/drive-technology-security-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-technology-security-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/drive-technology-security-weekly-review.md",
+    "title": "Security: weekly-review",
+    "space": "technology-security",
+    "source": "drive",
+    "externalId": "technology-security/drive-technology-security-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-technology-security-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/linear-technology-security-decision-log.md",
+    "title": "Security: decision-log",
+    "space": "technology-security",
+    "source": "linear",
+    "externalId": "technology-security/linear-technology-security-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-SECURITY-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/linear-technology-security-delivery-notes.md",
+    "title": "Security: delivery-notes",
+    "space": "technology-security",
+    "source": "linear",
+    "externalId": "technology-security/linear-technology-security-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-SECURITY-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/linear-technology-security-weekly-review.md",
+    "title": "Security: weekly-review",
+    "space": "technology-security",
+    "source": "linear",
+    "externalId": "technology-security/linear-technology-security-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-SECURITY-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/notion-technology-security-decision-log.md",
+    "title": "Security: decision-log",
+    "space": "technology-security",
+    "source": "notion",
+    "externalId": "technology-security/notion-technology-security-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-technology-security-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/notion-technology-security-delivery-notes.md",
+    "title": "Security: delivery-notes",
+    "space": "technology-security",
+    "source": "notion",
+    "externalId": "technology-security/notion-technology-security-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-technology-security-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/notion-technology-security-weekly-review.md",
+    "title": "Security: weekly-review",
+    "space": "technology-security",
+    "source": "notion",
+    "externalId": "technology-security/notion-technology-security-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-technology-security-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/slack-technology-security-decision-log.md",
+    "title": "Security: decision-log",
+    "space": "technology-security",
+    "source": "slack",
+    "externalId": "technology-security/slack-technology-security-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-technology-security-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/slack-technology-security-delivery-notes.md",
+    "title": "Security: delivery-notes",
+    "space": "technology-security",
+    "source": "slack",
+    "externalId": "technology-security/slack-technology-security-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-technology-security-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-security/slack-technology-security-weekly-review.md",
+    "title": "Security: weekly-review",
+    "space": "technology-security",
+    "source": "slack",
+    "externalId": "technology-security/slack-technology-security-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-technology-security-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/drive-technology-data-decision-log.md",
+    "title": "Data: decision-log",
+    "space": "technology-data",
+    "source": "drive",
+    "externalId": "technology-data/drive-technology-data-decision-log",
+    "url": "https://docs.google.com/document/d/drive-technology-data-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/drive-technology-data-delivery-notes.md",
+    "title": "Data: delivery-notes",
+    "space": "technology-data",
+    "source": "drive",
+    "externalId": "technology-data/drive-technology-data-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-technology-data-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/drive-technology-data-weekly-review.md",
+    "title": "Data: weekly-review",
+    "space": "technology-data",
+    "source": "drive",
+    "externalId": "technology-data/drive-technology-data-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-technology-data-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/linear-technology-data-decision-log.md",
+    "title": "Data: decision-log",
+    "space": "technology-data",
+    "source": "linear",
+    "externalId": "technology-data/linear-technology-data-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-DATA-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/linear-technology-data-delivery-notes.md",
+    "title": "Data: delivery-notes",
+    "space": "technology-data",
+    "source": "linear",
+    "externalId": "technology-data/linear-technology-data-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-DATA-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/linear-technology-data-weekly-review.md",
+    "title": "Data: weekly-review",
+    "space": "technology-data",
+    "source": "linear",
+    "externalId": "technology-data/linear-technology-data-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-DATA-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/notion-technology-data-decision-log.md",
+    "title": "Data: decision-log",
+    "space": "technology-data",
+    "source": "notion",
+    "externalId": "technology-data/notion-technology-data-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-technology-data-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/notion-technology-data-delivery-notes.md",
+    "title": "Data: delivery-notes",
+    "space": "technology-data",
+    "source": "notion",
+    "externalId": "technology-data/notion-technology-data-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-technology-data-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/notion-technology-data-weekly-review.md",
+    "title": "Data: weekly-review",
+    "space": "technology-data",
+    "source": "notion",
+    "externalId": "technology-data/notion-technology-data-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-technology-data-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/slack-technology-data-decision-log.md",
+    "title": "Data: decision-log",
+    "space": "technology-data",
+    "source": "slack",
+    "externalId": "technology-data/slack-technology-data-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-technology-data-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/slack-technology-data-delivery-notes.md",
+    "title": "Data: delivery-notes",
+    "space": "technology-data",
+    "source": "slack",
+    "externalId": "technology-data/slack-technology-data-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-technology-data-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-data/slack-technology-data-weekly-review.md",
+    "title": "Data: weekly-review",
+    "space": "technology-data",
+    "source": "slack",
+    "externalId": "technology-data/slack-technology-data-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-technology-data-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/drive-technology-developer-experience-decision-log.md",
+    "title": "Developer Experience: decision-log",
+    "space": "technology-developer-experience",
+    "source": "drive",
+    "externalId": "technology-developer-experience/drive-technology-developer-experience-decision-log",
+    "url": "https://docs.google.com/document/d/drive-technology-developer-experience-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/drive-technology-developer-experience-delivery-notes.md",
+    "title": "Developer Experience: delivery-notes",
+    "space": "technology-developer-experience",
+    "source": "drive",
+    "externalId": "technology-developer-experience/drive-technology-developer-experience-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-technology-developer-experience-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/drive-technology-developer-experience-weekly-review.md",
+    "title": "Developer Experience: weekly-review",
+    "space": "technology-developer-experience",
+    "source": "drive",
+    "externalId": "technology-developer-experience/drive-technology-developer-experience-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-technology-developer-experience-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/linear-technology-developer-experience-decision-log.md",
+    "title": "Developer Experience: decision-log",
+    "space": "technology-developer-experience",
+    "source": "linear",
+    "externalId": "technology-developer-experience/linear-technology-developer-experience-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-DEVELOPER-EXPERIENCE-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/linear-technology-developer-experience-delivery-notes.md",
+    "title": "Developer Experience: delivery-notes",
+    "space": "technology-developer-experience",
+    "source": "linear",
+    "externalId": "technology-developer-experience/linear-technology-developer-experience-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-DEVELOPER-EXPERIENCE-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/linear-technology-developer-experience-weekly-review.md",
+    "title": "Developer Experience: weekly-review",
+    "space": "technology-developer-experience",
+    "source": "linear",
+    "externalId": "technology-developer-experience/linear-technology-developer-experience-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-TECHNOLOGY-DEVELOPER-EXPERIENCE-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/notion-technology-developer-experience-decision-log.md",
+    "title": "Developer Experience: decision-log",
+    "space": "technology-developer-experience",
+    "source": "notion",
+    "externalId": "technology-developer-experience/notion-technology-developer-experience-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-technology-developer-experience-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/notion-technology-developer-experience-delivery-notes.md",
+    "title": "Developer Experience: delivery-notes",
+    "space": "technology-developer-experience",
+    "source": "notion",
+    "externalId": "technology-developer-experience/notion-technology-developer-experience-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-technology-developer-experience-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/notion-technology-developer-experience-weekly-review.md",
+    "title": "Developer Experience: weekly-review",
+    "space": "technology-developer-experience",
+    "source": "notion",
+    "externalId": "technology-developer-experience/notion-technology-developer-experience-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-technology-developer-experience-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/slack-technology-developer-experience-decision-log.md",
+    "title": "Developer Experience: decision-log",
+    "space": "technology-developer-experience",
+    "source": "slack",
+    "externalId": "technology-developer-experience/slack-technology-developer-experience-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-technology-developer-experience-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/slack-technology-developer-experience-delivery-notes.md",
+    "title": "Developer Experience: delivery-notes",
+    "space": "technology-developer-experience",
+    "source": "slack",
+    "externalId": "technology-developer-experience/slack-technology-developer-experience-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-technology-developer-experience-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "technology-developer-experience/slack-technology-developer-experience-weekly-review.md",
+    "title": "Developer Experience: weekly-review",
+    "space": "technology-developer-experience",
+    "source": "slack",
+    "externalId": "technology-developer-experience/slack-technology-developer-experience-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-technology-developer-experience-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/drive-company-leadership-decision-log.md",
+    "title": "Leadership: decision-log",
+    "space": "company-leadership",
+    "source": "drive",
+    "externalId": "company-leadership/drive-company-leadership-decision-log",
+    "url": "https://docs.google.com/document/d/drive-company-leadership-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/drive-company-leadership-delivery-notes.md",
+    "title": "Leadership: delivery-notes",
+    "space": "company-leadership",
+    "source": "drive",
+    "externalId": "company-leadership/drive-company-leadership-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-company-leadership-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/drive-company-leadership-weekly-review.md",
+    "title": "Leadership: weekly-review",
+    "space": "company-leadership",
+    "source": "drive",
+    "externalId": "company-leadership/drive-company-leadership-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-company-leadership-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/linear-company-leadership-decision-log.md",
+    "title": "Leadership: decision-log",
+    "space": "company-leadership",
+    "source": "linear",
+    "externalId": "company-leadership/linear-company-leadership-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-LEADERSHIP-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/linear-company-leadership-delivery-notes.md",
+    "title": "Leadership: delivery-notes",
+    "space": "company-leadership",
+    "source": "linear",
+    "externalId": "company-leadership/linear-company-leadership-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-LEADERSHIP-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/linear-company-leadership-weekly-review.md",
+    "title": "Leadership: weekly-review",
+    "space": "company-leadership",
+    "source": "linear",
+    "externalId": "company-leadership/linear-company-leadership-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-LEADERSHIP-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/notion-company-leadership-decision-log.md",
+    "title": "Leadership: decision-log",
+    "space": "company-leadership",
+    "source": "notion",
+    "externalId": "company-leadership/notion-company-leadership-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-company-leadership-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/notion-company-leadership-delivery-notes.md",
+    "title": "Leadership: delivery-notes",
+    "space": "company-leadership",
+    "source": "notion",
+    "externalId": "company-leadership/notion-company-leadership-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-company-leadership-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/notion-company-leadership-weekly-review.md",
+    "title": "Leadership: weekly-review",
+    "space": "company-leadership",
+    "source": "notion",
+    "externalId": "company-leadership/notion-company-leadership-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-company-leadership-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/slack-company-leadership-decision-log.md",
+    "title": "Leadership: decision-log",
+    "space": "company-leadership",
+    "source": "slack",
+    "externalId": "company-leadership/slack-company-leadership-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-company-leadership-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/slack-company-leadership-delivery-notes.md",
+    "title": "Leadership: delivery-notes",
+    "space": "company-leadership",
+    "source": "slack",
+    "externalId": "company-leadership/slack-company-leadership-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-company-leadership-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-leadership/slack-company-leadership-weekly-review.md",
+    "title": "Leadership: weekly-review",
+    "space": "company-leadership",
+    "source": "slack",
+    "externalId": "company-leadership/slack-company-leadership-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-company-leadership-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/drive-company-planning-decision-log.md",
+    "title": "Planning: decision-log",
+    "space": "company-planning",
+    "source": "drive",
+    "externalId": "company-planning/drive-company-planning-decision-log",
+    "url": "https://docs.google.com/document/d/drive-company-planning-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/drive-company-planning-delivery-notes.md",
+    "title": "Planning: delivery-notes",
+    "space": "company-planning",
+    "source": "drive",
+    "externalId": "company-planning/drive-company-planning-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-company-planning-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/drive-company-planning-weekly-review.md",
+    "title": "Planning: weekly-review",
+    "space": "company-planning",
+    "source": "drive",
+    "externalId": "company-planning/drive-company-planning-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-company-planning-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/linear-company-planning-decision-log.md",
+    "title": "Planning: decision-log",
+    "space": "company-planning",
+    "source": "linear",
+    "externalId": "company-planning/linear-company-planning-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-PLANNING-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/linear-company-planning-delivery-notes.md",
+    "title": "Planning: delivery-notes",
+    "space": "company-planning",
+    "source": "linear",
+    "externalId": "company-planning/linear-company-planning-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-PLANNING-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/linear-company-planning-weekly-review.md",
+    "title": "Planning: weekly-review",
+    "space": "company-planning",
+    "source": "linear",
+    "externalId": "company-planning/linear-company-planning-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-PLANNING-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/notion-company-planning-decision-log.md",
+    "title": "Planning: decision-log",
+    "space": "company-planning",
+    "source": "notion",
+    "externalId": "company-planning/notion-company-planning-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-company-planning-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/notion-company-planning-delivery-notes.md",
+    "title": "Planning: delivery-notes",
+    "space": "company-planning",
+    "source": "notion",
+    "externalId": "company-planning/notion-company-planning-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-company-planning-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/notion-company-planning-weekly-review.md",
+    "title": "Planning: weekly-review",
+    "space": "company-planning",
+    "source": "notion",
+    "externalId": "company-planning/notion-company-planning-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-company-planning-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/slack-company-planning-decision-log.md",
+    "title": "Planning: decision-log",
+    "space": "company-planning",
+    "source": "slack",
+    "externalId": "company-planning/slack-company-planning-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-company-planning-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/slack-company-planning-delivery-notes.md",
+    "title": "Planning: delivery-notes",
+    "space": "company-planning",
+    "source": "slack",
+    "externalId": "company-planning/slack-company-planning-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-company-planning-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-planning/slack-company-planning-weekly-review.md",
+    "title": "Planning: weekly-review",
+    "space": "company-planning",
+    "source": "slack",
+    "externalId": "company-planning/slack-company-planning-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-company-planning-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/drive-company-communications-decision-log.md",
+    "title": "Communications: decision-log",
+    "space": "company-communications",
+    "source": "drive",
+    "externalId": "company-communications/drive-company-communications-decision-log",
+    "url": "https://docs.google.com/document/d/drive-company-communications-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/drive-company-communications-delivery-notes.md",
+    "title": "Communications: delivery-notes",
+    "space": "company-communications",
+    "source": "drive",
+    "externalId": "company-communications/drive-company-communications-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-company-communications-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/drive-company-communications-weekly-review.md",
+    "title": "Communications: weekly-review",
+    "space": "company-communications",
+    "source": "drive",
+    "externalId": "company-communications/drive-company-communications-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-company-communications-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/linear-company-communications-decision-log.md",
+    "title": "Communications: decision-log",
+    "space": "company-communications",
+    "source": "linear",
+    "externalId": "company-communications/linear-company-communications-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-COMMUNICATIONS-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/linear-company-communications-delivery-notes.md",
+    "title": "Communications: delivery-notes",
+    "space": "company-communications",
+    "source": "linear",
+    "externalId": "company-communications/linear-company-communications-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-COMMUNICATIONS-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/linear-company-communications-weekly-review.md",
+    "title": "Communications: weekly-review",
+    "space": "company-communications",
+    "source": "linear",
+    "externalId": "company-communications/linear-company-communications-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-COMMUNICATIONS-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/notion-company-communications-decision-log.md",
+    "title": "Communications: decision-log",
+    "space": "company-communications",
+    "source": "notion",
+    "externalId": "company-communications/notion-company-communications-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-company-communications-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/notion-company-communications-delivery-notes.md",
+    "title": "Communications: delivery-notes",
+    "space": "company-communications",
+    "source": "notion",
+    "externalId": "company-communications/notion-company-communications-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-company-communications-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/notion-company-communications-weekly-review.md",
+    "title": "Communications: weekly-review",
+    "space": "company-communications",
+    "source": "notion",
+    "externalId": "company-communications/notion-company-communications-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-company-communications-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/slack-company-communications-decision-log.md",
+    "title": "Communications: decision-log",
+    "space": "company-communications",
+    "source": "slack",
+    "externalId": "company-communications/slack-company-communications-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-company-communications-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/slack-company-communications-delivery-notes.md",
+    "title": "Communications: delivery-notes",
+    "space": "company-communications",
+    "source": "slack",
+    "externalId": "company-communications/slack-company-communications-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-company-communications-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-communications/slack-company-communications-weekly-review.md",
+    "title": "Communications: weekly-review",
+    "space": "company-communications",
+    "source": "slack",
+    "externalId": "company-communications/slack-company-communications-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-company-communications-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/drive-company-hiring-decision-log.md",
+    "title": "Company Hiring: decision-log",
+    "space": "company-hiring",
+    "source": "drive",
+    "externalId": "company-hiring/drive-company-hiring-decision-log",
+    "url": "https://docs.google.com/document/d/drive-company-hiring-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/drive-company-hiring-delivery-notes.md",
+    "title": "Company Hiring: delivery-notes",
+    "space": "company-hiring",
+    "source": "drive",
+    "externalId": "company-hiring/drive-company-hiring-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-company-hiring-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/drive-company-hiring-weekly-review.md",
+    "title": "Company Hiring: weekly-review",
+    "space": "company-hiring",
+    "source": "drive",
+    "externalId": "company-hiring/drive-company-hiring-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-company-hiring-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/linear-company-hiring-decision-log.md",
+    "title": "Company Hiring: decision-log",
+    "space": "company-hiring",
+    "source": "linear",
+    "externalId": "company-hiring/linear-company-hiring-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-HIRING-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/linear-company-hiring-delivery-notes.md",
+    "title": "Company Hiring: delivery-notes",
+    "space": "company-hiring",
+    "source": "linear",
+    "externalId": "company-hiring/linear-company-hiring-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-HIRING-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/linear-company-hiring-weekly-review.md",
+    "title": "Company Hiring: weekly-review",
+    "space": "company-hiring",
+    "source": "linear",
+    "externalId": "company-hiring/linear-company-hiring-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-HIRING-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/notion-company-hiring-decision-log.md",
+    "title": "Company Hiring: decision-log",
+    "space": "company-hiring",
+    "source": "notion",
+    "externalId": "company-hiring/notion-company-hiring-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-company-hiring-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/notion-company-hiring-delivery-notes.md",
+    "title": "Company Hiring: delivery-notes",
+    "space": "company-hiring",
+    "source": "notion",
+    "externalId": "company-hiring/notion-company-hiring-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-company-hiring-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/notion-company-hiring-weekly-review.md",
+    "title": "Company Hiring: weekly-review",
+    "space": "company-hiring",
+    "source": "notion",
+    "externalId": "company-hiring/notion-company-hiring-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-company-hiring-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/slack-company-hiring-decision-log.md",
+    "title": "Company Hiring: decision-log",
+    "space": "company-hiring",
+    "source": "slack",
+    "externalId": "company-hiring/slack-company-hiring-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-company-hiring-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/slack-company-hiring-delivery-notes.md",
+    "title": "Company Hiring: delivery-notes",
+    "space": "company-hiring",
+    "source": "slack",
+    "externalId": "company-hiring/slack-company-hiring-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-company-hiring-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-hiring/slack-company-hiring-weekly-review.md",
+    "title": "Company Hiring: weekly-review",
+    "space": "company-hiring",
+    "source": "slack",
+    "externalId": "company-hiring/slack-company-hiring-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-company-hiring-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/drive-company-risk-decision-log.md",
+    "title": "Company Risk: decision-log",
+    "space": "company-risk",
+    "source": "drive",
+    "externalId": "company-risk/drive-company-risk-decision-log",
+    "url": "https://docs.google.com/document/d/drive-company-risk-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/drive-company-risk-delivery-notes.md",
+    "title": "Company Risk: delivery-notes",
+    "space": "company-risk",
+    "source": "drive",
+    "externalId": "company-risk/drive-company-risk-delivery-notes",
+    "url": "https://docs.google.com/document/d/drive-company-risk-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/drive-company-risk-weekly-review.md",
+    "title": "Company Risk: weekly-review",
+    "space": "company-risk",
+    "source": "drive",
+    "externalId": "company-risk/drive-company-risk-weekly-review",
+    "url": "https://docs.google.com/document/d/drive-company-risk-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/linear-company-risk-decision-log.md",
+    "title": "Company Risk: decision-log",
+    "space": "company-risk",
+    "source": "linear",
+    "externalId": "company-risk/linear-company-risk-decision-log",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-RISK-DECISION-LOG",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/linear-company-risk-delivery-notes.md",
+    "title": "Company Risk: delivery-notes",
+    "space": "company-risk",
+    "source": "linear",
+    "externalId": "company-risk/linear-company-risk-delivery-notes",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-RISK-DELIVERY-NOTES",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/linear-company-risk-weekly-review.md",
+    "title": "Company Risk: weekly-review",
+    "space": "company-risk",
+    "source": "linear",
+    "externalId": "company-risk/linear-company-risk-weekly-review",
+    "url": "https://linear.app/supaphone/issue/LINEAR-COMPANY-RISK-WEEKLY-REVIEW",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/notion-company-risk-decision-log.md",
+    "title": "Company Risk: decision-log",
+    "space": "company-risk",
+    "source": "notion",
+    "externalId": "company-risk/notion-company-risk-decision-log",
+    "url": "https://www.notion.so/supaphone/notion-company-risk-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/notion-company-risk-delivery-notes.md",
+    "title": "Company Risk: delivery-notes",
+    "space": "company-risk",
+    "source": "notion",
+    "externalId": "company-risk/notion-company-risk-delivery-notes",
+    "url": "https://www.notion.so/supaphone/notion-company-risk-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/notion-company-risk-weekly-review.md",
+    "title": "Company Risk: weekly-review",
+    "space": "company-risk",
+    "source": "notion",
+    "externalId": "company-risk/notion-company-risk-weekly-review",
+    "url": "https://www.notion.so/supaphone/notion-company-risk-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/slack-company-risk-decision-log.md",
+    "title": "Company Risk: decision-log",
+    "space": "company-risk",
+    "source": "slack",
+    "externalId": "company-risk/slack-company-risk-decision-log",
+    "url": "https://supaphone.slack.com/archives/slack-company-risk-decision-log",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/slack-company-risk-delivery-notes.md",
+    "title": "Company Risk: delivery-notes",
+    "space": "company-risk",
+    "source": "slack",
+    "externalId": "company-risk/slack-company-risk-delivery-notes",
+    "url": "https://supaphone.slack.com/archives/slack-company-risk-delivery-notes",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
+    "path": "company-risk/slack-company-risk-weekly-review.md",
+    "title": "Company Risk: weekly-review",
+    "space": "company-risk",
+    "source": "slack",
+    "externalId": "company-risk/slack-company-risk-weekly-review",
+    "url": "https://supaphone.slack.com/archives/slack-company-risk-weekly-review",
+    "updatedAt": "2026-09-09T09:00:00.000Z",
+    "author": null
+  },
+  {
     "path": "marketing/drive-analyst-notes.md",
     "title": "Analyst calls, notes and what I take from them",
     "space": "marketing",

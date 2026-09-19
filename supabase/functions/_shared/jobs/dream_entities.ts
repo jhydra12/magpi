@@ -231,8 +231,9 @@ export async function dreamEntities(pass: Pass): Promise<DreamOutcome> {
   if (chunks.length === 0) return NOTHING;
   let known = await db.knownEntities(MAX_KNOWN_ENTITIES);
   let produced = 0;
-  const batches = Array.from({ length: Math.ceil(chunks.length / ENTITY_BATCH_CHUNKS) }, (_, index) =>
-    chunks.slice(index * ENTITY_BATCH_CHUNKS, (index + 1) * ENTITY_BATCH_CHUNKS),
+  const batches = Array.from(
+    { length: Math.ceil(chunks.length / ENTITY_BATCH_CHUNKS) },
+    (_, index) => chunks.slice(index * ENTITY_BATCH_CHUNKS, (index + 1) * ENTITY_BATCH_CHUNKS),
   );
 
   for (const batch of batches) {
@@ -251,9 +252,13 @@ export async function dreamEntities(pass: Pass): Promise<DreamOutcome> {
     enter(pass, 'write');
     await db.insertMentions(mentions);
 
-    const counts = await db.mentionCounts([...new Set(mentions.map((mention) => mention.entityId))]);
+    const counts = await db.mentionCounts([
+      ...new Set(mentions.map((mention) => mention.entityId)),
+    ]);
     const due = [...known, ...discovered.added]
-      .filter((entity) => !entity.hasSummary && (counts.get(entity.id) ?? 0) >= ENRICH_AFTER_MENTIONS)
+      .filter((entity) =>
+        !entity.hasSummary && (counts.get(entity.id) ?? 0) >= ENRICH_AFTER_MENTIONS
+      )
       .slice(0, MAX_ENRICHED);
     await enrich(pass, batch, due, mentions);
     known = [...known, ...discovered.added];

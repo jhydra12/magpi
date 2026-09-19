@@ -37,7 +37,13 @@ export async function resetDemo(): Promise<ActionState<{ deleted: number }>> {
     db
       .from('rate_limits')
       .delete()
-      .in('bucket', dreamRateLimitBuckets(context.userId, (spaces ?? []).map((space) => space.id))),
+      .in(
+        'bucket',
+        dreamRateLimitBuckets(
+          context.userId,
+          (spaces ?? []).map((space) => space.id),
+        ),
+      ),
   ];
 
   for (const deletion of deletions) {
@@ -50,7 +56,8 @@ export async function resetDemo(): Promise<ActionState<{ deleted: number }>> {
     .filter((path): path is string => Boolean(path));
   if (storagePaths.length > 0) {
     const { error } = await db.storage.from('documents').remove(storagePaths);
-    if (error) return errorState(`The demo was reset, but generated files remain: ${error.message}`);
+    if (error)
+      return errorState(`The demo was reset, but generated files remain: ${error.message}`);
   }
 
   revalidatePath('/admin/demo');

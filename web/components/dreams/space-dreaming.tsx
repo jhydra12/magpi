@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
+import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/ui/button';
 import type { ActionState } from '@/lib/actions/state';
@@ -173,7 +174,8 @@ export function SpaceDreaming({
   const { snapshot, failure } = useDreamActivity(initial, () => router.refresh());
   const [globallyQueued, setGloballyQueued] = useState<ReadonlySet<string>>(() => new Set());
   const [globalFailure, setGlobalFailure] = useState<string | null>(null);
-  const [isGlobalPending, startGlobalTransition] = useTransition();
+  const headerTarget =
+    typeof document === 'undefined' ? null : document.getElementById('dreams-header-action');
   const recent = [...snapshot.runs].sort(
     (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
   );
@@ -181,49 +183,45 @@ export function SpaceDreaming({
     const enabledSpaces = spaces.filter((space) => space.dreaming_enabled);
     setGlobalFailure(null);
     setGloballyQueued(new Set(enabledSpaces.map((space) => space.id)));
-    startGlobalTransition(() => {
-      const submissions = enabledSpaces.map((space) =>
-        onRun(space.id, 'all')
-          .then((result) => ({ space, result }))
-          .catch((error: unknown) => ({
-            space,
-            result: {
-              status: 'error' as const,
-              message: error instanceof Error ? error.message : 'That Dream could not be started.',
-            },
-          })),
-      );
-
-      void Promise.all(submissions).then((results) => {
-        for (const { space, result } of results) {
-          if (result.status !== 'error') continue;
+    const submit = (space: DreamingSpace) => {
+      void onRun(space.id, 'all')
+        .catch((error: unknown) => ({
+          status: 'error' as const,
+          message: error instanceof Error ? error.message : 'That Dream could not be started.',
+        }))
+        .then((result) => {
+          if (result.status !== 'error') return;
           setGlobalFailure(result.message);
           setGloballyQueued((current) => {
             const next = new Set(current);
             next.delete(space.id);
             return next;
           });
-        }
-      });
-
-      router.refresh();
-      setGloballyQueued(new Set());
+        });
+    };
+    enabledSpaces.slice(0, 4).forEach(submit);
+    enabledSpaces.slice(4).forEach((space, index) => {
+      window.setTimeout(() => submit(space), Math.floor(index / 4) * 100);
     });
+    router.refresh();
   };
+  const globalButton = (
+    <Button
+      variant="default"
+      aria-label="Start dreaming in all spaces"
+      disabled={spaces.every((space) => !space.dreaming_enabled)}
+      onClick={startAllDreams}
+    >
+      Start dreaming
+    </Button>
+  );
   return (
     <section className="flex flex-col gap-3">
+      {headerTarget ? createPortal(globalButton, headerTarget) : globalButton}
       <div className="flex items-center justify-between gap-4">
         <h2 className="font-heading text-sm font-medium text-foreground">
           Spaces in your organization
         </h2>
-        <Button
-          variant="default"
-          aria-label="Start dreaming in all spaces"
-          disabled={isGlobalPending || spaces.every((space) => !space.dreaming_enabled)}
-          onClick={startAllDreams}
-        >
-          {isGlobalPending ? 'Starting dreams…' : 'Start dreaming'}
-        </Button>
       </div>
       <div className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
         {spaces.map((space) => {
@@ -239,7 +237,7 @@ export function SpaceDreaming({
               nextDreamLabel={nextDreamLabel}
               lastDreamAt={lastDreamTimes[space.id] ?? null}
               isGloballyQueued={globallyQueued.has(space.id)}
-              isGlobalPending={isGlobalPending}
+              isGlobalPending={false}
             />
           );
         })}

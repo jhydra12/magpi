@@ -37,6 +37,8 @@
     "sync:source-icons": "node scripts/sync-source-icons.mjs",
     "db:types": "node scripts/gen-types.mjs",
     "corpus:manifest": "node scripts/build-corpus-manifest.mjs",
+    "corpus:generate": "node scripts/generate-demo-corpus.mjs",
+    "test:demo-spaces": "node --test scripts/demo-spaces.test.mjs",
     "check:corpus": "node scripts/check-corpus.mjs",
     "prepare": "husky",
     "format:check:functions": "deno fmt --config supabase/functions/deno.json --check supabase/functions",

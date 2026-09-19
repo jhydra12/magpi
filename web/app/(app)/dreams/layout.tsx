@@ -7,7 +7,7 @@ import { DreamTabs } from '@/components/dreams/dream-tabs';
 export default function DreamsLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <PageHeader title="Dreams" />
+      <PageHeader title="Dreams" actions={<div id="dreams-header-action" />} />
       <DreamTabs />
       {children}
     </>

@@ -25,14 +25,17 @@ type GraphLink = {
 type GraphData = { nodes: GraphNode[]; links: GraphLink[] };
 
 function entityKey(kind: string, name: string): string {
-  return `${kind}:${name.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()}`;
+  return `${kind}:${name
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim()}`;
 }
 
 const ENTITY_COLORS: Record<string, string> = {
-  person: 'hsl(174 72% 54%)',
-  project: 'hsl(265 82% 72%)',
-  customer: 'hsl(42 92% 62%)',
-  decision: 'hsl(12 86% 68%)',
+  person: 'var(--primary)',
+  project: 'var(--demo)',
+  customer: 'var(--accent)',
+  decision: 'var(--destructive)',
 };
 
 export function buildGraph(groups: readonly EntityGroup[]): GraphData {
@@ -52,7 +55,10 @@ export function buildGraph(groups: readonly EntityGroup[]): GraphData {
         documents: [],
       };
       entityNode.documents = [
-        ...new Set([...(entityNode.documents ?? []), ...entity.documents.map((document) => document.title)]),
+        ...new Set([
+          ...(entityNode.documents ?? []),
+          ...entity.documents.map((document) => document.title),
+        ]),
       ];
       if (!entities.has(key)) {
         nodes.push(entityNode);
@@ -95,7 +101,10 @@ export function buildGraph(groups: readonly EntityGroup[]): GraphData {
           .map((document) => document.title),
       );
       const sharedFiles = [...documents.values()]
-        .filter((document) => document.entities.includes(entityIds[index]) && rightFiles.has(document.title))
+        .filter(
+          (document) =>
+            document.entities.includes(entityIds[index]) && rightFiles.has(document.title),
+        )
         .map((document) => document.title);
       if (sharedFiles.length > 0) {
         links.push({
@@ -119,17 +128,18 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
   const detailNode = hoveredNode;
   const [backgroundColor, setBackgroundColor] = useState(() =>
     typeof document !== 'undefined' && document.documentElement.dataset.theme === 'light'
-      ? 'hsl(0 0% 100%)'
-      : 'hsl(0 0% 7%)',
+      ? 'var(--background)'
+      : 'var(--background)',
   );
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
-      setBackgroundColor(
-        document.documentElement.dataset.theme === 'light' ? 'hsl(0 0% 100%)' : 'hsl(0 0% 7%)',
-      );
+      setBackgroundColor('var(--background)');
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
     const timeout = window.setTimeout(() => setIsArranging(false), 5000);
     return () => {
       observer.disconnect();
@@ -156,14 +166,12 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
             nodeColor={(node) => {
               const item = node as GraphNode;
               return item.kind === 'document'
-                ? 'hsl(220 12% 62%)'
+                ? 'var(--muted-foreground)'
                 : ENTITY_COLORS[item.entityKind ?? 'person'];
             }}
             nodeVal={(node) => ((node as GraphNode).kind === 'entity' ? 5 : 1.4)}
             linkColor={(link) =>
-              (link as GraphLink).kind === 'shared'
-                ? 'hsl(174 72% 54% / 0.8)'
-                : 'hsl(220 12% 62% / 0.22)'
+              (link as GraphLink).kind === 'shared' ? 'var(--primary)' : 'var(--muted-foreground)'
             }
             linkWidth={(link) => ((link as GraphLink).kind === 'shared' ? 1.8 : 0.45)}
             linkDirectionalParticles={(link) => ((link as GraphLink).kind === 'shared' ? 2 : 0)}

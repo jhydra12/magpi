@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 
 import { createClient } from '@supabase/supabase-js';
 
+import { DEMO_TEAM_SPACE_NAMES } from './demo-spaces.mjs';
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const API_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:55321';
@@ -21,7 +23,7 @@ const PEOPLE = [
     email: 'jane@example.com',
     label: 'Jane',
     role: 'owner',
-    spaces: ['Marketing', 'Engineering', 'Finance'],
+    spaces: ['Marketing', 'Engineering', 'Finance', ...DEMO_TEAM_SPACE_NAMES],
   },
   { email: 'sam@example.com', label: 'Sam', role: 'member', spaces: ['Engineering'] },
   { email: 'ben@example.com', label: 'Ben', role: 'member', spaces: ['Marketing', 'Engineering'] },
@@ -32,7 +34,7 @@ const PEOPLE = [
 ];
 
 /** Every shared space besides the org space, which the signup trigger already made. */
-const TEAM_SPACES = ['Marketing', 'Engineering', 'Finance'];
+const TEAM_SPACES = ['Marketing', 'Engineering', 'Finance', ...DEMO_TEAM_SPACE_NAMES];
 
 function db() {
   if (!SERVICE_KEY) {
