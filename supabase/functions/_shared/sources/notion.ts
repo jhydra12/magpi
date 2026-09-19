@@ -238,6 +238,7 @@ async function readBlockText(
 
   for (let request = 0; request < MAX_REQUESTS; request++) {
     const body = await getJson(creds, deps, blocksUrl(externalId, startCursor));
+    if (!Array.isArray(body.results)) throw new SourceError(PROVIDER, FAILURE_MESSAGE);
     for (const raw of asArray(body.results)) {
       const line = blockLine(asRecord(raw));
       if (line !== null) lines.push(line);
@@ -262,6 +263,9 @@ async function fetchDocument(
   }
 
   const page = await getJson(creds, deps, `${API}/pages/${encodeURIComponent(externalId)}`);
+  if (typeof page.id !== 'string' || page.id.length === 0) {
+    throw new SourceError(PROVIDER, FAILURE_MESSAGE);
+  }
   const ref = toRef(page, unitId, deps);
 
   return {

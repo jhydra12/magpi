@@ -26,7 +26,7 @@ import type { EntityDraft, KnownEntity, MentionDraft, SpaceChunkRow } from './sp
  * More than a digest reads, because most of the work here is matching, which is free, and the
  * model is only asked for a list of names.
  */
-const MAX_INPUT_CHUNKS = 400;
+const INPUT_PAGE_CHUNKS = 400;
 
 /** Writes a few documents at a time so the graph can show discoveries during a run. */
 const ENTITY_BATCH_CHUNKS = 40;
@@ -157,8 +157,8 @@ async function enrich(
   chunks: SpaceChunkRow[],
   candidates: KnownEntity[],
   mentions: MentionDraft[],
-): Promise<void> {
-  if (candidates.length === 0) return;
+): Promise<string[]> {
+  if (candidates.length === 0) return [];
   const byChunk = new Map(chunks.map((chunk) => [chunk.id, chunk.content]));
 
   const quoted = candidates.map((entity) => {
@@ -185,10 +185,12 @@ async function enrich(
   const byName = new Map(candidates.map((entity) => [canonical(entity.name), entity.id]));
 
   enter(pass, 'write');
-  await pass.db.writeSummaries(written.flatMap((row) => {
+  const summaries = written.flatMap((row) => {
     const entityId = byName.get(canonical(row.name));
     return entityId ? [{ entityId, summary: row.summary }] : [];
-  }));
+  });
+  await pass.db.writeSummaries(summaries);
+  return summaries.map((summary) => summary.entityId);
 }
 
 /** Files each discovered name the text actually says, with the chunks that say it. */
@@ -227,10 +229,11 @@ export async function dreamEntities(pass: Pass): Promise<DreamOutcome> {
   enter(pass, 'collect');
   // A week rather than a night: matching a chunk again is free, and a name learned on Friday
   // should find the Tuesday note that already said it.
-  const chunks = counted(pass, await db.recentChunks(sinceIso(deps, WEEK_MS), MAX_INPUT_CHUNKS));
+  const chunks = counted(pass, await db.recentChunks(sinceIso(deps, WEEK_MS), INPUT_PAGE_CHUNKS));
   if (chunks.length === 0) return NOTHING;
   let known = await db.knownEntities(MAX_KNOWN_ENTITIES);
   let produced = 0;
+  const summarized = new Set<string>();
   const batches = Array.from(
     { length: Math.ceil(chunks.length / ENTITY_BATCH_CHUNKS) },
     (_, index) => chunks.slice(index * ENTITY_BATCH_CHUNKS, (index + 1) * ENTITY_BATCH_CHUNKS),
@@ -259,8 +262,9 @@ export async function dreamEntities(pass: Pass): Promise<DreamOutcome> {
       .filter((entity) =>
         !entity.hasSummary && (counts.get(entity.id) ?? 0) >= ENRICH_AFTER_MENTIONS
       )
-      .slice(0, MAX_ENRICHED);
-    await enrich(pass, batch, due, mentions);
+      .filter((entity) => !summarized.has(entity.id))
+      .slice(0, Math.max(0, MAX_ENRICHED - summarized.size));
+    for (const id of await enrich(pass, batch, due, mentions)) summarized.add(id);
     known = [...known, ...discovered.added];
   }
 

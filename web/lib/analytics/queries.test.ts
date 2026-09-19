@@ -49,7 +49,18 @@ function createStub(responses: Readonly<Record<string, readonly StubResponse[]>>
       then: (resolve: (value: unknown) => unknown) => Promise.resolve(settled).then(resolve),
     };
 
-    for (const method of ['select', 'eq', 'in', 'is', 'gte', 'order', 'limit', 'single']) {
+    for (const method of [
+      'select',
+      'eq',
+      'in',
+      'is',
+      'gte',
+      'lte',
+      'range',
+      'order',
+      'limit',
+      'single',
+    ]) {
       builder[method] = (...args: unknown[]) => {
         recorded.push([method, ...args]);
         return builder;
@@ -462,4 +473,35 @@ describe('organization scoping', () => {
       }
     });
   }
+});
+
+it('includes activity after the first thousand messages', async () => {
+  const stub = createStub({
+    messages: [
+      {
+        data: Array.from({ length: 1000 }, () => ({
+          created_at: '2026-09-08T09:00:00.000Z',
+          latency_ms: 100,
+        })),
+      },
+      { data: [{ created_at: '2026-09-09T09:00:00.000Z', latency_ms: 200 }] },
+    ],
+  });
+  const days = await fetchAnswerLatency(stub.client, ORG, { days: 2, now: NOW });
+  expect(days.map((day) => day.queries)).toEqual([1000, 1]);
+});
+it('ranks questions using every page in the requested period', async () => {
+  const stub = createStub({
+    messages: [
+      {
+        data: Array.from({ length: 1000 }, () => ({
+          created_at: '2026-09-08T09:00:00.000Z',
+          content: 'Question',
+        })),
+      },
+      { data: [{ created_at: '2026-09-09T09:00:00.000Z', content: 'Question' }] },
+    ],
+  });
+  const rows = await fetchTopQuestions(stub.client, ORG, { days: 2, limit: 10, now: NOW });
+  expect(rows[0].askedCount).toBe(1001);
 });

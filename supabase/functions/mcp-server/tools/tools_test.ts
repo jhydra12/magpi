@@ -101,6 +101,9 @@ function replies(options: Options = {}) {
     if (request.table === 'rpc/record_retrieval') return { body: null };
 
     // A counting read is a HEAD, so this answers both it and an ordinary select.
+    if (request.table === 'rpc/enqueue_document') {
+      return { body: { document_id: DOC_A, ingest_job_id: DOC_B } };
+    }
     if (request.table === 'documents' && request.method !== 'POST') {
       const one = eqFilter(request.query, 'id');
       const many = inFilter(request.query, 'id');
@@ -337,8 +340,9 @@ Deno.test('a note is filed and queued for indexing', async () => {
     assertEquals(filed.status, 'queued');
     assertEquals(filed.space_id, ENGINEERING);
 
-    const written = requestsFor(stub, 'documents').find((request) => request.method === 'POST');
-    assert(written && isRecord(written.body));
+    const request = requestsFor(stub, 'rpc/enqueue_document')[0];
+    assert(request && isRecord(request.body) && isRecord(request.body.p_document));
+    const written = { body: request.body.p_document };
     assertEquals(written.body.origin, 'upload');
     assertEquals(written.body.org_id, ORG);
     // The bytes go to storage under the space, which is what the storage policy reads.

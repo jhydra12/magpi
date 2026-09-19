@@ -9,6 +9,7 @@ import {
   routesOf,
 } from '../connections.ts';
 import { ApiError } from '../errors.ts';
+import { enqueueDocument } from './enqueue_document.ts';
 import { SourceError } from '../sources/contract.ts';
 import type { SourceDocumentRef } from '../sources/contract.ts';
 import { driverFor } from '../sources/index.ts';
@@ -43,12 +44,6 @@ interface ExistingDocument {
 
 const FILED_COLUMNS = 'id, external_id, title, url, space_id';
 
-/** A filed document and the space its unit routes to, which the ingest job has to match. */
-interface FiledDocument {
-  id: string;
-  spaceId: string;
-}
-
 /** Documents this connection has already filed, for the external ids in this page. */
 async function existingDocuments(
   db: SupabaseClient,
@@ -68,112 +63,40 @@ async function existingDocuments(
   return new Map((data ?? []).map((row) => [row.external_id, row]));
 }
 
-/** Writes back only the documents whose title or url the provider changed, in one upsert. */
-async function relabelDocuments(
-  deps: JobDeps,
-  connection: ConnectionRow,
-  refs: SourceDocumentRef[],
-  known: Map<string, ExistingDocument>,
-): Promise<void> {
-  // Keyed by id so a page naming a document twice does not write the same row twice.
-  const moved = new Map<string, Record<string, unknown>>();
-  for (const ref of refs) {
-    const row = known.get(ref.externalId);
-    if (!row || (row.title === ref.title && row.url === (ref.url ?? null))) continue;
-    moved.set(row.id, {
-      id: row.id,
-      org_id: connection.org_id,
-      space_id: row.space_id,
-      connection_id: connection.id,
-      external_id: ref.externalId,
-      title: ref.title,
-      url: ref.url,
-      // Not null, so the upsert has to name it. Sync is the only writer of these rows.
-      origin: 'sync',
-    });
-  }
-  if (moved.size === 0) return;
-
-  const { error } = await deps.db
-    .from('documents')
-    .upsert([...moved.values()], { onConflict: 'id' });
-  if (error) throw new ApiError(500, 'internal', 'the renamed documents could not be filed');
-}
-
-/** Files changed documents, returning row ids in order. A partial unique index rules out upsert. */
+/** Each document and its queued job commit together; source identity makes page replay safe. */
 async function fileDocuments(
   deps: JobDeps,
   connection: ConnectionRow,
   refs: SourceDocumentRef[],
-): Promise<FiledDocument[]> {
+): Promise<number> {
   const routes = routesOf(connection);
-  // A unit with no route has nowhere to land. The driver should not have read it, so say so.
-  const routed = refs.filter((ref) => {
-    if (routes[ref.unitId]) return true;
-    console.warn('dropping a document from an unrouted unit', {
-      connection: connection.id,
-      unit: ref.unitId,
-    });
-    return false;
-  });
-
+  const routed = refs.filter((ref) => Boolean(routes[ref.unitId]));
   const known = await existingDocuments(
     deps.db,
     connection.id,
     routed.map((ref) => ref.externalId),
   );
-
-  const fresh = routed.filter((ref) => !known.has(ref.externalId));
-  if (fresh.length > 0) {
-    const { data, error } = await deps.db
-      .from('documents')
-      .insert(
-        fresh.map((ref) => ({
+  // Bound database concurrency while waiting for every started transaction before failing a page.
+  for (let offset = 0; offset < routed.length; offset += 8) {
+    const writes = await Promise.allSettled(
+      routed.slice(offset, offset + 8).map((ref) => {
+        const previous = known.get(ref.externalId);
+        return enqueueDocument(deps.db, {
           org_id: connection.org_id,
-          space_id: routes[ref.unitId],
+          space_id: previous?.space_id ?? routes[ref.unitId],
           connection_id: connection.id,
           external_id: ref.externalId,
           title: ref.title,
           url: ref.url,
           mime_type: ref.mimeType,
           origin: 'sync',
-        })),
-      )
-      .select(FILED_COLUMNS)
-      .returns<ExistingDocument[]>();
-    if (error) throw new ApiError(500, 'internal', 'the changed documents could not be filed');
-    for (const row of data ?? []) known.set(row.external_id, row);
+        }, true);
+      }),
+    );
+    const failed = writes.find((write) => write.status === 'rejected');
+    if (failed?.status === 'rejected') throw failed.reason;
   }
-
-  // Only rows a previous pass filed can look renamed, so this walks those.
-  await relabelDocuments(deps, connection, routed, known);
-
-  return routed.flatMap((ref) => {
-    const row = known.get(ref.externalId);
-    return row ? [{ id: row.id, spaceId: row.space_id }] : [];
-  });
-}
-
-async function enqueueIngest(
-  deps: JobDeps,
-  connection: ConnectionRow,
-  documents: FiledDocument[],
-): Promise<number> {
-  if (documents.length === 0) return 0;
-
-  // The job carries the document's own space, so a re-route never files a job against the old one.
-  const { error } = await deps.db.from('ingest_jobs').insert(
-    documents.map((document) => ({
-      org_id: connection.org_id,
-      space_id: document.spaceId,
-      document_id: document.id,
-      connection_id: connection.id,
-      status: 'queued',
-      stage: 'fetch',
-    })),
-  );
-  if (error) throw new ApiError(500, 'internal', 'the ingest jobs could not be queued');
-  return documents.length;
+  return routed.length;
 }
 
 export async function runSyncJob(connection: ConnectionRow, deps: JobDeps): Promise<SyncResult> {
@@ -208,7 +131,7 @@ export async function runSyncJob(connection: ConnectionRow, deps: JobDeps): Prom
       const filed = await fileDocuments(deps, connection, page.documents);
 
       budget.checkpoint('enqueue');
-      enqueued += await enqueueIngest(deps, connection, filed);
+      enqueued += filed;
       documentCount += page.documents.length;
 
       // Advance the cursor only after the ingest jobs exist, or documents get skipped.

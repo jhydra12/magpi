@@ -105,10 +105,13 @@ export async function requestJson(
   }
 
   try {
-    return await response.json();
+    const payload: unknown = await response.json();
+    if (payload === null || typeof payload !== 'object') {
+      throw new Error('expected a JSON object or array');
+    }
+    return payload;
   } catch {
-    // A body that is not JSON reads as an empty answer, which every caller has a default for.
-    return null;
+    throw new SourceError(provider, `${options.failureMessage} The response was not valid JSON.`);
   }
 }
 

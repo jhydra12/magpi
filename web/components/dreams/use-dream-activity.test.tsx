@@ -120,3 +120,44 @@ describe('Dream status polling', () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 });
+
+it('keeps observed completion when another accepted run is appended', async () => {
+  const fetcher = setup();
+  const initial = getSnapshot();
+  const finished = vi.fn();
+  fetcher.mockResolvedValueOnce(Response.json(getSnapshot({ status: 'succeeded' })));
+  const view = renderHook(
+    ({ ids }: { ids: readonly string[] }) => useDreamActivity(initial, finished, ids),
+    { initialProps: { ids: [] as readonly string[] } },
+  );
+  await tick();
+  expect(finished).toHaveBeenCalledTimes(1);
+  const extraId = '22222222-2222-4222-8222-222222222222';
+  view.rerender({ ids: [extraId] });
+  expect(view.result.current.snapshot.runs[0].status).toBe('succeeded');
+  fetcher.mockResolvedValueOnce(
+    Response.json({
+      ...initial,
+      runs: [
+        ...getSnapshot({ status: 'succeeded' }).runs,
+        ...getSnapshot({ id: extraId, status: 'running' }).runs,
+      ],
+    }),
+  );
+  await tick();
+  expect(finished).toHaveBeenCalledTimes(1);
+});
+
+it('waits for accepted IDs to appear instead of stopping on an old completed snapshot', async () => {
+  const fetcher = setup();
+  const initial = getSnapshot({ status: 'succeeded' });
+  const extraId = '22222222-2222-4222-8222-222222222222';
+  fetcher
+    .mockResolvedValueOnce(Response.json(initial))
+    .mockResolvedValueOnce(Response.json(getSnapshot({ id: extraId, status: 'running' })));
+  const view = renderHook(() => useDreamActivity(initial, vi.fn(), [extraId]));
+  await tick();
+  await tick();
+  expect(fetcher).toHaveBeenCalledTimes(2);
+  expect(view.result.current.snapshot.runs[0].id).toBe(extraId);
+});

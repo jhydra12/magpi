@@ -8,6 +8,13 @@ import type { Budget } from './budget.ts';
 import type { SpaceChunkRow, SpaceScopedDb } from './space_writer.ts';
 import type { JobDeps } from './types.ts';
 
+export const dreamRunsSchema = z.array(z.object({
+  id: z.string(),
+  org_id: z.string(),
+  space_id: z.string(),
+  kind: z.enum(['entities', 'digest', 'connections']),
+}));
+
 export interface DreamRunRecord {
   id: string;
   org_id: string;

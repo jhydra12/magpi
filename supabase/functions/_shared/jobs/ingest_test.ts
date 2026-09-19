@@ -50,13 +50,24 @@ function uploadDocument(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function replacement(stub: StubDb): Record<string, unknown> {
+  return (stub.requests.find((r) => r.table === 'rpc/replace_document_chunks')?.body ??
+    {}) as Record<string, unknown>;
+}
+
 function writes(stub: StubDb, table: string, method = 'PATCH'): Record<string, unknown>[] {
+  if (table === 'documents') {
+    return replacement(stub).p_metadata
+      ? [replacement(stub).p_metadata as Record<string, unknown>]
+      : [];
+  }
   return stub.requests
     .filter((request) => request.table === table && request.method === method)
     .map((request) => request.body as Record<string, unknown>);
 }
 
 function rowsInserted(stub: StubDb, table: string): Record<string, unknown>[] {
+  if (table === 'chunks') return (replacement(stub).p_chunks ?? []) as Record<string, unknown>[];
   return stub.requests
     .filter((request) => request.table === table && request.method === 'POST')
     .flatMap((request) => (Array.isArray(request.body) ? request.body : [request.body]))
@@ -155,9 +166,7 @@ Deno.test('an uploaded document is extracted, chunked, embedded and stored', asy
 
     const chunks = rowsInserted(h.stub, 'chunks');
     assertEquals(chunks.length, 1);
-    assertEquals(chunks[0].space_id, SPACE);
-    assertEquals(chunks[0].org_id, ORG);
-    assertEquals(chunks[0].document_id, 'document-1');
+    assertEquals(replacement(h.stub).p_document_id, 'document-1');
     assertEquals(chunks[0].ordinal, 0);
     assertEquals((chunks[0].embedding as number[]).length, EMBEDDING_DIMENSIONS);
   } finally {
@@ -192,15 +201,16 @@ Deno.test('the job body does not rewrite the claim it was handed', async () => {
   }
 });
 
-Deno.test('the old chunks are cleared before the new ones land', async () => {
-  // A second pass that appended would double every answer the document gives.
+Deno.test('chunk replacement and metadata are sent as one transaction', async () => {
   const h = harness({});
   try {
     await runIngestJob(JOB, h.deps);
-    const order = h.stub.requests
-      .filter((request) => request.table === 'chunks')
-      .map((request) => request.method);
-    assertEquals(order, ['DELETE', 'POST']);
+    assertEquals(h.stub.requests.filter((r) => r.table === 'chunks').length, 0);
+    assertEquals(
+      h.stub.requests.filter((r) => r.table === 'rpc/replace_document_chunks').length,
+      1,
+    );
+    assert(replacement(h.stub).p_metadata);
   } finally {
     await h.stub.close();
   }
@@ -229,12 +239,12 @@ Deno.test('text that has not changed is not embedded again', async () => {
   }
 });
 
-Deno.test('the document records its new hash and a bumped version', async () => {
+Deno.test('the transaction receives the new document hash', async () => {
   const h = harness({ document: uploadDocument({ version: 3 }) });
   try {
     await runIngestJob(JOB, h.deps);
     const update = writes(h.stub, 'documents')[0];
-    assertEquals(update.version, 4);
+    assertEquals(replacement(h.stub).p_document_id, 'document-1');
     assert(typeof update.content_hash === 'string' && update.content_hash.length === 64);
   } finally {
     await h.stub.close();
@@ -568,6 +578,21 @@ Deno.test('a terminal write the database refused is not swallowed', async () => 
       logged.some((line) => line.includes('succeeded') && line.includes(JOB.id)),
       `nothing was logged about the terminal write: ${logged.join(' | ')}`,
     );
+  } finally {
+    await h.stub.close();
+  }
+});
+
+Deno.test('malformed provider JSON preserves existing content and queues a retry', async () => {
+  const h = await sourceHarness(() => Promise.resolve(new Response('<html>maintenance</html>')));
+  try {
+    const result = await runIngestJob(JOB, h.deps);
+    assertEquals(result.kind, 'retrying');
+    assertEquals(
+      h.stub.requests.filter((r) => r.table === 'rpc/replace_document_chunks').length,
+      0,
+    );
+    assertEquals(writes(h.stub, 'ingest_jobs').at(-1)?.status, 'queued');
   } finally {
     await h.stub.close();
   }

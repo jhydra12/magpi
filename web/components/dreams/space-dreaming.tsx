@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -12,6 +11,8 @@ import {
   type DreamActivitySnapshot,
 } from '@/lib/dreams/activity';
 import type { DreamRunOutcome } from '@/lib/dreams/edge';
+import { beginDreamSubmission } from '@/lib/dreams/submission-events';
+import { submitDream } from '@/lib/dreams/submit';
 import type { DreamKind } from '@/lib/dreams/status';
 import { summarizeSpaceDream } from '@/lib/dreams/space-progress';
 
@@ -41,7 +42,7 @@ function SpaceRow({
   runs: readonly DreamActivityRun[];
   observedAt: string;
   onRun: RunDream;
-  onQueued: () => void;
+  onQueued: (outcome: DreamRunOutcome) => void;
   nextDreamLabel: string;
   lastDreamAt: string | null;
   isGloballyQueued: boolean;
@@ -58,9 +59,9 @@ function SpaceRow({
   const runId = run?.id;
   const finishedAt = run?.finished_at;
   const showProgress = isActive || (runId !== initialFinishedRunId && runId !== expiredRunId);
-  const isAwaitingRun = submittedRunId !== null && submittedRunId !== run?.id;
+  const isAwaitingRun = submittedRunId !== null && !runs.some((item) => item.id === submittedRunId);
   const isStarting = isPending || isAwaitingRun;
-  const showQueuedPlaceholder = isGloballyQueued && !run;
+  const showQueuedPlaceholder = isGloballyQueued;
   const lastFinishedAt = [lastDreamAt, finishedAt]
     .filter((value): value is string => Boolean(value))
     .sort((a, b) => Date.parse(b) - Date.parse(a))[0];
@@ -86,11 +87,17 @@ function SpaceRow({
     setFailure(null);
     setSubmittedRunId(null);
     startTransition(async () => {
-      const result = await onRun(space.id, 'all');
+      let result: ActionState<DreamRunOutcome>;
+      try {
+        result = await onRun(space.id, 'all');
+      } catch {
+        setFailure('That Dream could not be started.');
+        return;
+      }
       if (result.status === 'error') setFailure(result.message);
       else if (result.status === 'success') {
         setSubmittedRunId(result.data.dreamRunId);
-        onQueued();
+        onQueued(result.data);
       }
     });
   };
@@ -160,18 +167,34 @@ function SpaceRow({
 export function SpaceDreaming({
   spaces,
   initial,
-  onRun,
+  onRun = submitDream,
   nextDreamLabel,
   lastDreamTimes = {},
 }: {
   spaces: readonly DreamingSpace[];
   initial: DreamActivitySnapshot;
-  onRun: RunDream;
+  onRun?: RunDream;
   nextDreamLabel: string;
   lastDreamTimes?: Readonly<Record<string, string | null>>;
 }) {
-  const router = useRouter();
-  const { snapshot, failure } = useDreamActivity(initial, () => router.refresh());
+  const [acceptedBySpace, setAcceptedBySpace] = useState<
+    Readonly<Record<string, readonly string[]>>
+  >({});
+  const [acceptedIds, setAcceptedIds] = useState<readonly string[]>([]);
+  const [isGlobalPending, setIsGlobalPending] = useState(false);
+  const { snapshot, failure } = useDreamActivity(initial, () => {}, acceptedIds);
+  const onQueued = (spaceId: string, outcome: DreamRunOutcome) => {
+    setAcceptedBySpace((current) => ({ ...current, [spaceId]: outcome.dreamRunIds }));
+    setAcceptedIds((current) => [...new Set([...current, ...outcome.dreamRunIds])]);
+  };
+  const trackedRun: RunDream = async (spaceId, kind) => {
+    const finish = beginDreamSubmission();
+    try {
+      return await onRun(spaceId, kind);
+    } finally {
+      finish();
+    }
+  };
   const [globallyQueued, setGloballyQueued] = useState<ReadonlySet<string>>(() => new Set());
   const [globalFailure, setGlobalFailure] = useState<string | null>(null);
   const headerTarget =
@@ -179,37 +202,53 @@ export function SpaceDreaming({
   const recent = [...snapshot.runs].sort(
     (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
   );
-  const startAllDreams = () => {
-    const enabledSpaces = spaces.filter((space) => space.dreaming_enabled);
+  const startAllDreams = async () => {
+    if (isGlobalPending) return;
+    const enabledSpaces = spaces.filter(
+      (space) =>
+        space.dreaming_enabled &&
+        !snapshot.runs.some((run) => run.space_id === space.id && isDreamActive(run)),
+    );
+    const finishSubmission = beginDreamSubmission();
     setGlobalFailure(null);
+    setIsGlobalPending(true);
     setGloballyQueued(new Set(enabledSpaces.map((space) => space.id)));
-    const submit = (space: DreamingSpace) => {
-      void onRun(space.id, 'all')
-        .catch((error: unknown) => ({
-          status: 'error' as const,
-          message: error instanceof Error ? error.message : 'That Dream could not be started.',
-        }))
-        .then((result) => {
-          if (result.status !== 'error') return;
-          setGlobalFailure(result.message);
-          setGloballyQueued((current) => {
-            const next = new Set(current);
-            next.delete(space.id);
-            return next;
-          });
-        });
-    };
-    enabledSpaces.slice(0, 4).forEach(submit);
-    enabledSpaces.slice(4).forEach((space, index) => {
-      window.setTimeout(() => submit(space), Math.floor(index / 4) * 100);
-    });
-    router.refresh();
+    try {
+      for (let offset = 0; offset < enabledSpaces.length; offset += 4) {
+        await Promise.all(
+          enabledSpaces.slice(offset, offset + 4).map(async (space) => {
+            try {
+              const result = await onRun(space.id, 'all');
+              if (result.status === 'error') setGlobalFailure(result.message);
+              else if (result.status === 'success') {
+                setAcceptedBySpace((current) => ({
+                  ...current,
+                  [space.id]: result.data.dreamRunIds,
+                }));
+                onQueued(space.id, result.data);
+              }
+            } catch {
+              setGlobalFailure('That Dream could not be started.');
+            } finally {
+              setGloballyQueued((current) => {
+                const next = new Set(current);
+                next.delete(space.id);
+                return next;
+              });
+            }
+          }),
+        );
+      }
+    } finally {
+      finishSubmission();
+      setIsGlobalPending(false);
+    }
   };
   const globalButton = (
     <Button
       variant="default"
       aria-label="Start dreaming in all spaces"
-      disabled={spaces.every((space) => !space.dreaming_enabled)}
+      disabled={isGlobalPending || spaces.every((space) => !space.dreaming_enabled)}
       onClick={startAllDreams}
     >
       Start dreaming
@@ -225,19 +264,29 @@ export function SpaceDreaming({
       </div>
       <div className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
         {spaces.map((space) => {
-          const runs = recent.filter((run) => run.space_id === space.id);
+          const accepted = acceptedBySpace[space.id];
+          const runs = recent.filter(
+            (run) => run.space_id === space.id && (!accepted || accepted.includes(run.id)),
+          );
           return (
             <SpaceRow
               key={space.id}
               space={space}
               runs={runs}
               observedAt={snapshot.observedAt}
-              onRun={onRun}
-              onQueued={() => router.refresh()}
+              onRun={trackedRun}
+              onQueued={(outcome) => onQueued(space.id, outcome)}
               nextDreamLabel={nextDreamLabel}
               lastDreamAt={lastDreamTimes[space.id] ?? null}
-              isGloballyQueued={globallyQueued.has(space.id)}
-              isGlobalPending={false}
+              isGloballyQueued={
+                globallyQueued.has(space.id) ||
+                Boolean(
+                  acceptedBySpace[space.id]?.some(
+                    (id) => !snapshot.runs.some((run) => run.id === id),
+                  ),
+                )
+              }
+              isGlobalPending={isGlobalPending}
             />
           );
         })}

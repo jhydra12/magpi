@@ -15,7 +15,7 @@ export const dreamActivitySchema = z.object({
 });
 
 export const dreamActivityResponseSchema = z.object({
-  runs: z.array(dreamActivitySchema).max(100),
+  runs: z.array(dreamActivitySchema),
   observedAt: z.string(),
 });
 

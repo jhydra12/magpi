@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import type { Enums, Tables } from '@/lib/database.types';
 
 export type EntityKind = Enums<'entity_kind'>;
@@ -72,3 +74,24 @@ export function buildEntityGroups({
     return [{ kind, label: KIND_LABELS[kind], entities: inKind.map(listingsFor) }];
   });
 }
+
+/** Validate incremental graph responses before passing them to the renderer. */
+export const entityGraphResponseSchema = z.object({
+  active: z.boolean(),
+  groups: z.array(
+    z.object({
+      kind: z.enum(['person', 'project', 'customer', 'decision']),
+      label: z.string(),
+      entities: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          summary: z.string().nullable(),
+          documents: z.array(
+            z.object({ id: z.string(), title: z.string(), url: z.string().nullable() }),
+          ),
+        }),
+      ),
+    }),
+  ),
+});

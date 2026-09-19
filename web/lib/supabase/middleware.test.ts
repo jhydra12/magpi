@@ -69,14 +69,18 @@ describe('the session check every request runs through', () => {
     expect(response.headers.get('location')).toBeNull();
   });
 
-  it.each(['/sign-in', '/sign-up', '/auth/confirm', '/pricing', '/api/stripe/webhook'])(
-    'lets a signed-out visitor reach %s',
-    async (path) => {
-      const response = await updateSession(request(path));
+  it.each([
+    '/forgot-password',
+    '/sign-in',
+    '/sign-up',
+    '/auth/confirm',
+    '/pricing',
+    '/api/stripe/webhook',
+  ])('lets a signed-out visitor reach %s', async (path) => {
+    const response = await updateSession(request(path));
 
-      expect(response.headers.get('location')).toBeNull();
-    },
-  );
+    expect(response.headers.get('location')).toBeNull();
+  });
 
   it('hands the client the cookies the browser sent, which is where the session is', async () => {
     signIn();

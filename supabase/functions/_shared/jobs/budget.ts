@@ -42,3 +42,12 @@ export function startBudget(deps: ClockDeps, budgetMs: number = DEFAULT_BUDGET_M
     },
   };
 }
+
+/** Keeps the configured budget below the abandonment threshold with time to save the result. */
+export function dreamBudgetMs(value: string | undefined): number {
+  const budget = Number(value ?? 300_000);
+  if (!Number.isInteger(budget) || budget < 1_000 || budget > 600_000) {
+    throw new Error('Dream budget must be between 1000 and 600000 milliseconds');
+  }
+  return budget;
+}

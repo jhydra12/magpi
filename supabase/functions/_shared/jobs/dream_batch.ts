@@ -21,10 +21,11 @@ export async function runDreamBatch(
   runs: DreamRunRecord[],
   deps: JobDeps,
   runOne: RunOne,
+  alreadyClaimed = false,
 ): Promise<BatchOutcome> {
   const settled = await Promise.allSettled(runs.map(async (run) => {
     // A select says the run was queued a moment ago, not that this caller owns it.
-    const claimed = await claimQueuedRow(deps.db, 'dream_runs', run.id, {
+    const claimed = alreadyClaimed || await claimQueuedRow(deps.db, 'dream_runs', run.id, {
       status: 'running',
       started_at: deps.http.now().toISOString(),
     }, true);

@@ -92,7 +92,7 @@ describe('a signed-in person, over real HTTP', () => {
     expect((bobSpaces ?? []).some((row) => aliceIds.has(row.id))).toBe(false);
   });
 
-  it('reads the provider registry, and the four it can actually connect', async () => {
+  it('reads the provider registry, and the five it can actually connect', async () => {
     const { data, error } = await alice.client
       .from('providers')
       .select('slug, enabled')
@@ -102,12 +102,13 @@ describe('a signed-in person, over real HTTP', () => {
     // The registry also carries the providers marked coming soon, so this pins the ones a
     // person can connect today rather than the length of the table.
     expect(data?.filter((row) => row.enabled).map((row) => row.slug)).toEqual([
+      'github',
       'google_drive',
       'linear',
       'notion',
       'slack',
     ]);
-    expect(data?.length).toBeGreaterThan(4);
+    expect(data?.length).toBeGreaterThanOrEqual(5);
   });
 
   it('cannot ask for a provider token, even on a connection it could otherwise read', async () => {

@@ -17,29 +17,39 @@ export async function askChat(
 ): Promise<void> {
   const send = deps.fetch ?? fetch;
 
-  const response = await send(CHAT_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-    signal: deps.signal,
-  });
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+  let terminal = false;
+  const emit = (event: ChatEvent) => {
+    if (event.type === 'done' || event.type === 'error') terminal = true;
+    onEvent(event);
+  };
 
-  if (!response.ok || !response.body) {
-    onEvent({ type: 'error', message: await refusalMessage(response) });
-    return;
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let rest = '';
-
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    const decoded = decodeEvents(rest + decoder.decode(value, { stream: true }));
-    rest = decoded.rest;
-    for (const event of decoded.events) onEvent(event);
+  try {
+    const response = await send(CHAT_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      signal: deps.signal,
+    });
+    if (!response.ok || !response.body) {
+      emit({ type: 'error', message: await refusalMessage(response) });
+      return;
+    }
+    reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let rest = '';
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const decoded = decodeEvents(rest + decoder.decode(value, { stream: true }));
+      rest = decoded.rest;
+      for (const event of decoded.events) emit(event);
+    }
+    if (!terminal) emit({ type: 'error', message: UNEXPLAINED_FAILURE });
+  } catch {
+    if (!terminal) emit({ type: 'error', message: UNEXPLAINED_FAILURE });
+  } finally {
+    reader?.releaseLock();
   }
 }
 

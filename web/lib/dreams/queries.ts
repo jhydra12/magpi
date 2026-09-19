@@ -2,6 +2,8 @@ import 'server-only';
 
 import type { SessionContext } from '@/lib/supabase/context';
 
+import { readPages, readIdBatches } from './paging';
+
 import { describeDreamOutput } from './citations';
 import { buildEntityGroups, type EntityGroup } from './entities';
 import {
@@ -272,40 +274,37 @@ export async function loadEntities(
   context: SessionContext,
   spaceId?: string,
 ): Promise<EntitiesPageData> {
-  const spaces = await loadDreamSpaces(context);
-
-  const entityQuery = context.supabase
-    .from('entities')
-    .select('id, kind, name, summary, space_id')
-    .order('name')
-    .limit(500);
-
-  const { data: entities, error } = spaceId
-    ? await entityQuery.eq('space_id', spaceId)
-    : await entityQuery;
-  if (error) throw new Error(`Could not read entities: ${error.message}`);
-  if (entities.length === 0) return { groups: [], spaces };
-
-  const { data: mentions } = await context.supabase
-    .from('entity_mentions')
-    .select('entity_id, document_id')
-    .in(
-      'entity_id',
-      entities.map((entity) => entity.id),
-    );
-
-  const documentIds = [...new Set((mentions ?? []).map((mention) => mention.document_id))];
-  const { data: documents } = await context.supabase
-    .from('documents')
-    .select('id, title, url')
-    .in('id', documentIds);
-
-  return {
-    groups: buildEntityGroups({
-      entities,
-      mentions: mentions ?? [],
-      documents: documents ?? [],
-    }),
-    spaces,
-  };
+  const entities = await readPages((from, to) => {
+    const query = context.supabase
+      .from('entities')
+      .select('id, kind, name, summary, space_id')
+      .order('id')
+      .range(from, to);
+    return spaceId ? query.eq('space_id', spaceId) : query;
+  });
+  if (entities.length === 0) return { groups: [], spaces: [] };
+  const mentions = await readIdBatches(
+    entities.map((entity) => entity.id),
+    (ids) =>
+      readPages((from, to) =>
+        context.supabase
+          .from('entity_mentions')
+          .select('entity_id, document_id')
+          .in('entity_id', ids)
+          .order('id')
+          .range(from, to),
+      ),
+  );
+  const documentIds = [...new Set(mentions.map((mention) => mention.document_id))];
+  const documents = await readIdBatches(documentIds, (ids) =>
+    readPages((from, to) =>
+      context.supabase
+        .from('documents')
+        .select('id, title, url')
+        .in('id', ids)
+        .order('id')
+        .range(from, to),
+    ),
+  );
+  return { groups: buildEntityGroups({ entities, mentions, documents }), spaces: [] };
 }

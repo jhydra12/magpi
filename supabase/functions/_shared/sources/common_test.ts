@@ -1,4 +1,4 @@
-import { assert, assertEquals } from '@std/assert';
+import { assert, assertEquals, assertRejects } from '@std/assert';
 
 import { fixedClock } from '../deps.ts';
 import type { SourceDeps } from './contract.ts';
@@ -54,14 +54,15 @@ Deno.test('a server fault does not ask for a needless reconnect', async () => {
   }
 });
 
-Deno.test('a body that is not json reads as an empty answer', async () => {
-  const body = await requestJson(
-    'notion',
-    deps(() => new Response('<html>maintenance</html>', { status: 200 })),
-    'https://x.example',
-    OPTIONS,
-  );
-  assertEquals(body, null);
+Deno.test('malformed JSON is a retryable source failure', async () => {
+  const error = await assertRejects(() =>
+    requestJson(
+      'notion',
+      deps(() => new Response('<html>maintenance</html>', { status: 200 })),
+      'https://x.example',
+      OPTIONS,
+    ), SourceError);
+  assertEquals(error.needsReconnect, false);
 });
 
 Deno.test('a successful refresh carries an expiry measured from the injected clock', async () => {

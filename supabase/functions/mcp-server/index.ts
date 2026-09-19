@@ -58,6 +58,7 @@ function storageNotes(admin: SupabaseClient): NoteStore {
         .from(UPLOAD_BUCKET)
         .upload(storagePath, new Blob([text], { type: 'text/markdown' }), {
           contentType: 'text/markdown',
+          upsert: true,
         });
       if (error) throw new Error(`the note could not be stored: ${error.message}`);
     },

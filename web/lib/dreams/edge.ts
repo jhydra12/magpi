@@ -25,29 +25,6 @@ export async function requestDreamRun(
   client: FunctionsClient,
   input: { spaceId: string; kind: DreamKind | 'all' },
 ): Promise<Result<DreamRunOutcome, string>> {
-  if (input.kind === 'all') {
-    const kinds: readonly DreamKind[] = ['entities', 'digest', 'connections'];
-    const queued: string[] = [];
-
-    for (const kind of kinds) {
-      const result = await invokeEdgeFunction(
-        client,
-        'dream-run',
-        { space_id: input.spaceId, kind },
-        runResponse,
-      );
-      if (!result.ok) return result;
-      queued.push(result.data.dream_run_id);
-    }
-
-    return ok({
-      dreamRunId: queued[1] ?? queued[0],
-      dreamRunIds: queued,
-      status: 'queued',
-      outputDocumentId: null,
-    });
-  }
-
   const result = await invokeEdgeFunction(
     client,
     'dream-run',

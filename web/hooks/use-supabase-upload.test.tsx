@@ -18,6 +18,7 @@ type StorageCall = {
 const storage = {
   calls: [] as StorageCall[],
   rejected: [] as string[],
+  throws: false,
   /** Set to hold every upload open, so the in-flight state can be read. */
   gate: null as Promise<void> | null,
 };
@@ -32,6 +33,7 @@ vi.mock('@/lib/supabase/client', () => ({
           options: { cacheControl: string; upsert: boolean },
         ) => {
           storage.calls.push({ bucket, objectPath, ...options });
+          if (storage.throws) throw new Error('connection lost');
           if (storage.gate) await storage.gate;
           const name = objectPath.split('/').at(-1) ?? objectPath;
           return storage.rejected.includes(name)
@@ -84,9 +86,11 @@ async function commit(change: () => void | Promise<void>) {
 beforeEach(() => {
   storage.calls = [];
   storage.rejected = [];
+  storage.throws = false;
   storage.gate = null;
   vi.stubGlobal('URL', {
     ...URL,
+    revokeObjectURL: vi.fn(),
     createObjectURL: (file: Blob) => `blob:${(file as File).name}`,
   });
 });
@@ -301,4 +305,89 @@ describe('uploading what was chosen', () => {
     await commit(() => finished);
     expect(current.loading).toBe(false);
   });
+});
+
+it('never uploads invalid files', async () => {
+  render(<Probe options={getOptions()} />);
+  await pick([getFile('huge.md', 'text/markdown', 2000), getFile('logo.png', 'image/png')]);
+  await commit(() => current.onUpload());
+  expect(storage.calls).toEqual([]);
+  expect(current.errors).toHaveLength(2);
+  expect(current.loading).toBe(false);
+});
+
+it('retries failed enqueue without sending the file to storage again', async () => {
+  const onUploaded = vi
+    .fn()
+    .mockRejectedValueOnce(new Error('queue unavailable'))
+    .mockResolvedValue(undefined);
+  render(<Probe options={getOptions({ onUploaded })} />);
+  await pick([getFile('notes.md')]);
+  await commit(() => current.onUpload());
+  expect(current.isSuccess).toBe(false);
+  expect(current.loading).toBe(false);
+  await commit(() => current.onUpload());
+  expect(current.isSuccess).toBe(true);
+  expect(storage.calls).toHaveLength(1);
+  expect(onUploaded).toHaveBeenCalledTimes(2);
+});
+
+it('does not complete before enqueue finishes', async () => {
+  let release = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  render(<Probe options={getOptions({ onUploaded: () => gate })} />);
+  await pick([getFile('notes.md')]);
+  let finished: Promise<void>;
+  await act(async () => {
+    finished = current.onUpload();
+  });
+  expect(current.loading).toBe(true);
+  expect(current.isSuccess).toBe(false);
+  await act(async () => {
+    release();
+    await finished;
+  });
+  expect(current.isSuccess).toBe(true);
+});
+
+it('limits unfinished file operations to four', async () => {
+  let release = () => {};
+  storage.gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  render(<Probe options={getOptions({ maxFiles: 8 })} />);
+  await pick(Array.from({ length: 8 }, (_, i) => getFile(`${i}.md`)));
+  let finished: Promise<void>;
+  await act(async () => {
+    finished = current.onUpload();
+  });
+  expect(storage.calls).toHaveLength(4);
+  await act(async () => {
+    release();
+    await finished;
+  });
+  expect(storage.calls).toHaveLength(8);
+});
+
+it('revokes removed and unmounted preview URLs', async () => {
+  const view = render(<Probe options={getOptions()} />);
+  await pick([getFile('one.md'), getFile('two.md')]);
+  await commit(() => current.setFiles(current.files.slice(1)));
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:one.md');
+  view.unmount();
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:two.md');
+});
+
+it('recovers from a thrown storage transport error', async () => {
+  storage.throws = true;
+  render(<Probe options={getOptions()} />);
+  await pick([getFile('notes.md')]);
+  await commit(() => current.onUpload());
+  expect(current.loading).toBe(false);
+  expect(current.errors).toEqual([{ name: 'notes.md', message: 'connection lost' }]);
+  storage.throws = false;
+  await commit(() => current.onUpload());
+  expect(current.isSuccess).toBe(true);
 });

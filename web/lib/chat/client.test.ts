@@ -60,7 +60,10 @@ describe('askChat', () => {
       fetch: async () => streamingResponse([whole.slice(0, 6), whole.slice(6)]),
     });
 
-    expect(seen).toEqual([{ type: 'delta', text: 'streamed' }]);
+    expect(seen).toEqual([
+      { type: 'delta', text: 'streamed' },
+      { type: 'error', message: 'The answer could not be reached. Ask again.' },
+    ]);
   });
 
   it('turns a refusal into an error event carrying the reason', async () => {
@@ -87,5 +90,37 @@ describe('askChat', () => {
     expect(seen).toEqual([
       { type: 'error', message: 'The answer could not be reached. Ask again.' },
     ]);
+  });
+});
+
+describe('chat transport recovery', () => {
+  it('reports a rejected fetch as a terminal error', async () => {
+    const seen: ChatEvent[] = [];
+    await askChat(request, (event) => seen.push(event), {
+      fetch: async () => {
+        throw new Error('offline');
+      },
+    });
+    expect(seen).toEqual([
+      { type: 'error', message: 'The answer could not be reached. Ask again.' },
+    ]);
+  });
+  it('reports a failed stream and releases its reader', async () => {
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.error(new Error('offline'));
+      },
+    });
+    const seen: ChatEvent[] = [];
+    await askChat(request, (event) => seen.push(event), { fetch: async () => new Response(body) });
+    expect(seen.at(-1)?.type).toBe('error');
+    expect(body.locked).toBe(false);
+  });
+  it('reports EOF without a terminal event', async () => {
+    const seen: ChatEvent[] = [];
+    await askChat(request, (event) => seen.push(event), {
+      fetch: async () => streamingResponse([]),
+    });
+    expect(seen.at(-1)?.type).toBe('error');
   });
 });

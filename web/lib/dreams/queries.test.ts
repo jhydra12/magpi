@@ -641,7 +641,7 @@ describe('the entities a dream extracted', () => {
     const page = await loadEntities(context);
 
     expect(page.groups).toEqual([]);
-    expect(page.spaces).toEqual([getSpace()]);
+    expect(page.spaces).toEqual([]);
     expect(callsFor('entity_mentions')).toEqual([]);
   });
 
@@ -678,7 +678,7 @@ describe('the entities a dream extracted', () => {
     expect(page.groups[0].entities[0].documents.map((document) => document.id)).toEqual(['doc-a']);
   });
 
-  it('still lists an entity when its mentions could not be read', async () => {
+  it('reports a failed mention query instead of pretending the entity has no documents', async () => {
     const { context } = recordingContext({
       responses: {
         spaces: [{ data: [getSpace()] }],
@@ -688,8 +688,6 @@ describe('the entities a dream extracted', () => {
       },
     });
 
-    const page = await loadEntities(context);
-
-    expect(page.groups[0].entities[0].documents).toEqual([]);
+    await expect(loadEntities(context)).rejects.toThrow('permission denied');
   });
 });

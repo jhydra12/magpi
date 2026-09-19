@@ -42,6 +42,7 @@ export const ingestEnqueueSchema = z.strictObject({
 
 /** A worker invocation. Bounded so one call cannot ask for unbounded work. */
 export const workerBatchSchema = z.strictObject({
+  org_id: z.uuid().optional(),
   batch: z.number().int().min(1).max(200).optional(),
   /** How many of that batch run at once. Bounded, so a provider is not flooded. */
   concurrency: z.number().int().min(1).max(32).optional(),

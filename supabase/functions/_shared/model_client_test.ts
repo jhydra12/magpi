@@ -217,3 +217,27 @@ Deno.test('the api key never appears in a thrown message', async () => {
     await h.stub.close();
   }
 });
+
+Deno.test('a truncated completion retains provider-reported token usage', async () => {
+  const h = harness(() =>
+    json({
+      choices: [{ message: { content: 'partial' }, finish_reason: 'length' }],
+      usage: { prompt_tokens: 123, completion_tokens: 45 },
+    })
+  );
+  try {
+    await asyncApiErrorFrom(() =>
+      createModelRunner(h.deps).complete({
+        orgId: ORG,
+        purpose: 'dream',
+        system: 'Summarize',
+        user: 'Notes',
+      })
+    );
+    assertEquals(modelCallRows(h.stub)[0].input_tokens, 123);
+    assertEquals(modelCallRows(h.stub)[0].output_tokens, 45);
+    assertEquals(modelCallRows(h.stub)[0].succeeded, false);
+  } finally {
+    await h.stub.close();
+  }
+});

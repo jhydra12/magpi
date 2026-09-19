@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDropzone, type FileError, type FileRejection } from 'react-dropzone';
 
 import { createClient } from '@/lib/supabase/client';
@@ -23,6 +23,8 @@ type UseSupabaseUploadOptions = {
   cacheControl?: number;
   /** Overwrite a file that already exists, rather than erroring. Defaults to false. */
   upsert?: boolean;
+  /** Completes ingestion setup after Storage succeeds; failed setup is retryable. */
+  onUploaded?: (file: File) => Promise<void>;
 };
 
 type UseSupabaseUploadReturn = ReturnType<typeof useSupabaseUpload>;
@@ -39,8 +41,12 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
     maxFiles = 1,
     cacheControl = 3600,
     upsert = false,
+    onUploaded,
   } = options;
 
+  const uploaded = useRef(new Set<string>());
+  const previews = useRef(new Set<string>());
+  const busy = useRef(false);
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadErrors, setErrors] = useState<{ name: string; message: string }[]>([]);
@@ -59,11 +65,31 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
     return false;
   }, [errors.length, successes.length, files.length]);
 
+  useEffect(() => {
+    const active = new Set(files.map((file) => file.preview));
+    for (const url of previews.current) {
+      if (!active.has(url)) {
+        URL.revokeObjectURL(url);
+        previews.current.delete(url);
+      }
+    }
+  }, [files]);
+  useEffect(() => {
+    const urls = previews.current;
+    return () => {
+      for (const url of urls) URL.revokeObjectURL(url);
+      urls.clear();
+    };
+  }, []);
+
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       // Object.assign rather than a cast, because the dropzone hands back a plain File.
-      const decorate = (file: File, fileErrors: readonly FileError[]): FileWithPreview =>
-        Object.assign(file, { preview: URL.createObjectURL(file), errors: fileErrors });
+      const decorate = (file: File, fileErrors: readonly FileError[]): FileWithPreview => {
+        const preview = URL.createObjectURL(file);
+        previews.current.add(preview);
+        return Object.assign(file, { preview, errors: fileErrors });
+      };
 
       const validFiles = acceptedFiles
         .filter((file) => !files.find((existing) => existing.name === file.name))
@@ -93,6 +119,7 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
   const dropzoneProps = useDropzone({
     onDrop,
     noClick: true,
+    disabled: loading,
     accept: allowedMimeTypes.reduce((acc, type) => ({ ...acc, [type]: [] }), {}),
     maxSize: maxFileSize,
     maxFiles: maxFiles,
@@ -100,51 +127,61 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
   });
 
   const onUpload = useCallback(async () => {
+    if (busy.current) return;
+    busy.current = true;
     setLoading(true);
-
-    // [Joshen] Hitting "Upload" again only re-uploads the files that had errors.
-    const filesWithErrors = errors.map((x) => x.name);
-    // One pass, so a file that is both failed and unsuccessful is not uploaded twice.
-    const filesToUpload =
-      filesWithErrors.length > 0
-        ? files.filter(
-            (file) => filesWithErrors.includes(file.name) || !successes.includes(file.name),
-          )
-        : files;
-
-    const supabase = createClient();
-
-    const responses = await Promise.all(
-      filesToUpload.map(async (file) => {
-        const { error } = await supabase.storage
-          .from(bucketName)
-          .upload(!!path ? `${path}/${file.name}` : file.name, file, {
-            cacheControl: cacheControl.toString(),
-            upsert,
-          });
-        if (error) {
-          return { name: file.name, message: error.message };
-        } else {
-          return { name: file.name, message: undefined };
-        }
-      }),
-    );
-
-    const responseErrors = responses.filter((x) => x.message !== undefined);
-    // Overwrites the previous errors, since this call tried those files again.
-    setErrors(responseErrors);
-
-    const responseSuccesses = responses.filter((x) => x.message === undefined);
-    const newSuccesses = Array.from(
-      new Set([...successes, ...responseSuccesses.map((x) => x.name)]),
-    );
-    setSuccesses(newSuccesses);
-
-    setLoading(false);
-  }, [files, path, bucketName, errors, successes]);
+    const failures: { name: string; message: string }[] = [];
+    const completed: string[] = [];
+    const pending = files.filter((file) => !successes.includes(file.name));
+    try {
+      const supabase = createClient();
+      // Four requests at a time; each slot includes the ingestion enqueue step.
+      for (let offset = 0; offset < pending.length; offset += 4) {
+        await Promise.all(
+          pending.slice(offset, offset + 4).map(async (file) => {
+            try {
+              const validation = file.errors[0];
+              if (validation) throw new Error(validation.message);
+              if (files.length > maxFiles) throw new Error(`Choose at most ${maxFiles} files.`);
+              const objectPath = path ? `${path}/${file.name}` : file.name;
+              const key = `${bucketName}/${objectPath}`;
+              if (!uploaded.current.has(key)) {
+                const { error } = await supabase.storage.from(bucketName).upload(objectPath, file, {
+                  cacheControl: String(cacheControl),
+                  upsert,
+                });
+                if (error) throw new Error(error.message);
+                uploaded.current.add(key);
+              }
+              await onUploaded?.(file);
+              completed.push(file.name);
+            } catch (error) {
+              failures.push({
+                name: file.name,
+                message: error instanceof Error ? error.message : 'Upload failed. Try again.',
+              });
+            }
+          }),
+        );
+      }
+      setErrors(failures);
+      setSuccesses((current) => [...new Set([...current, ...completed])]);
+    } catch (error) {
+      setErrors(
+        pending.map((file) => ({
+          name: file.name,
+          message: error instanceof Error ? error.message : 'Upload failed. Try again.',
+        })),
+      );
+    } finally {
+      busy.current = false;
+      setLoading(false);
+    }
+  }, [files, successes, path, bucketName, cacheControl, upsert, maxFiles, onUploaded]);
 
   /** Puts the hook back to how it opened, so the same file can be uploaded somewhere else. */
   const reset = useCallback(() => {
+    uploaded.current.clear();
     setFiles([]);
     setSuccesses([]);
     setErrors([]);

@@ -38,7 +38,9 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isPublic =
-    pathname === '/' || PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+    pathname === '/' ||
+    pathname === '/forgot-password' ||
+    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
   if (!data?.claims && !isPublic) {
     const url = request.nextUrl.clone();

@@ -8,8 +8,6 @@ import { loadDreamActivity, loadLastDreamTimes } from '@/lib/dreams/activity-que
 import { loadDreamSpaces } from '@/lib/dreams/queries';
 import { getSessionContext } from '@/lib/supabase/context';
 
-import { startDreamRun } from './actions';
-
 export default async function DreamsPage({
   searchParams,
 }: {
@@ -50,7 +48,6 @@ export default async function DreamsPage({
       <SpaceDreaming
         spaces={spaces}
         initial={activity}
-        onRun={startDreamRun}
         nextDreamLabel="1:55am UTC"
         lastDreamTimes={lastDreamTimes}
       />

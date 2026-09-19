@@ -104,6 +104,7 @@ beforeEach(() => {
   enqueue.inputs = [];
   vi.stubGlobal('URL', {
     ...URL,
+    revokeObjectURL: vi.fn(),
     createObjectURL: (file: Blob) => `blob:${(file as File).name}`,
   });
 });
@@ -219,9 +220,7 @@ describe('uploading into a space', () => {
 
     await startUpload();
 
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'logo.png is not a kind of file that can be read.',
-    );
+    expect(storage.paths).toEqual([]);
     expect(enqueue.inputs).toEqual([]);
   });
 
@@ -243,11 +242,7 @@ describe('uploading into a space', () => {
     await choose([getFile('two.txt')]);
     await startUpload();
 
-    expect(storage.paths).toEqual([
-      `${ENGINEERING}/one.txt`,
-      `${ENGINEERING}/one.txt`,
-      `${ENGINEERING}/two.txt`,
-    ]);
+    expect(storage.paths).toEqual([`${ENGINEERING}/one.txt`, `${ENGINEERING}/two.txt`]);
     expect(enqueue.inputs.map((input) => input.objectName)).toEqual(['one.txt', 'two.txt']);
   });
 

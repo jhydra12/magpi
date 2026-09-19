@@ -147,35 +147,6 @@ async function readSource(document: DocumentRow, deps: JobDeps): Promise<SourceT
   };
 }
 
-async function storeChunks(
-  deps: JobDeps,
-  document: DocumentRow,
-  chunks: { ordinal: number; content: string; tokenCount: number }[],
-  embeddings: number[][],
-): Promise<void> {
-  // A re-ingest replaces the document's chunks rather than adding to them.
-  const { error: clearError } = await deps.db
-    .from('chunks')
-    .delete()
-    .eq('document_id', document.id);
-  if (clearError) throw new ApiError(500, 'internal', 'the old chunks could not be cleared');
-
-  if (chunks.length > 0) {
-    const { error } = await deps.db.from('chunks').insert(
-      chunks.map((chunk, index) => ({
-        org_id: document.org_id,
-        space_id: document.space_id,
-        document_id: document.id,
-        ordinal: chunk.ordinal,
-        content: chunk.content,
-        token_count: chunk.tokenCount,
-        embedding: embeddings[index],
-      })),
-    );
-    if (error) throw new ApiError(500, 'internal', 'the chunks could not be stored');
-  }
-}
-
 /** Writes the status the job ended in. A refused write leaves the row for claim_ingest_jobs. */
 async function finish(
   deps: JobDeps,
@@ -231,20 +202,23 @@ export async function runIngestJob(job: IngestJobRecord, deps: JobDeps): Promise
     }
 
     stage = await enterStage(deps, job, budget, stage, 'store');
-    await storeChunks(deps, document, chunks, embeddings);
-
-    const { error: documentError } = await deps.db
-      .from('documents')
-      .update({
+    const { error: documentError } = await deps.db.rpc('replace_document_chunks', {
+      p_document_id: document.id,
+      p_chunks: chunks.map((chunk, index) => ({
+        ordinal: chunk.ordinal,
+        content: chunk.content,
+        token_count: chunk.tokenCount,
+        embedding: embeddings[index],
+      })),
+      p_metadata: {
         content_hash: contentHash,
-        version: document.version + 1,
         title: source.title,
         url: source.url,
         mime_type: source.mimeType,
         size_bytes: source.sizeBytes,
-      })
-      .eq('id', document.id);
-    if (documentError) throw new ApiError(500, 'internal', 'the document could not be updated');
+      },
+    });
+    if (documentError) throw new ApiError(500, 'internal', 'the document could not be replaced');
 
     await recordUsage(deps.db, [
       { orgId: document.org_id, kind: 'document_ingested', quantity: 1 },

@@ -16,7 +16,11 @@ serveFunction('ingest-worker', async (core) => {
   const deps = jobDepsFromEnv();
 
   // Claims a whole batch in one statement, answering in the error envelope when it cannot.
-  const jobs = await claimIngestJobs(deps.db, input.batch ?? DEFAULT_BATCH);
+  const jobs = await claimIngestJobs(
+    deps.db,
+    Math.min(input.batch ?? DEFAULT_BATCH, input.concurrency ?? DEFAULT_CONCURRENCY),
+    input.org_id,
+  );
 
   // One job's failure is recorded on its own row and does not stop the batch. A provider asking
   // us to slow down does stop it, because the next job would be told the same thing.
