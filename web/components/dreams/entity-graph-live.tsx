@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { EmptyState } from '@/components/app/empty-state';
 import {
@@ -12,7 +13,7 @@ import { entityGraphResponseSchema, type EntityGroup } from '@/lib/dreams/entiti
 import { EntityGraph } from './entity-graph';
 import { EntityGroups } from './entity-groups';
 
-/** Refresh graph evidence without refreshing the route or overlapping requests. */
+/** Poll graph evidence; refresh page metadata once the active batch finishes. */
 export function EntityGraphLive({
   groups: initial,
   active,
@@ -22,6 +23,7 @@ export function EntityGraphLive({
   active: boolean;
   spaceId?: string;
 }) {
+  const router = useRouter();
   const [observation, setObservation] = useState({ initial, groups: initial });
   const groups = observation.initial === initial ? observation.groups : initial;
   const [failure, setFailure] = useState<string | null>(null);
@@ -30,6 +32,7 @@ export function EntityGraphLive({
     let timer: ReturnType<typeof setTimeout>;
     let previous = JSON.stringify(initial);
     let isActive = active;
+    let needsMetadataRefresh = active;
     let inFlight = false;
     let dirty = false;
     let failures = 0;
@@ -63,6 +66,11 @@ export function EntityGraphLive({
           setFailure(null);
           failures = 0;
           isActive = next.active;
+          needsMetadataRefresh ||= isActive;
+          if (!isActive && !hasPendingDreamSubmissions() && needsMetadataRefresh) {
+            needsMetadataRefresh = false;
+            router.refresh();
+          }
         }
       } catch {
         if (controller.signal.aborted) return;
@@ -103,7 +111,7 @@ export function EntityGraphLive({
       controller.abort();
       clearTimeout(timer);
     };
-  }, [initial, active, spaceId]);
+  }, [initial, active, spaceId, router]);
   return (
     <>
       {failure ? <p role="alert">{failure}</p> : null}
