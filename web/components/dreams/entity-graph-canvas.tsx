@@ -44,10 +44,10 @@ function readToken(token: string): string {
 }
 
 const ENTITY_COLORS: Record<string, string> = {
-  person: 'var(--primary)',
-  project: 'var(--demo)',
-  customer: 'var(--accent)',
-  decision: 'var(--destructive)',
+  person: 'var(--graph-person)',
+  project: 'var(--graph-project)',
+  customer: 'var(--graph-customer)',
+  decision: 'var(--graph-decision)',
 };
 
 export function buildGraph(groups: readonly EntityGroup[]): GraphData {

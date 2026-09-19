@@ -7,6 +7,11 @@
   --color-demo: oklch(0.52 0.19 295);
   --color-demo-foreground: oklch(0.99 0 295);
 
+  --graph-person: #14b8a6;
+  --graph-project: #8b5cf6;
+  --graph-customer: #eab308;
+  --graph-decision: #f97316;
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-source-code-pro), ui-monospace, SFMono-Regular, monospace;
