@@ -156,7 +156,7 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
           <ForceGraph3D
             ref={graphRef}
             graphData={graph}
-            backgroundColor={colors.background}
+            backgroundColor={`${colors.background}00`}
             width={size.width}
             height={size.height}
             cooldownTime={5000}
