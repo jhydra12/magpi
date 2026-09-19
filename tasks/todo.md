@@ -110,3 +110,12 @@
 - [x] Document and test an explicit handover from Edge to one Compute instance, followed by eleven instances.
 - [x] Verify all three Dream outputs locally with the Compute process stopped.
 - [ ] Release the Edge-only baseline, remove the previously deployed Compute service, and verify production graph and processing.
+
+## Full demo reset
+
+- [x] Pause workers and wait for active work before deleting Compute.
+- [x] Verify Compute is absent before clearing generated data and restoring Edge.
+- [x] Show actual reset stages, success and failure icons, and the completion toast.
+- [x] Test reset behavior and configure server-only management access.
+
+Reset verification: focused UI, action, and management API tests pass; 287 database assertions and 10 integration tests pass. Production build passes. Server management access is configured as a production secret; deployed reset verification remains pending.

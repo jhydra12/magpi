@@ -3,7 +3,9 @@ create or replace function public.dream_execution_mode()
 returns text language sql stable security definer set search_path = '' as $$
   select case when exists (
     select 1 from cron.job where jobname = 'dream-edge-worker' and active
-  ) then 'edge' else 'compute' end;
+  ) then 'edge' when exists (
+    select 1 from cron.job where jobname = 'dream-edge-worker' and not active
+  ) then 'paused' else 'compute' end;
 $$;
 revoke all on function public.dream_execution_mode() from public, anon, authenticated;
 grant execute on function public.dream_execution_mode() to service_role;
@@ -30,16 +32,24 @@ grant execute on function public.wake_edge_dream_worker() to service_role;
 create or replace function public.set_dream_execution_mode(p_mode text)
 returns void language plpgsql security definer set search_path = '' as $$
 begin
-  if p_mode not in ('edge', 'compute') or p_mode is null then
-    raise exception 'execution mode must be edge or compute';
+  if p_mode not in ('edge', 'compute', 'paused') or p_mode is null then
+    raise exception 'execution mode must be edge, compute, or paused';
   end if;
   perform pg_advisory_xact_lock(hashtextextended('dream-execution', 0));
   if p_mode = 'edge' then
     perform cron.schedule('dream-edge-worker', '10 seconds',
       'select public.wake_edge_dream_worker()');
+    perform cron.alter_job(jobid, active := true) from cron.job
+    where jobname = 'dream-edge-worker';
     perform cron.schedule('ingest-worker', '* * * * *',
       $job$select public.invoke_worker('ingest-worker', 8)$job$);
     perform public.wake_edge_dream_worker();
+  elsif p_mode = 'paused' then
+    perform cron.schedule('dream-edge-worker', '10 seconds',
+      'select public.wake_edge_dream_worker()');
+    perform cron.alter_job(jobid, active := false) from cron.job
+    where jobname = 'dream-edge-worker';
+    perform cron.unschedule(jobid) from cron.job where jobname = 'ingest-worker';
   else
     perform cron.unschedule(jobid) from cron.job
     where jobname in ('dream-edge-worker', 'ingest-worker');

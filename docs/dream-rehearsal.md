@@ -120,3 +120,17 @@ select public.set_dream_execution_mode('edge');
 This enables the sequential Dream wakeup driver and the ingestion schedule.
 Cutover switches the same mode to `compute`, which disables both drivers;
 explicit source-ingestion calls from CI continue to use the Edge worker.
+
+### Reset from the app
+
+In Admin > Demo, press Reset. The checklist reports each completed operation:
+pause new Dream and ingestion claims, wait for active work to finish, delete
+`dream` Compute and verify its absence, delete generated Dream output, then
+restore Edge processing. Source documents, spaces, members, and connections
+remain. A failed step stops the reset; press Reset again to retry. Processing
+stays paused after a failure until reset completes.
+
+Hosted reset requires `SUPABASE_ACCESS_TOKEN` in the web server's environment,
+with management access to the configured Supabase project. Keep this credential
+server-only. Local Supabase skips hosted Compute deletion. The button never
+creates a Compute instance.

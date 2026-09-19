@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(16);
+select plan(23);
 -- Isolate the global single-worker invariant inside this rolled-back transaction.
 update public.dream_runs set status='failed' where status in ('queued','running');
 insert into auth.users(id,email,instance_id,aud,role) values
@@ -25,8 +25,19 @@ select ok(not exists(select 1 from cron.job where jobname in ('dream-edge-worker
 select is((select count(*) from public.claim_edge_dream_run()),0::bigint,'old Edge wake cannot claim after cutover');
 select public.schedule_workers();
 select is(public.dream_execution_mode(),'compute','ordinary schedule setup preserves intentional cutover');
-select throws_ok($$select public.set_dream_execution_mode('invalid')$$,'P0001','execution mode must be edge or compute','invalid execution mode rejected');
+select throws_ok($$select public.set_dream_execution_mode('invalid')$$,'P0001','execution mode must be edge, compute, or paused','invalid execution mode rejected');
 select ok(not has_function_privilege('authenticated','public.set_dream_execution_mode(text)','execute'),'users cannot change worker mode');
 select ok(not has_function_privilege('authenticated','public.claim_edge_dream_run(uuid)','execute'),'users cannot claim Edge tasks');
+select public.enqueue_document(jsonb_build_object('org_id',org_id,'space_id',space_id,'storage_path',space_id::text || '/pause.md','origin','upload')) from scope;
+select public.set_dream_execution_mode('paused');
+select is(public.dream_execution_mode(),'paused','reset pauses both Dream executors');
+select is((select count(*) from public.claim_edge_dream_run()),0::bigint,'paused Edge cannot claim');
+select is((select count(*) from public.claim_dream_runs(11)),0::bigint,'paused Compute cannot claim');
+select ok(not exists(select 1 from cron.job where jobname in ('dream-edge-worker','ingest-worker') and active),'paused drivers cannot wake');
+select is((select count(*) from public.claim_ingest_jobs(11)),0::bigint,'paused ingestion cannot claim');
+select public.schedule_workers();
+select is(public.dream_execution_mode(),'paused','ordinary schedule setup preserves reset pause');
+select public.set_dream_execution_mode('edge');
+select is(public.dream_execution_mode(),'edge','reset can restore Edge baseline');
 select * from finish();
 rollback;

@@ -367,10 +367,14 @@ grant execute on function public.prune_rate_limits() to service_role;
 -- Claims queued ingest jobs. `for update skip locked` gives concurrent callers disjoint sets.
 create or replace function public.claim_ingest_jobs(p_limit integer, p_org_id uuid default null)
 returns setof public.ingest_jobs
-language sql
+language plpgsql
 security definer
 set search_path = ''
 as $$
+begin
+  perform pg_advisory_xact_lock(hashtextextended('dream-execution', 0));
+  if public.dream_execution_mode() = 'paused' then return; end if;
+  return query
   -- Requeue a job whose worker never came back, using claimed_at, without counting an attempt.
   with reclaimed as (
     update public.ingest_jobs
@@ -402,6 +406,7 @@ as $$
     for update skip locked
   )
   returning j.*;
+end;
 $$;
 
 revoke all on function public.claim_ingest_jobs(integer, uuid) from public, anon, authenticated;
