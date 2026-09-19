@@ -87,11 +87,14 @@ function cursorsWritten(stub: StubDb): unknown[] {
     .filter((cursor) => cursor !== undefined);
 }
 
+function queuedDocuments(stub: StubDb): Record<string, unknown>[] {
+  return stub.requests.filter((r) => r.table === 'rpc/enqueue_document')
+    .map((r) => (r.body as { p_document: Record<string, unknown> }).p_document);
+}
 function rowsInserted(stub: StubDb, table: string): Record<string, unknown>[] {
-  return stub.requests
-    .filter((request) => request.table === table && request.method === 'POST')
-    .flatMap((request) => (Array.isArray(request.body) ? request.body : [request.body]))
-    .filter((row): row is Record<string, unknown> => typeof row === 'object' && row !== null);
+  if (table === 'documents' || table === 'ingest_jobs') return queuedDocuments(stub);
+  return stub.requests.filter((r) => r.table === table && r.method === 'POST')
+    .flatMap((r) => Array.isArray(r.body) ? r.body : [r.body]);
 }
 
 function patches(stub: StubDb, table: string): Record<string, unknown>[] {
@@ -117,6 +120,14 @@ function harness(options: {
   const stub = stubDb((request) => {
     const custom = options.reply?.(request);
     if (custom) return custom;
+    if (request.table === 'rpc/enqueue_document') {
+      return {
+        body: {
+          document_id: '51000000-0000-4000-8000-000000000001',
+          ingest_job_id: '58000000-0000-4000-8000-000000000001',
+        },
+      };
+    }
     // A fresh insert answers with the rows it created, so the caller learns their ids.
     if (request.table === 'documents' && request.method === 'POST') {
       const body = Array.isArray(request.body) ? request.body : [request.body];
@@ -187,8 +198,7 @@ Deno.test('a changed document is filed and an ingest job is queued for it', asyn
     assertEquals(documents[0].external_id, 'issue-1');
 
     const jobs = rowsInserted(h.stub, 'ingest_jobs');
-    assertEquals(jobs[0].document_id, 'document-1');
-    assertEquals(jobs[0].status, 'queued');
+    assertEquals(jobs.length, 1);
     assertEquals(jobs[0].space_id, SPACE);
   } finally {
     await h.stub.close();
@@ -224,51 +234,7 @@ function filedDocument(overrides: Record<string, unknown> = {}): Record<string, 
 }
 
 /** Every write to documents that was not a plain insert of new rows. */
-function documentUpserts(stub: StubDb): Record<string, unknown>[] {
-  return stub.requests
-    .filter((request) =>
-      request.table === 'documents' && request.method === 'POST' &&
-      request.query.includes('on_conflict=id')
-    )
-    .flatMap((request) => (Array.isArray(request.body) ? request.body : [request.body]))
-    .filter((row): row is Record<string, unknown> => typeof row === 'object' && row !== null);
-}
-
-Deno.test('a document already filed is relabelled rather than duplicated', async () => {
-  const h = harness({
-    page: issuesPage([
-      {
-        id: 'issue-1',
-        identifier: 'ENG-1',
-        title: 'Renamed',
-        updatedAt: '2026-09-09T09:00:00.000Z',
-      },
-    ]),
-    reply: (request) =>
-      request.table === 'documents' && request.method === 'GET'
-        ? { body: [filedDocument()] }
-        : undefined,
-  });
-  try {
-    await runSyncJob(await connection(), h.deps);
-
-    const relabelled = documentUpserts(h.stub);
-    assertEquals(relabelled.length, 1);
-    assertEquals(relabelled[0].id, 'document-existing');
-    assertEquals(relabelled[0].title, 'ENG-1 Renamed');
-    // A second row for the same issue would double every answer it can give.
-    assertEquals(
-      rowsInserted(h.stub, 'documents').filter((row) => row.id === undefined).length,
-      0,
-    );
-    assertEquals(rowsInserted(h.stub, 'ingest_jobs')[0].document_id, 'document-existing');
-  } finally {
-    await h.stub.close();
-  }
-});
-
-Deno.test('a document the provider did not rename is not written at all', async () => {
-  // Writing an unchanged row back costs a round trip per document on every pass.
+Deno.test('existing source identity is queued atomically in its original space', async () => {
   const h = harness({
     page: issuesPage([issue(1)]),
     reply: (request) =>
@@ -277,43 +243,26 @@ Deno.test('a document the provider did not rename is not written at all', async 
         : undefined,
   });
   try {
-    await runSyncJob(await connection(), h.deps);
-
-    assertEquals(documentUpserts(h.stub).length, 0);
-    assertEquals(patches(h.stub, 'documents').length, 0);
-    // The ingest job is still queued: whether the text changed is its business.
-    assertEquals(rowsInserted(h.stub, 'ingest_jobs').length, 1);
+    const result = await runSyncJob(await connection(), h.deps);
+    assertEquals(result.kind, 'synced');
+    assertEquals(queuedDocuments(h.stub)[0].external_id, 'issue-1');
+    assertEquals(queuedDocuments(h.stub)[0].space_id, filedDocument().space_id);
+    assertEquals(
+      h.stub.requests.filter((r) => r.table === 'documents' && r.method !== 'GET').length,
+      0,
+    );
   } finally {
     await h.stub.close();
   }
 });
 
-Deno.test('a page of renamed documents is relabelled in one write', async () => {
-  const renamed = [1, 2, 3].map((n) => ({ ...issue(n), title: `Renamed ${n}` }));
+Deno.test('a page queues every renamed document through stable source identities', async () => {
   const h = harness({
-    page: issuesPage(renamed),
-    reply: (request) =>
-      request.table === 'documents' && request.method === 'GET'
-        ? {
-          body: renamed.map((node, index) =>
-            filedDocument({
-              id: `document-${index + 1}`,
-              external_id: node.id,
-              title: `ENG-${index + 1} Issue ${index + 1}`,
-              url: `https://linear.app/ENG-${index + 1}`,
-            })
-          ),
-        }
-        : undefined,
+    page: issuesPage([1, 2, 3].map((n) => ({ ...issue(n), title: `Renamed ${n}` }))),
   });
   try {
     await runSyncJob(await connection(), h.deps);
-
-    const writes = h.stub.requests.filter((request) =>
-      request.table === 'documents' && request.method !== 'GET'
-    );
-    assertEquals(writes.length, 1, 'the relabel took a round trip per document');
-    assertEquals(documentUpserts(h.stub).map((row) => row.title), [
+    assertEquals(queuedDocuments(h.stub).map((row) => row.title), [
       'ENG-1 Renamed 1',
       'ENG-2 Renamed 2',
       'ENG-3 Renamed 3',
@@ -333,12 +282,14 @@ Deno.test('the cursor advances only after the jobs exist', async () => {
     await runSyncJob(await connection(), h.deps);
 
     const order = h.stub.requests
-      .filter((request) => request.table === 'ingest_jobs' || request.table === 'connections')
+      .filter((request) =>
+        request.table === 'rpc/enqueue_document' || request.table === 'connections'
+      )
       .map((request) => `${request.table}:${request.method}`);
     // The last connections PATCH is the cursor, and it comes after the queue.
     assertEquals(order.at(-1), 'connections:PATCH');
-    assert(order.includes('ingest_jobs:POST'));
-    assert(order.indexOf('ingest_jobs:POST') < order.lastIndexOf('connections:PATCH'));
+    assert(order.includes('rpc/enqueue_document:POST'));
+    assert(order.indexOf('rpc/enqueue_document:POST') < order.lastIndexOf('connections:PATCH'));
 
     const cursorPatch = patches(h.stub, 'connections').at(-1);
     assertEquals(cursorPatch?.cursor, '2026-09-09T09:00:00.000Z');

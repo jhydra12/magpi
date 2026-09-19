@@ -101,6 +101,9 @@ function replies(options: Options = {}) {
     if (request.table === 'rpc/record_retrieval') return { body: null };
 
     // A counting read is a HEAD, so this answers both it and an ordinary select.
+    if (request.table === 'rpc/enqueue_document') {
+      return { body: { document_id: DOC_A, ingest_job_id: DOC_B } };
+    }
     if (request.table === 'documents' && request.method !== 'POST') {
       const one = eqFilter(request.query, 'id');
       const many = inFilter(request.query, 'id');
@@ -337,8 +340,9 @@ Deno.test('a note is filed and queued for indexing', async () => {
     assertEquals(filed.status, 'queued');
     assertEquals(filed.space_id, ENGINEERING);
 
-    const written = requestsFor(stub, 'documents').find((request) => request.method === 'POST');
-    assert(written && isRecord(written.body));
+    const request = requestsFor(stub, 'rpc/enqueue_document')[0];
+    assert(request && isRecord(request.body) && isRecord(request.body.p_document));
+    const written = { body: request.body.p_document };
     assertEquals(written.body.origin, 'upload');
     assertEquals(written.body.org_id, ORG);
     // The bytes go to storage under the space, which is what the storage policy reads.
@@ -413,3 +417,40 @@ Deno.test('whoami names no client for a session the product forwarded', async ()
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
+
+Deno.test('a note retries an uncertain enqueue using the same uploaded bytes and document identity', async () => {
+  let attempts = 0;
+  const standard = replies();
+  const stub = stubDb((request) => {
+    if (request.table === 'rpc/enqueue_document' && ++attempts === 1) {
+      return { status: 500, body: { message: 'uncertain response' } };
+    }
+    return standard(request);
+  });
+  const stored = new Map<string, string>();
+  const notes: NoteStore = {
+    write: (path, body) => {
+      stored.set(path, body);
+      return Promise.resolve();
+    },
+  };
+  const input = { space_id: ENGINEERING, title: 'Retry this note', content: 'One durable note.' };
+  try {
+    await assertRejects(
+      () => addNote(context(stub, { notes }), input),
+      Error,
+      'could not be queued',
+    );
+    const second = await addNote(context(stub, { notes }), input);
+    const replay = await addNote(context(stub, { notes }), input);
+    assertEquals(second.document_id, replay.document_id);
+    assertEquals(second.ingest_job_id, replay.ingest_job_id);
+    assertEquals(stored.size, 1);
+    const submissions = requestsFor(stub, 'rpc/enqueue_document').map((request) => request.body);
+    assertEquals(submissions.length, 3);
+    assertEquals(submissions[0], submissions[1]);
+    assertEquals(submissions[1], submissions[2]);
+  } finally {
+    await stub.close();
+  }
+});

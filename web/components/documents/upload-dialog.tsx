@@ -1,7 +1,7 @@
 'use client';
 
 import { Upload, X } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { enqueueUploadedDocument } from '@/app/(app)/documents/actions';
 import { FormError } from '@/components/auth/form-error';
@@ -42,10 +42,6 @@ export function UploadDialog({ spaces }: { spaces: readonly SpaceChoice[] }) {
   const [spaceId, setSpaceId] = useState(spaces[0]?.id ?? '');
   const [error, setError] = useState<string | null>(null);
 
-  // Objects already enqueued, keyed by full path so the same name in two spaces counts twice.
-  const recorded = useRef(new Set<string>());
-  const uploadedInto = useRef(spaceId);
-
   const upload = useSupabaseUpload({
     bucketName: 'documents',
     // The storage policy reads this first path segment back against the caller's spaces.
@@ -53,6 +49,20 @@ export function UploadDialog({ spaces }: { spaces: readonly SpaceChoice[] }) {
     allowedMimeTypes: [...ACCEPTED_MIME_TYPES],
     maxFileSize: MAX_UPLOAD_BYTES,
     maxFiles: MAX_FILES,
+    onUploaded: async (file) => {
+      const mimeType = acceptedTypeFor(file.type, file.name);
+      if (!mimeType) throw new Error(`${file.name} is not a kind of file that can be read.`);
+      const state = await enqueueUploadedDocument({
+        spaceId,
+        objectName: file.name,
+        title: file.name,
+        mimeType,
+      });
+      if (state.status === 'error') {
+        setError(state.message);
+        throw new Error(state.message);
+      }
+    },
   });
 
   const {
@@ -67,46 +77,17 @@ export function UploadDialog({ spaces }: { spaces: readonly SpaceChoice[] }) {
     getInputProps,
   } = upload;
 
-  const startUpload = useCallback(async () => {
+  const startUpload = async () => {
     setError(null);
-    uploadedInto.current = spaceId;
     await onUpload();
-  }, [onUpload, spaceId]);
-
-  useEffect(() => {
-    const space = uploadedInto.current;
-    const pending = successes.filter((name) => !recorded.current.has(`${space}/${name}`));
-    if (pending.length === 0) return;
-
-    for (const name of pending) {
-      recorded.current.add(`${space}/${name}`);
-      const file = files.find((candidate) => candidate.name === name);
-      const mimeType = acceptedTypeFor(file?.type ?? '', name);
-      if (!mimeType) {
-        setError(`${name} is not a kind of file that can be read.`);
-        continue;
-      }
-
-      void enqueueUploadedDocument({
-        spaceId: space,
-        objectName: name,
-        title: name,
-        mimeType,
-      }).then((state) => {
-        if (state.status === 'error') setError(state.message);
-      });
-    }
-  }, [successes, files]);
+  };
 
   const done = files.length > 0 && files.every((file) => successes.includes(file.name));
 
   const close = () => {
+    if (loading) return;
     setOpen(false);
-    // Everything the last upload left behind. Without the successes a file already sent reads as
-    // Uploaded when it is picked again, so it cannot go into a second space without a reload, and
-    // without the recorded keys the same file in the same space would enqueue twice.
     reset();
-    recorded.current.clear();
     setError(null);
   };
 
@@ -208,7 +189,7 @@ export function UploadDialog({ spaces }: { spaces: readonly SpaceChoice[] }) {
           </Button>
           <Button
             onClick={() => void startUpload()}
-            disabled={files.length === 0 || loading || done}
+            disabled={!spaceId || files.length === 0 || loading || done}
           >
             {loading ? 'Uploading' : `Upload${files.length > 0 ? ` ${files.length}` : ''}`}
           </Button>

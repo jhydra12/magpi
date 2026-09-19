@@ -5,6 +5,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { DEMO_TEAM_SPACES } from './demo-spaces.mjs';
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS = join(ROOT, 'supabase/corpus');
 
@@ -21,6 +23,7 @@ const EVERYONE = [
 /** Who may write, own, assign or comment in each space. Mentions are not restricted. */
 const MEMBERS = {
   company: EVERYONE,
+  ...Object.fromEntries(DEMO_TEAM_SPACES.map(({ key }) => [key, EVERYONE])),
   marketing: ['Jane Okonkwo', 'Maya Restrepo', 'Priya Raghunathan', 'Ben Achilov'],
   engineering: ['Jane Okonkwo', 'Sam Lindqvist', 'Ben Achilov', 'John Mbeki'],
   finance: ['Jane Okonkwo', 'John Mbeki', 'Dana Provenzano'],
@@ -47,14 +50,14 @@ const LAST_DAY = '2026-09-09';
 const SPEAKER =
   /^\*\*([A-Z][a-z]+ [A-Z][a-z]+)\*\*|^\|\s*(?:Owner|Assignee|Author)\s*\|\s*([A-Z][a-z]+ [A-Z][a-z]+)/;
 
-function main() {
+export function checkCorpus(corpus = CORPUS) {
   const failures = [];
   let files = 0;
 
   for (const [space, allowed] of Object.entries(MEMBERS)) {
     let names;
     try {
-      names = readdirSync(join(CORPUS, space)).filter((n) => n.endsWith('.md'));
+      names = readdirSync(join(corpus, space)).filter((n) => n.endsWith('.md'));
     } catch {
       failures.push(`${space}/ is missing`);
       continue;
@@ -62,7 +65,7 @@ function main() {
 
     for (const name of names) {
       const path = `${space}/${name}`;
-      const body = readFileSync(join(CORPUS, path), 'utf8');
+      const body = readFileSync(join(corpus, path), 'utf8');
       files += 1;
 
       // An upload is a scan or an export and a personal note is scratch, so neither leads with
@@ -103,7 +106,7 @@ function main() {
   }
 
   for (const wall of WALLED) {
-    const dir = join(CORPUS, wall.space);
+    const dir = join(corpus, wall.space);
     const found = readdirSync(dir).some((n) =>
       wall.pattern.test(readFileSync(join(dir, n), 'utf8')),
     );
@@ -113,7 +116,7 @@ function main() {
   // Two documents under one issue number are two different tickets with the same name.
   const issues = new Map();
   for (const space of Object.keys(MEMBERS)) {
-    for (const name of readdirSync(join(CORPUS, space))) {
+    for (const name of readdirSync(join(corpus, space))) {
       const issue = /^linear-([A-Z]+-\d+)-/.exec(name);
       if (!issue) continue;
       const seen = issues.get(issue[1]);
@@ -124,8 +127,18 @@ function main() {
 
   // A document that names a future launch or booking must not inherit that date as its own.
   try {
-    const manifest = JSON.parse(readFileSync(join(CORPUS, 'manifest.json'), 'utf8'));
+    const manifest = JSON.parse(readFileSync(join(corpus, 'manifest.json'), 'utf8'));
+    const paths = new Set(manifest.map((entry) => entry.path));
+    if (paths.size !== manifest.length) failures.push('manifest contains duplicate paths');
+    if (files !== manifest.length)
+      failures.push(`validated ${files} files but manifest has ${manifest.length}`);
     for (const entry of manifest) {
+      if (!MEMBERS[entry.space]) failures.push(`${entry.path}: unknown space ${entry.space}`);
+      try {
+        readFileSync(join(corpus, entry.path), 'utf8');
+      } catch {
+        failures.push(`${entry.path}: source file missing`);
+      }
       const day = entry.updatedAt.slice(0, 10);
       if (day > LAST_DAY || day < FIRST_DAY) {
         failures.push(`${entry.path}: manifest date ${day} falls outside the corpus`);
@@ -135,6 +148,11 @@ function main() {
     failures.push('manifest.json is missing or unreadable, run pnpm corpus:manifest');
   }
 
+  return { failures, files };
+}
+
+function main() {
+  const { failures, files } = checkCorpus();
   if (failures.length > 0) {
     console.error(`corpus FAILED: ${failures.length} problem(s)\n`);
     for (const failure of failures.slice(0, 40)) console.error(`  ${failure}`);
@@ -146,4 +164,4 @@ function main() {
   console.log(`corpus: ${files} documents, every wall holds`);
 }
 
-main();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

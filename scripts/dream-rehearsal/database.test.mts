@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 
 import type { Database } from '../../web/lib/database.types.ts';
-import { cleanup, prepare } from './database.mts';
+import { cleanup, prepare, status } from './database.mts';
 import { manifestSchema } from './model.mts';
 
 interface RequestRecord {
@@ -58,7 +58,7 @@ function database(
         );
         assert.equal(
           chunkWrites.length,
-          rows.length,
+          new Set(rows.map((row) => row.space_id)).size,
           'All input copies must exist before queue submission',
         );
       }
@@ -147,5 +147,50 @@ test('cleanup refuses active jobs before issuing any delete', async (t) => {
   assert.equal(
     fake.requests.some((request) => request.method === 'DELETE'),
     false,
+  );
+});
+
+test('full Dream preparation queues 111 jobs for 37 spaces with all three kinds', async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), 'dream-rehearsal-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const manifestPath = join(directory, 'batch.json');
+  const fake = database(manifestPath);
+  const manifest = await prepare(fake.db, {
+    sourceSpace: fake.sourceId,
+    user: fake.userId,
+    count: 37,
+    kind: 'all',
+    targetUrl: 'http://localhost:55321',
+    webUrl: 'http://localhost:3000',
+    manifestPath,
+  });
+  const post = fake.requests.find(
+    (request) => request.table === 'dream_runs' && request.method === 'POST',
+  );
+  const rows = z.array(z.object({ id: z.uuid(), kind: z.string() })).parse(post?.body);
+  assert.equal(rows.length, 111);
+  for (const kind of ['digest', 'entities', 'connections'])
+    assert.equal(rows.filter((row) => row.kind === kind).length, 37);
+  const requests: string[][] = [];
+  const db = createClient<Database>('http://local.invalid', 'key', {
+    global: {
+      fetch: async (input) => {
+        const url = new URL(String(input));
+        if (url.pathname.endsWith('/dream_runs')) {
+          const ids = (url.searchParams.get('id') ?? '').slice(4, -1).split(',');
+          requests.push(ids);
+          return Response.json(
+            ids.map((id) => ({ id, status: 'queued', output_document_id: null })),
+          );
+        }
+        return new Response(null, { status: 200, headers: { 'content-range': '*/0' } });
+      },
+    },
+  });
+  const result = await status(db, manifest);
+  assert.equal(result.runs.length, 111);
+  assert.deepEqual(
+    requests.map((batch) => batch.length),
+    [50, 50, 11],
   );
 });

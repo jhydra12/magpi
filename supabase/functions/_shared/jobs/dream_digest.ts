@@ -33,12 +33,24 @@ function prose(summary: string): string {
 }
 
 export async function dreamDigest(pass: Pass): Promise<DreamOutcome> {
-  const { run, deps, db } = pass;
+  const { deps, db } = pass;
   enter(pass, 'collect');
   const chunks = counted(pass, await db.recentChunks(sinceIso(deps), MAX_INPUT_CHUNKS));
   // A digest of nothing would be a document with no citations, so produce nothing.
   if (chunks.length === 0) return NOTHING;
 
+  let outputDocumentId: string | null = null;
+  let produced = 0;
+  for (let offset = 0; offset < chunks.length; offset += MAX_INPUT_CHUNKS) {
+    const outcome = await digestBatch(pass, chunks.slice(offset, offset + MAX_INPUT_CHUNKS));
+    outputDocumentId = outcome.outputDocumentId;
+    produced += outcome.produced;
+  }
+  return { inputDocumentCount: pass.inputDocumentCount, outputDocumentId, produced };
+}
+
+async function digestBatch(pass: Pass, chunks: SpaceChunkRow[]): Promise<DreamOutcome> {
+  const { run, deps, db } = pass;
   enter(pass, 'synthesize');
   const summary = await ask(pass, {
     system: DIGEST_SYSTEM,

@@ -126,3 +126,43 @@ describe('ConversationView', () => {
     );
   });
 });
+
+it('allows another question after a network failure', async () => {
+  vi.stubGlobal('fetch', async () => {
+    throw new Error('offline');
+  });
+  renderView();
+  await user.type(screen.getByLabelText('Ask a question'), 'First?{Enter}');
+  expect(await screen.findByRole('alert')).toHaveTextContent('The answer could not be reached');
+  expect(screen.getByLabelText('Ask a question')).toBeEnabled();
+  vi.stubGlobal('fetch', answerWith(answered));
+  await user.type(screen.getByLabelText('Ask a question'), 'Retry?{Enter}');
+  expect(await screen.findByText('Blocked on ENG-4417.')).toBeInTheDocument();
+});
+
+it('aborts the transport when the conversation unmounts', async () => {
+  const signals: AbortSignal[] = [];
+  vi.stubGlobal(
+    'fetch',
+    (_url: string, init: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        const signal = init.signal;
+        if (signal) {
+          signals.push(signal);
+          signal.addEventListener('abort', () => reject(new Error('aborted')), { once: true });
+        }
+      }),
+  );
+  const view = render(
+    <ConversationView
+      conversationId={CONVERSATION_ID}
+      initialTurns={[]}
+      initialTitle={null}
+      pendingQuestion="Question"
+    />,
+  );
+  await waitFor(() => expect(signals).toHaveLength(1));
+  view.unmount();
+  expect(signals[0].aborted).toBe(true);
+  expect(router.refresh).not.toHaveBeenCalled();
+});

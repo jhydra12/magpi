@@ -3,7 +3,6 @@ import { randomUUID } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { expect, it } from 'vitest';
 
-import { claimQueuedRow } from '../../supabase/functions/_shared/jobs/claim';
 import type { Database } from '../../web/lib/database.types';
 
 const apiUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:55321';
@@ -34,6 +33,10 @@ it('lets one worker claim a Dream while readers see only their own runs', async 
     throw membership.error;
   }
   const orgId = membership.data.org_id;
+  const previousMode = await db.rpc('dream_execution_mode');
+  if (previousMode.error) throw previousMode.error;
+  const mode = await db.rpc('set_dream_execution_mode', { p_mode: 'compute' });
+  if (mode.error) throw mode.error;
   try {
     const signIn = await member.auth.signInWithPassword({ email, password });
     if (signIn.error) throw signIn.error;
@@ -58,14 +61,10 @@ it('lets one worker claim a Dream while readers see only their own runs', async 
     expect(readers.data).toEqual([{ id: runId, status: 'queued' }]);
 
     const claims = await Promise.all(
-      Array.from({ length: 8 }, () =>
-        claimQueuedRow(db, 'dream_runs', runId, {
-          status: 'running',
-          started_at: new Date().toISOString(),
-        }),
-      ),
+      Array.from({ length: 11 }, () => db.rpc('claim_dream_runs', { p_limit: 1, p_org_id: orgId })),
     );
-    expect(claims.filter(Boolean)).toHaveLength(1);
+    for (const claim of claims) expect(claim.error).toBeNull();
+    expect(claims.flatMap((claim) => claim.data ?? []).map((run) => run.id)).toEqual([runId]);
     const current = await member
       .from('dream_runs')
       .select('status,started_at')
@@ -87,11 +86,34 @@ it('lets one worker claim a Dream while readers see only their own runs', async 
       })
       .eq('id', runId);
     expect(finished.error).toBeNull();
-    expect(await claimQueuedRow(db, 'dream_runs', runId, { status: 'running' })).toBe(false);
+    expect((await db.rpc('claim_dream_runs', { p_limit: 1, p_org_id: orgId })).data).toEqual([]);
+
+    const batch = await db
+      .from('dream_runs')
+      .insert(
+        Array.from({ length: 33 }, () => ({
+          org_id: orgId,
+          space_id: space.data.id,
+          kind: 'entities' as const,
+          status: 'queued' as const,
+        })),
+      )
+      .select('id');
+    if (batch.error) throw batch.error;
+    const workers = await Promise.all(
+      Array.from({ length: 11 }, () => db.rpc('claim_dream_runs', { p_limit: 3, p_org_id: orgId })),
+    );
+    workers.forEach((worker) => expect(worker.error).toBeNull());
+    const claimedIds = workers.flatMap((worker) => worker.data ?? []).map((row) => row.id);
+    expect(claimedIds).toHaveLength(33);
+    expect(new Set(claimedIds).size).toBe(33);
+    expect(new Set(claimedIds)).toEqual(new Set(batch.data.map((row) => row.id)));
   } finally {
     await member.auth.signOut();
     const removedOrg = await db.from('organizations').delete().eq('id', orgId);
     const removedUser = await db.auth.admin.deleteUser(userId);
+    const restoredMode = await db.rpc('set_dream_execution_mode', { p_mode: previousMode.data });
+    if (restoredMode.error) throw restoredMode.error;
     if (removedOrg.error) throw removedOrg.error;
     if (removedUser.error) throw removedUser.error;
   }

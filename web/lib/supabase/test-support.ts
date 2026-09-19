@@ -18,6 +18,8 @@ export type RecordingContext = {
 };
 
 const CHAIN_METHODS = [
+  'range',
+  'not',
   'select',
   'insert',
   'update',

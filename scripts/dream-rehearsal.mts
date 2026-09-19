@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { cleanup, client, prepare, status } from './dream-rehearsal/database.mts';
 import {
   batchUrl,
+  manifestRunIds,
   manifestSchema,
   options,
   summarize,
@@ -22,6 +23,7 @@ try {
       sourceSpace: args.sourceSpace,
       user: args.user,
       count: args.count,
+      kind: args.kind,
       targetUrl: url,
       webUrl: targetUrl(process.env.SB_WEB_BASE_URL),
       manifestPath: args.manifest,
@@ -30,7 +32,7 @@ try {
       JSON.stringify(
         {
           batchId: manifest.batchId,
-          queued: manifest.spaces.length,
+          queued: manifestRunIds(manifest).length,
           manifest: args.manifest,
           url: batchUrl(manifest),
         },
@@ -47,7 +49,13 @@ try {
       const result = await status(db, manifest);
       console.info(
         JSON.stringify(
-          { ...summarize(manifest, result.runs, result.nonempty), url: batchUrl(manifest) },
+          {
+            ...summarize(manifest, result.runs, result.nonempty),
+            entities: result.entities,
+            mentions: result.mentions,
+            links: result.links,
+            url: batchUrl(manifest),
+          },
           null,
           2,
         ),

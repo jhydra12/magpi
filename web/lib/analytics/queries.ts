@@ -12,8 +12,8 @@ type Enums = Database['public']['Enums'];
 /** How many recent failures one page load looks at. */
 const RECENT_FAILURE_SAMPLE = 200;
 
-/** Same cap, for the two message-derived panels. */
-const MESSAGE_SAMPLE = 1000;
+/** Each request stays within the API row limit. */
+const MESSAGE_PAGE_SIZE = 1000;
 
 function unwrap<T>(result: { data: T | null; error: { message: string } | null }): T {
   if (result.error) throw new Error(result.error.message);
@@ -103,16 +103,22 @@ export async function fetchAnswerLatency(
   orgId: string,
   { days, now }: { days: number; now: Date },
 ): Promise<readonly DailyBucket[]> {
-  const result = await client
-    .from('messages')
-    .select('created_at, latency_ms, conversations!inner(org_id)')
-    .eq('conversations.org_id', orgId)
-    .eq('role', 'assistant')
-    .gte('created_at', daysAgoIso(now, days))
-    .order('created_at', { ascending: true })
-    .limit(MESSAGE_SAMPLE);
-
-  const rows = unwrap(result);
+  const rows: { created_at: string; latency_ms: number | null }[] = [];
+  for (let offset = 0; ; offset += MESSAGE_PAGE_SIZE) {
+    const result = await client
+      .from('messages')
+      .select('created_at, latency_ms, conversations!inner(org_id)')
+      .eq('conversations.org_id', orgId)
+      .eq('role', 'assistant')
+      .gte('created_at', daysAgoIso(now, days))
+      .lte('created_at', now.toISOString())
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: true })
+      .range(offset, offset + MESSAGE_PAGE_SIZE - 1);
+    const page = unwrap(result);
+    rows.push(...page);
+    if (page.length < MESSAGE_PAGE_SIZE) break;
+  }
 
   return bucketByDay(
     rows.map((row) => ({ occurredAt: row.created_at, latencyMs: row.latency_ms })),
@@ -125,16 +131,22 @@ export async function fetchTopQuestions(
   orgId: string,
   { days, limit, now }: { days: number; limit: number; now: Date },
 ): Promise<readonly QuestionCount[]> {
-  const result = await client
-    .from('messages')
-    .select('content, created_at, conversations!inner(org_id)')
-    .eq('conversations.org_id', orgId)
-    .eq('role', 'user')
-    .gte('created_at', daysAgoIso(now, days))
-    .order('created_at', { ascending: false })
-    .limit(MESSAGE_SAMPLE);
-
-  const rows = unwrap(result);
+  const rows: { content: string; created_at: string }[] = [];
+  for (let offset = 0; ; offset += MESSAGE_PAGE_SIZE) {
+    const result = await client
+      .from('messages')
+      .select('content, created_at, conversations!inner(org_id)')
+      .eq('conversations.org_id', orgId)
+      .eq('role', 'user')
+      .gte('created_at', daysAgoIso(now, days))
+      .lte('created_at', now.toISOString())
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .range(offset, offset + MESSAGE_PAGE_SIZE - 1);
+    const page = unwrap(result);
+    rows.push(...page);
+    if (page.length < MESSAGE_PAGE_SIZE) break;
+  }
 
   return groupQuestions(
     rows.map((row) => ({ content: row.content, createdAt: row.created_at })),

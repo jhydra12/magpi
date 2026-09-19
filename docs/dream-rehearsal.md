@@ -1,142 +1,136 @@
 # Dream rehearsal
 
-**Start dreaming** queues three real tasks: a daily summary, entity extraction,
-and document links. Verify their saved output. The bar advances when tasks
-finish; it measures completed tasks out of three. Keep elapsed-time labels
-when cutting waits.
+The starting state uses Edge Functions only. **Start dreaming** queues three
+real tasks per space: a summary, entity extraction, and document links. The
+Edge driver drains that queue sequentially. Keep elapsed-time labels visible
+when cutting waits. Progress comes from worker reports and saved task results.
 
-## Deploy order
+## Starting state
 
-1. Run `pnpm compute:test`, `pnpm compute:build`, and the Dream function tests.
-2. Deploy `dream` with `pnpm compute:push --project-ref <project-ref>`.
-3. Check its health and application logs before deploying the queue-only
-   `dream-run` Edge Function and the updated web app.
-4. Start a fresh Dream from the app. Follow all three run IDs in the logs, then
-   open the daily summary and its sources, saved entities, and document links.
+1. Run the validation gate, including Compute build/tests and graph tests.
+2. Deploy migrations, Edge Functions, and source documents through the main
+   workflow. Wait for ingestion to complete.
+3. Confirm no hosted `dream` Compute service is running. A previous rehearsal
+   must be stopped before enabling Edge queue drivers. Never run competing
+   Edge and Compute consumers for a timed comparison.
+4. Confirm the Edge driver is enabled and Start dreaming progresses without
+   leaving the page open. Open actual summaries, entity mentions, and links.
 
-The historical Edge version at `7bfed9298646ef133b9609c70ef7b6f04e9efc3f`
-used a configurable application timeout. Its recording demonstrates that
-version's configured behavior. A platform comparison requires matched inputs,
-outputs, and processing code. The existing `dream-worker` remains available
-to an operator.
+CI does not deploy Compute. Production promotion waits for the same-commit
+validation, Edge deployment, and source ingestion. The GitHub
+`Production release ready` check permits Vercel to assign production domains.
 
-## Worker settings
+## Move to Compute during the demo
 
-`SB_DREAM_CONCURRENCY` defaults to 1 per instance. `SB_DREAM_BUDGET_MS` defaults
-to 300000 and accepts at most 600000. Keep both fixed when comparing instance
-counts. Ingestion runs alongside Dreams with its existing concurrency setting.
-
-The shared Edge job budget defaults to 45 seconds. These budgets are application
-settings. Hosted [Edge Function limits](https://supabase.com/docs/guides/functions/limits)
-currently include 150 seconds of worker wall time on Free and 400 seconds on
-paid plans, 2 seconds of CPU time per request excluding async I/O, and a
-150-second request idle timeout. Record the actual error before attributing a
-failure to a platform limit.
-
-Edge's queue worker already runs eight jobs concurrently by default. Compute
-uses the same processing code and model APIs, with continuous polling. Measure
-queue wait separately from execution time. A hosted speedup has yet to be
-verified.
-
-Each instance claims separate queued Dream runs. An interrupted run is marked
-as timed out after the abandonment interval. It is not automatically retried.
-Start a fresh run after inspecting any partial output.
-
-## Prepare a summary-only batch
-
-This optional tool submits one summary job per temporary space. It exercises
-queue throughput; the app's full Dream also runs entities and document links.
-Use a separate rehearsal dataset to keep temporary spaces out of the demo app.
-
-Choose an existing space with ingested source documents and a user who belongs
-to that organization. Use a trusted demo dataset. The script copies source
-text and embeddings into temporary team spaces and grants the selected user
-access. It leaves the source space unchanged.
-
-Load the intended project's environment before invoking the script. It needs
-`NEXT_PUBLIC_SUPABASE_URL`, `SB_SERVICE_ROLE_KEY`, and `SB_WEB_BASE_URL`.
-Keep the manifest outside Git; it contains fixture IDs and no credentials.
+Build the bundle before recording. At the cutover, run:
 
 ```bash
-node --env-file=web/.env.local --experimental-strip-types scripts/dream-rehearsal.mts prepare \
-  --source-space <space-id> --user <user-id> --count 24 \
-  --manifest /tmp/dream-one.json
+pnpm compute:build
+node scripts/dream-cutover.mjs --project-ref <project-ref>
 ```
 
-All source copies are prepared before the Dream runs enter the queue. Open the
-printed `/dreams?runs=...` URL as the selected user. The counters include only
-those runs the user can read. The copied chunks have fresh timestamps, so they
-are eligible for the digest's 24-hour lookback window.
-
-## Show processing and scaling
-
-Start the first take with one instance. Submit a batch and open its dedicated
-queue page. Show jobs waiting, one job running, the remaining count, and
-completions in the last 30 seconds. Follow the logs:
+The manual operation disables Edge queue drivers, waits for in-flight work to
+finish, and deploys exactly one Compute instance. It does not submit synthetic
+Dream results. Confirm one instance is ready before discussing throughput.
 
 ```bash
+supabase-beta compute status dream --project-ref <project-ref>
 supabase-beta compute logs dream --kind app -f --project-ref <project-ref>
 ```
 
-While the batch has work waiting, scale and return to its page:
+While independent jobs remain queued, increase the service to eleven:
 
 ```bash
-supabase-beta compute push dream --instances 8 --project-ref <project-ref>
+supabase-beta compute push dream --instances 11 --project-ref <project-ref>
 supabase-beta compute status dream --project-ref <project-ref>
 ```
 
-Return to the same batch page. Show multiple jobs running, the remaining count
-falling faster, and more completions in the last 30 seconds. Keep batch elapsed
-time visible. Open one digest and its sources. The measurements come from stored
-run records and show the observation time. The final elapsed time stops when
-the last job finishes.
+Show multiple spaces progressing, successful jobs completing, and new saved
+entities appearing in the graph. Hover over a connection to show its source
+files. Measure throughput after the added workers are ready.
 
-Rehearse startup time before recording. If one instance finishes the batch
-before the added instances are ready, prepare a larger batch with `--count`
-(up to 100). Record the actual queue through the transition.
+## Matched workload
 
-For a numerical comparison, record separate complete batches using the same
-source text, starting entity/link state, job kinds, job count, and model. Record
-application budgets, worker count, and concurrency per worker. Compare one and
-eight Compute instances with fixed per-instance concurrency. For Edge versus
-Compute, also record invocation frequency and total concurrency. Wait for the
-intended workers before queuing each batch.
-Use a fresh manifest and temporary spaces for each. Collect status afterward:
+See [Compute demo positioning](compute-demo-positioning.md) for the claims the
+recording must prove. Use identical source text, starting entity/link state,
+models, task counts, and application budgets. Set the Dream application budget
+to 300000 ms for both execution modes. Keep `SB_DREAM_CONCURRENCY=1` per Compute
+instance. Edge sequencing is an application setting and must be described as
+such; it is not an assertion that Edge Functions cannot run concurrently.
+
+Record Edge invocation frequency, worker readiness, queue wait, execution time,
+failed tasks, and saved output. An elevenfold speedup is not guaranteed. Model
+quotas, job sizes, database work, and worker startup can limit throughput.
+
+The full rehearsal CLI defaults to `--kind all`. Each temporary space receives
+summary, entity, and document-link tasks. `--kind digest` is an explicit
+summary-only alternative. Use a separate rehearsal dataset to keep these
+spaces out of the keynote app.
+
+It requires `NEXT_PUBLIC_SUPABASE_URL`, `SB_SERVICE_ROLE_KEY`, and
+`SB_WEB_BASE_URL`. Select an existing ingested source space and a user with
+access to it. Store each ownership manifest outside Git.
+
+```bash
+node --env-file=web/.env.local --experimental-strip-types scripts/dream-rehearsal.mts prepare \
+  --source-space <space-id> --user <user-id> --count 37 --kind all \
+  --manifest /tmp/dream-one.json
+```
+
+This copies real source text and embeddings before queueing 111 tasks. The
+copies have fresh timestamps for the processing lookback window. It clones
+up to 120 source chunks per space; increasing document volume beyond the
+selected input does not increase this rehearsal's work.
+
+Use a fresh manifest and copied spaces for the eleven-instance comparison.
+Wait for the chosen worker count to be ready before queueing each batch.
 
 ```bash
 node --env-file=web/.env.local --experimental-strip-types scripts/dream-rehearsal.mts status \
   --manifest /tmp/dream-one.json
 ```
 
-Report measured completion time and successful outputs. Include failures in the
-comparison. Model-provider limits and uneven job durations can affect throughput.
+Status reads all requested jobs in batches and reports nonempty digest
+outputs, entity counts, mentions, and links. Inspect sample outputs and their
+source citations. A successful task with no relevant entities or links is
+possible; report the actual result rather than inserting fixtures.
 
-More source documents only add work within the current caps: 120 chunks for a
-summary, 400 chunks for entities, and 40 documents for links. Entity discovery
-is capped at 100 names, entity summaries at 25, and links at 30. Processing a
-larger corpus requires paginated batches before generating extra documents can
-demonstrate that workload.
+## Cleanup and restore
 
-## Clean up
-
-After the batch finishes, remove only its temporary spaces and their contents:
+After each batch finishes, delete only its owned temporary spaces:
 
 ```bash
 node --env-file=web/.env.local --experimental-strip-types scripts/dream-rehearsal.mts cleanup \
   --manifest /tmp/dream-one.json
 ```
 
-Cleanup refuses active jobs and validates fixture ownership. Keep the manifest
-until cleanup succeeds. Restore the intended Compute instance count after recording.
+Cleanup refuses active jobs and checks ownership. Keep its manifest until
+cleanup succeeds. To restore the keynote starting state, wait for processing
+to finish, delete the hosted Compute service, verify that it has stopped,
+and re-enable Edge queue drivers. The app must then process Dreams with no
+Compute instances running.
 
-## Local verification, 18 September 2026
+After confirming Compute has stopped, restore the drivers using the privileged
+SQL editor:
 
-A 24-job batch used real model calls and 68 source documents per job against
-local Supabase. One Node worker completed three jobs in 32.2 seconds. Seven
-additional workers then joined the same queue; the remaining 21 jobs completed
-in 42.6 seconds. All 24 produced nonempty digests with source citations, and
-logs identified eight distinct workers. Browser checks confirmed the live
-queue and the manual submission-to-output flow. Temporary spaces were removed.
+```sql
+select public.set_dream_execution_mode('edge');
+```
 
-These measurements cover local worker processes. Rehearse hosted Compute
-startup and the one-to-eight transition before recording the keynote.
+This enables the sequential Dream wakeup driver and the ingestion schedule.
+Cutover switches the same mode to `compute`, which disables both drivers;
+explicit source-ingestion calls from CI continue to use the Edge worker.
+
+### Reset from the app
+
+In Admin > Demo, press Reset. The checklist reports each completed operation:
+pause new Dream and ingestion claims, wait for active work to finish, delete
+`dream` Compute and verify its absence, delete generated Dream output, then
+restore Edge processing. Source documents, spaces, members, and connections
+remain. A failed step stops the reset; press Reset again to retry. Processing
+stays paused after a failure until reset completes.
+
+Hosted reset requires `SUPABASE_ACCESS_TOKEN` in the web server's environment,
+with management access to the configured Supabase project. Keep this credential
+server-only. Local Supabase skips hosted Compute deletion. The button never
+creates a Compute instance.

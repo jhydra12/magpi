@@ -4,22 +4,15 @@ import { ApiError, jsonResponse } from '../_shared/errors.ts';
 import { serveFunction } from '../_shared/http.ts';
 import { dreamRunSchema, parseBody } from '../_shared/validate.ts';
 import { audit, serviceClient } from '../_shared/db.ts';
-import { enforceRateLimits } from '../_shared/rate_limit.ts';
-import { requireSpaceMembership, requireUser } from '../_shared/auth.ts';
-import { startManualDream } from './start.ts';
+import { requireUser } from '../_shared/auth.ts';
+import { authorizeDream, startManualDream } from './start.ts';
 
 serveFunction('dream-run', async (core) => {
   const input = parseBody(dreamRunSchema, core.body);
   const user = await requireUser(core.headers);
   const db = serviceClient();
 
-  // Dreaming is expensive, so the per-space budget is tighter than the per-user one.
-  await enforceRateLimits(db, [
-    { bucket: `dream-run:user:${user.id}`, limit: 200, windowSeconds: 3600 },
-    { bucket: `dream-run:space:${input.space_id}`, limit: 10, windowSeconds: 3600 },
-  ]);
-
-  const { orgId } = await requireSpaceMembership(db, user.id, input.space_id);
+  const { orgId } = await authorizeDream(db, user.id, input.space_id);
 
   const { data: space, error: spaceError } = await db
     .from('spaces')

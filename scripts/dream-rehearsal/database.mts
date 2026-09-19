@@ -3,7 +3,7 @@ import { writeFile } from 'node:fs/promises';
 import { createClient } from '@supabase/supabase-js';
 
 import type { Database } from '../../web/lib/database.types.ts';
-import { batchUrl, manifestSchema, spaceName, verifyOwnership } from './model.mts';
+import { batchUrl, manifestSchema, manifestRunIds, spaceName, verifyOwnership } from './model.mts';
 import type { Manifest } from './model.mts';
 
 type Client = ReturnType<typeof createClient<Database>>;
@@ -81,6 +81,7 @@ export async function prepare(
     sourceSpace: string;
     user: string;
     count: number;
+    kind?: 'digest' | 'all';
     targetUrl: string;
     webUrl: string;
     manifestPath: string;
@@ -99,6 +100,13 @@ export async function prepare(
     spaces: Array.from({ length: settings.count }, () => ({
       id: randomUUID(),
       runId: randomUUID(),
+      additionalRuns:
+        settings.kind === 'all'
+          ? [
+              { id: randomUUID(), kind: 'entities' },
+              { id: randomUUID(), kind: 'connections' },
+            ]
+          : [],
       documents: input.documents.map((document) => ({
         id: randomUUID(),
         sourceId: document.id,
@@ -139,14 +147,15 @@ export async function prepare(
   assertResult(
     (
       await db.from('dream_runs').insert(
-        manifest.spaces.map((space) => ({
-          id: space.runId,
-          org_id: manifest.orgId,
-          space_id: space.id,
-          kind: 'digest',
-          status: 'queued',
-          triggered_by: manifest.userId,
-        })),
+        manifest.spaces.flatMap((space) =>
+          [{ id: space.runId, kind: 'digest' as const }, ...space.additionalRuns].map((run) => ({
+            ...run,
+            org_id: manifest.orgId,
+            space_id: space.id,
+            status: 'queued' as const,
+            triggered_by: manifest.userId,
+          })),
+        ),
       )
     ).error,
     'Queue rehearsal batch',
@@ -204,17 +213,24 @@ async function cloneDocuments(
 export async function status(
   db: Client,
   manifest: Manifest,
-): Promise<{ runs: Database['public']['Tables']['dream_runs']['Row'][]; nonempty: Set<string> }> {
-  const result = await db
-    .from('dream_runs')
-    .select('*')
-    .in(
-      'id',
-      manifest.spaces.map((space) => space.runId),
-    )
-    .eq('org_id', manifest.orgId);
-  assertResult(result.error, 'Read rehearsal runs');
-  const runs = result.data ?? [];
+): Promise<{
+  runs: Database['public']['Tables']['dream_runs']['Row'][];
+  nonempty: Set<string>;
+  entities: number;
+  mentions: number;
+  links: number;
+}> {
+  const ids = manifestRunIds(manifest);
+  const runs: Database['public']['Tables']['dream_runs']['Row'][] = [];
+  for (let offset = 0; offset < ids.length; offset += 50) {
+    const result = await db
+      .from('dream_runs')
+      .select('*')
+      .in('id', ids.slice(offset, offset + 50))
+      .eq('org_id', manifest.orgId);
+    assertResult(result.error, 'Read rehearsal runs');
+    runs.push(...(result.data ?? []));
+  }
   const outputIds = runs.flatMap((run) => (run.output_document_id ? [run.output_document_id] : []));
   const nonempty = new Set<string>();
   for (const id of outputIds) {
@@ -227,7 +243,18 @@ export async function status(
     assertResult(chunks.error, 'Read output text');
     if (chunks.data?.some((chunk) => chunk.content.trim().length > 0)) nonempty.add(id);
   }
-  return { runs, nonempty };
+  const spaceIds = manifest.spaces.map((space) => space.id);
+  const counts = await Promise.all(
+    (['entities', 'entity_mentions', 'dream_links'] as const).map(async (table) => {
+      const result = await db
+        .from(table)
+        .select('id', { count: 'exact', head: true })
+        .in('space_id', spaceIds);
+      assertResult(result.error, `Read rehearsal ${table}`);
+      return result.count ?? 0;
+    }),
+  );
+  return { runs, nonempty, entities: counts[0], mentions: counts[1], links: counts[2] };
 }
 
 /** Deletes only identified rehearsal spaces, refusing while any owned space has pending work. */

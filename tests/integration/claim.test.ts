@@ -18,20 +18,11 @@ function serviceClient(): SupabaseClient {
   });
 }
 
-/** What a foreign ingest_jobs row looked like before this file ran. */
-type JobState = {
-  id: string;
-  status: string;
-  attempts: number;
-  claimed_at: string | null;
-};
-
 describe('claiming ingest jobs', () => {
   const db = serviceClient();
   let userId = '';
   let orgId = '';
   let spaceId = '';
-  let bystanders: JobState[] = [];
 
   beforeAll(async () => {
     const { data, error } = await db.auth.admin.createUser({
@@ -54,23 +45,6 @@ describe('claiming ingest jobs', () => {
   });
 
   afterAll(async () => {
-    // claim_ingest_jobs takes a count, not a filter, and `skip locked` sends a
-    // worker that finds our rows taken on to the next ones. There is no way to
-    // ask it for only our own, so whatever else it claimed is put back exactly
-    // as it was found.
-    //
-    // Without this the demo corpus scripts/seed-corpus.mjs queues is claimed by
-    // every run of this file, and after three runs the attempt cap in
-    // claim_ingest_jobs retires all of it as `gave up after 3 attempts`. The
-    // seeded demo would then be permanently broken, on a machine where nobody
-    // ran a migration or touched the seed.
-    for (const job of bystanders) {
-      await db
-        .from('ingest_jobs')
-        .update({ status: job.status, attempts: job.attempts, claimed_at: job.claimed_at })
-        .eq('id', job.id);
-    }
-
     if (!userId) return;
     // The signup trigger's organization is not reached by the user cascade.
     const { data: memberships } = await db
@@ -118,25 +92,10 @@ describe('claiming ingest jobs', () => {
     const queued = new Set((jobs.data ?? []).map((job) => job.id));
     expect(queued.size).toBe(12);
 
-    // The queue is not ours alone. A seeded corpus leaves older jobs in it and
-    // the claim takes the oldest first, so asking for twelve claimed twelve rows
-    // belonging to somebody else and none of ours. This test passed for an hour
-    // only because the queue happened to be empty.
-    //
-    // Their state is read before anything is claimed, so afterAll can put back
-    // what this file was never asking for.
-    const { data: ahead } = await db
-      .from('ingest_jobs')
-      .select('id, status, attempts, claimed_at')
-      .eq('status', 'queued');
-
-    bystanders = ((ahead ?? []) as JobState[]).filter((job) => !queued.has(job.id));
-    const depth = bystanders.length + 12;
-
-    // Four workers, each asking for the whole queue at the same instant. With a
-    // plain select-then-update every one of them would take all of it.
     const workers = await Promise.all(
-      Array.from({ length: 4 }, () => serviceClient().rpc('claim_ingest_jobs', { p_limit: depth })),
+      Array.from({ length: 4 }, () =>
+        serviceClient().rpc('claim_ingest_jobs', { p_limit: 12, p_org_id: orgId }),
+      ),
     );
 
     const claimed: string[] = [];
@@ -145,7 +104,8 @@ describe('claiming ingest jobs', () => {
       for (const job of (worker.data ?? []) as { id: string }[]) claimed.push(job.id);
     }
 
-    const ours = claimed.filter((id) => queued.has(id));
+    expect(claimed.every((id) => queued.has(id))).toBe(true);
+    const ours = claimed;
     expect(ours).toHaveLength(new Set(ours).size);
     expect(new Set(ours).size).toBe(12);
 

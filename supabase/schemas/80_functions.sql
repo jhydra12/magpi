@@ -365,17 +365,21 @@ revoke all on function public.prune_rate_limits() from public, anon, authenticat
 grant execute on function public.prune_rate_limits() to service_role;
 
 -- Claims queued ingest jobs. `for update skip locked` gives concurrent callers disjoint sets.
-create or replace function public.claim_ingest_jobs(p_limit integer)
+create or replace function public.claim_ingest_jobs(p_limit integer, p_org_id uuid default null)
 returns setof public.ingest_jobs
-language sql
+language plpgsql
 security definer
 set search_path = ''
 as $$
+begin
+  perform pg_advisory_xact_lock(hashtextextended('dream-execution', 0));
+  if public.dream_execution_mode() = 'paused' then return; end if;
+  return query
   -- Requeue a job whose worker never came back, using claimed_at, without counting an attempt.
   with reclaimed as (
     update public.ingest_jobs
     set status = 'queued'
-    where status = 'running'
+    where (p_org_id is null or org_id = p_org_id) and status = 'running'
       and claimed_at < now() - interval '15 minutes'
     returning id
   ),
@@ -384,7 +388,7 @@ as $$
     update public.ingest_jobs
     set status = 'failed',
         error = 'gave up after 3 attempts'
-    where status = 'queued' and attempts >= 3
+    where (p_org_id is null or org_id = p_org_id) and status = 'queued' and attempts >= 3
     returning id
   )
   update public.ingest_jobs j
@@ -394,7 +398,7 @@ as $$
   where j.id in (
     select c.id
     from public.ingest_jobs c
-    where c.status = 'queued'
+    where (p_org_id is null or c.org_id = p_org_id) and c.status = 'queued'
       -- Three, because most ingest failures are deterministic and a fourth try pays to repeat one.
       and c.attempts < 3
     order by c.created_at
@@ -402,10 +406,11 @@ as $$
     for update skip locked
   )
   returning j.*;
+end;
 $$;
 
-revoke all on function public.claim_ingest_jobs(integer) from public, anon, authenticated;
-grant execute on function public.claim_ingest_jobs(integer) to service_role;
+revoke all on function public.claim_ingest_jobs(integer, uuid) from public, anon, authenticated;
+grant execute on function public.claim_ingest_jobs(integer, uuid) to service_role;
 
 -- Plan limits live in the database. An ingest job past an org's plan is refused here.
 create or replace function public.plan_document_limit(p_plan public.org_plan)

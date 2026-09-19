@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SCHEDULES = 'supabase/schemas/96_schedules.sql';
+const SCHEDULES = ['supabase/schemas/96_schedules.sql', 'supabase/schemas/97_execution_mode.sql'];
 const SCHEMAS = 'supabase/schemas';
 const VERCEL = 'vercel.json';
 
@@ -14,11 +14,12 @@ const VERCEL = 'vercel.json';
  * Each job with the body it runs. The target is read out of the body rather than assumed from the
  * job name, because a job called dream-worker that invokes a mistyped one would otherwise pass.
  */
-function scheduledJobs(source) {
-  const pattern = /cron\.schedule\(\s*'([a-z0-9-]+)'\s*,\s*'[^']*'\s*,\s*\$job\$([\s\S]*?)\$job\$/g;
+export function scheduledJobs(source) {
+  const pattern =
+    /cron\.schedule\(\s*'([a-z0-9-]+)'\s*,\s*'[^']*'\s*,\s*(?:\$job\$([\s\S]*?)\$job\$|'((?:[^']|'')*)')/g;
   return [...source.matchAll(pattern)].map((match) => ({
     name: match[1],
-    body: match[2].trim(),
+    body: (match[2] ?? match[3].replaceAll("''", "'")).trim(),
   }));
 }
 
@@ -47,8 +48,9 @@ function targetOf(body) {
 }
 
 function main() {
-  const source = readFileSync(resolve(ROOT, SCHEDULES), 'utf8');
-  const jobs = scheduledJobs(source);
+  const jobs = SCHEDULES.flatMap((file) =>
+    scheduledJobs(readFileSync(resolve(ROOT, file), 'utf8')),
+  );
 
   if (jobs.length === 0) {
     console.error(`scheduled workers FAILED: ${SCHEDULES} schedules nothing`);
@@ -97,4 +99,4 @@ function main() {
   );
 }
 
-main();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

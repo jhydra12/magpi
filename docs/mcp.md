@@ -303,3 +303,30 @@ installed. Tool generation from the PostgREST schema, which is the other half of
 that launch, is deliberately not used: Magpi's five tools are curated, and a
 generated set would offer `create_chunks` and `delete_documents` to anything
 that connected.
+
+## Verify external OAuth locally
+
+Start local Supabase and serve the current Edge Functions with the local service
+credential and a working `OPENAI_API_KEY`. Then run:
+
+```sh
+pnpm test:mcp-oauth
+```
+
+The command uses `supabase-beta` by default; set `SB_CLI` to use another local
+Supabase CLI. It creates an isolated public OAuth client and two temporary users.
+It checks the unauthenticated challenge and discovery documents, exchanges a
+real authorization code with S256 PKCE, and verifies the issued token includes
+the external client ID. All MCP calls use that OAuth token: initialization,
+tool listing, caller identity, and searches that must exclude the other user's
+document. The fixture user's session approves consent through Supabase Auth.
+
+The check makes two real embedding requests. Run it as an explicit integration
+check when the local functions and model credentials are available. It shares
+the browser/integration fixture lock, deletes its users, organizations, and
+OAuth client afterward, and prints no tokens or credentials. It refuses a
+non-local Supabase URL. The light gate does not run this check.
+
+A passing local check verifies the server's external OAuth flow. A named client
+such as Claude or ChatGPT still needs its own connection rehearsal against the
+deployed endpoint.

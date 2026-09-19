@@ -35,7 +35,7 @@ describe('Dream status reads under the caller session', () => {
       'org_id',
       recorder.context.orgId,
     ]);
-    expect(recorder.callsFor('dream_runs')).toContainEqual(['limit', 100]);
+    expect(recorder.callsFor('dream_runs')).toContainEqual(['range', 0, 499]);
   });
 
   it.each(['', 'bad-id', Array.from({ length: 101 }, () => RUN_ID).join(',')])(

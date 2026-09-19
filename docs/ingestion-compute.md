@@ -1,6 +1,10 @@
 # Ingestion and Dreams on Supabase Compute
 
-`dream` runs ingestion and queued Dream jobs in Node with 2 GB of memory.
+The starting demo uses Edge Functions with no Compute service deployed. This
+guide describes the manual Compute phase after the cutover in
+[Dream rehearsal](dream-rehearsal.md). CI deploys Edge Functions and source data only.
+
+After cutover, `dream` runs ingestion and queued Dream jobs in Node with 2 GB of memory.
 The source is `supabase/compute/dream/src/index.ts`. It imports the job
 code from `supabase/functions/_shared/jobs` and uses the existing project secrets.
 
@@ -16,12 +20,14 @@ terminal results with their run ID and worker ID. Interrupted Dreams are marked
 as timed out after fifteen minutes and require an explicit new run.
 
 The manual `dream-run` endpoint validates access and returns a queued run ID with
-HTTP 202. Deploy Compute before updating that endpoint and the web app. See
+HTTP 202. In Edge mode, the durable Edge driver processes the queue. The manual
+cutover disables the Edge driver before deploying one Compute instance. See
 [Dream rehearsal](dream-rehearsal.md) for recording and isolated scaling batches.
 
 Uploads and connected sources keep their existing enqueue paths. The
 `ingest-worker` Edge Function remains available for manual calls and rollback.
-The migration removes its automatic cron schedule. Hourly source sync continues.
+Edge mode enables its automatic cron schedule. Compute mode disables that
+schedule; explicit CI ingestion requests still use Edge. Hourly source sync continues.
 
 ## Earlier ingestion deployment
 

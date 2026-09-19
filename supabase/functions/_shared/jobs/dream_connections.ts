@@ -116,17 +116,25 @@ async function candidatePairs(pass: Pass, documents: SpaceDocumentRow[]): Promis
 }
 
 export async function dreamConnections(pass: Pass): Promise<DreamOutcome> {
-  const { run, deps, db } = pass;
+  const { deps, db } = pass;
   enter(pass, 'collect');
   const documents = await db.recentDocuments(sinceIso(deps), MAX_COMPARED_DOCUMENTS);
   pass.inputDocumentCount = documents.length;
   if (documents.length === 0) return NOTHING;
 
+  let produced = 0;
+  for (let offset = 0; offset < documents.length; offset += MAX_COMPARED_DOCUMENTS) {
+    produced += await connectBatch(pass, documents.slice(offset, offset + MAX_COMPARED_DOCUMENTS));
+  }
+  return { ...NOTHING, inputDocumentCount: documents.length, produced };
+}
+
+async function connectBatch(pass: Pass, documents: SpaceDocumentRow[]): Promise<number> {
+  const { run, db } = pass;
   const candidates = await candidatePairs(pass, documents);
   enter(pass, 'collect');
   const others = await db.documentsByIds([...new Set(candidates.map((c) => c.otherId))]);
   const known = new Map([...documents, ...others].map((doc) => [doc.id, doc]));
-  const outcome = { ...NOTHING, inputDocumentCount: documents.length };
 
   // Drop pairs the read could not return and pairs whose halves share a connection, then cap.
   const pairs = candidates
@@ -138,7 +146,7 @@ export async function dreamConnections(pass: Pass): Promise<DreamOutcome> {
     })
     .sort((a, b) => b.candidate.similarity - a.candidate.similarity)
     .slice(0, MAX_LINKS);
-  if (pairs.length === 0) return outcome;
+  if (pairs.length === 0) return 0;
 
   enter(pass, 'synthesize');
   const prompt = pairs.map((pair, index) => `${index}: ${pair.title}`).join('\n');
@@ -169,5 +177,5 @@ export async function dreamConnections(pass: Pass): Promise<DreamOutcome> {
 
   enter(pass, 'write');
   await db.insertLinks(drafts);
-  return { ...outcome, produced: drafts.length };
+  return drafts.length;
 }

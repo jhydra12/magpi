@@ -48,7 +48,10 @@
     "check:compat-tokens": "node scripts/check-compat-tokens.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
     "spend": "node scripts/spend.mjs",
-    "secrets:push": "supabase secrets set --env-file supabase/.env.hosted"
+    "secrets:push": "supabase secrets set --env-file supabase/.env.hosted",
+    "test:seeds": "node --test scripts/demo-spaces.test.mjs scripts/lib/seed.test.mjs scripts/lib/seed-history.test.mjs",
+    "test:graph": "playwright test --config playwright.graph.config.ts",
+    "test:mcp-oauth": "node --experimental-strip-types scripts/mcp-oauth-smoke.mts"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

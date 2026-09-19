@@ -71,27 +71,15 @@ vi.mock('@/lib/actions/with-session', () => ({
 
 vi.mock('@/lib/supabase/service', () => ({
   createServiceClient: () => ({
-    from: (table: string) => ({
-      insert: (values: unknown) => {
-        dbState.writes.push({ table, operation: 'insert', values });
-        const error =
-          table === 'documents'
-            ? dbState.documentError
-            : table === 'usage_events'
-              ? dbState.usageError
-              : dbState.jobError;
-        return {
-          select: () => ({
-            single: async () => ({
-              data: dbState.documentError ? null : { id: DOCUMENT_ID },
-              error: dbState.documentError,
-            }),
-          }),
-          then: (resolve: (value: { error: { message: string } | null }) => unknown) =>
-            Promise.resolve({ error }).then(resolve),
-        };
-      },
-    }),
+    rpc: (name: string, args: unknown) => {
+      dbState.rpcCalls.push({ name, args });
+      return {
+        single: async () => ({
+          data: { document_id: DOCUMENT_ID },
+          error: dbState.documentError ?? dbState.jobError,
+        }),
+      };
+    },
   }),
 }));
 
@@ -163,9 +151,10 @@ describe('recording an uploaded file as a document', () => {
   it('asks the organization, not the space, whether another document fits in the plan', async () => {
     await enqueueUploadedDocument(upload());
 
-    expect(dbState.rpcCalls).toEqual([
-      { name: 'check_ingest_allowed', args: { p_org_id: ORG_ID } },
-    ]);
+    expect(dbState.rpcCalls).toContainEqual({
+      name: 'check_ingest_allowed',
+      args: { p_org_id: ORG_ID },
+    });
   });
 
   it('stops a full plan at the door and says which limit was hit', async () => {
@@ -202,26 +191,23 @@ describe('recording an uploaded file as a document', () => {
   it("files the document in the chosen space, under the uploader's organization", async () => {
     await enqueueUploadedDocument(upload({ title: 'Q3 platform notes', objectName: 'q3.pdf' }));
 
-    expect(writesTo('documents')[0].values).toEqual({
-      org_id: ORG_ID,
-      space_id: SPACE_ID,
-      title: 'Q3 platform notes',
-      mime_type: 'application/pdf',
-      storage_path: `${SPACE_ID}/q3.pdf`,
-      origin: 'upload',
-      created_by: USER_ID,
+    expect(dbState.rpcCalls.find((call) => call.name === 'enqueue_document')?.args).toEqual({
+      p_document: {
+        org_id: ORG_ID,
+        space_id: SPACE_ID,
+        title: 'Q3 platform notes',
+        mime_type: 'application/pdf',
+        storage_path: `${SPACE_ID}/q3.pdf`,
+        origin: 'upload',
+        created_by: USER_ID,
+      },
     });
   });
 
   it('queues the new document to be read, starting at extraction', async () => {
     const state = await enqueueUploadedDocument(upload());
 
-    expect(writesTo('ingest_jobs')[0].values).toEqual({
-      org_id: ORG_ID,
-      space_id: SPACE_ID,
-      document_id: DOCUMENT_ID,
-      stage: 'extract',
-    });
+    expect(dbState.rpcCalls.some((call) => call.name === 'enqueue_document')).toBe(true);
     expect(state).toEqual({ status: 'success', data: { documentId: DOCUMENT_ID } });
   });
 
@@ -247,14 +233,9 @@ describe('recording an uploaded file as a document', () => {
     expect(dbState.writes).toEqual([]);
   });
 
-  it('counts the document against what the organization has used', async () => {
+  it('leaves ingestion usage accounting to the worker', async () => {
     await enqueueUploadedDocument(upload());
-
-    expect(writesTo('usage_events')[0].values).toEqual({
-      org_id: ORG_ID,
-      kind: 'document_ingested',
-      quantity: 1,
-    });
+    expect(writesTo('usage_events')).toEqual([]);
   });
 
   it('reports a document that could not be written instead of a success nobody has', async () => {
@@ -263,7 +244,10 @@ describe('recording an uploaded file as a document', () => {
 
     const state = await enqueueUploadedDocument(upload());
 
-    expect(state).toEqual({ status: 'error', message: 'That upload could not be recorded.' });
+    expect(state).toEqual({
+      status: 'error',
+      message: 'That upload could not be queued. Try again.',
+    });
     expect(writesTo('ingest_jobs')).toEqual([]);
     consoleError.mockRestore();
   });
@@ -277,24 +261,9 @@ describe('recording an uploaded file as a document', () => {
 
     expect(state).toEqual({
       status: 'error',
-      message: 'That file was saved but nothing was queued to read it. Upload it again.',
+      message: 'That upload could not be queued. Try again.',
     });
     expect(writesTo('usage_events')).toEqual([]);
-    consoleError.mockRestore();
-  });
-
-  // The row the document meter is computed from; a discarded error let an org pass its limit.
-  it('reports a meter that did not record, rather than a clean success', async () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    dbState.usageError = { message: 'permission denied for table usage_events' };
-
-    const state = await enqueueUploadedDocument(upload());
-
-    expect(state).toEqual({
-      status: 'error',
-      message: 'That file was saved and queued, but it was not counted against your plan.',
-    });
-    expect(consoleError).toHaveBeenCalled();
     consoleError.mockRestore();
   });
 

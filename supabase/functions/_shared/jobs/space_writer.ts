@@ -118,18 +118,18 @@ export function spaceScoped(db: SupabaseClient, scope: SpaceScope): SpaceScopedD
     scope,
 
     async recentChunks(sinceIso, limit) {
-      const { data, error } = await db
-        .from('chunks')
-        .select('id, document_id, ordinal, content, created_at, documents!inner(origin)')
-        .eq('space_id', scope.spaceId)
-        .gte('created_at', sinceIso)
-        // A dream output is not an input to the next dream, or a digest would digest digests.
-        .neq('documents.origin', 'dream')
-        .order('created_at', { ascending: true })
-        .limit(limit)
-        .returns<SpaceChunkRow[]>();
-      if (error) throw failed('reading recent chunks', error.message);
-      return data ?? [];
+      const rows: SpaceChunkRow[] = [];
+      for (let offset = 0;; offset += limit) {
+        const { data, error } = await db.from('chunks')
+          .select('id, document_id, ordinal, content, created_at, documents!inner(origin)')
+          .eq('space_id', scope.spaceId).gte('created_at', sinceIso)
+          .neq('documents.origin', 'dream')
+          .order('created_at', { ascending: true }).order('id', { ascending: true })
+          .range(offset, offset + limit - 1).returns<SpaceChunkRow[]>();
+        if (error) throw failed('reading recent chunks', error.message);
+        rows.push(...(data ?? []));
+        if (!data || data.length < limit) return rows;
+      }
     },
 
     async documentsByIds(ids) {
@@ -145,18 +145,17 @@ export function spaceScoped(db: SupabaseClient, scope: SpaceScope): SpaceScopedD
     },
 
     async recentDocuments(sinceIso, limit) {
-      const { data, error } = await db
-        .from('documents')
-        .select('id, title, origin, connection_id, url, updated_at')
-        .eq('space_id', scope.spaceId)
-        .gte('updated_at', sinceIso)
-        // A dream output is not an input to the next dream.
-        .neq('origin', 'dream')
-        .order('updated_at', { ascending: false })
-        .limit(limit)
-        .returns<SpaceDocumentRow[]>();
-      if (error) throw failed('reading documents', error.message);
-      return data ?? [];
+      const rows: SpaceDocumentRow[] = [];
+      for (let offset = 0;; offset += limit) {
+        const { data, error } = await db.from('documents')
+          .select('id, title, origin, connection_id, url, updated_at')
+          .eq('space_id', scope.spaceId).gte('updated_at', sinceIso).neq('origin', 'dream')
+          .order('updated_at', { ascending: false }).order('id', { ascending: true })
+          .range(offset, offset + limit - 1).returns<SpaceDocumentRow[]>();
+        if (error) throw failed('reading documents', error.message);
+        rows.push(...(data ?? []));
+        if (!data || data.length < limit) return rows;
+      }
     },
 
     async firstChunksOf(documentIds) {

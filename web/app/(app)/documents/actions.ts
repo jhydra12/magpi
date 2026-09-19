@@ -50,54 +50,25 @@ export async function enqueueUploadedDocument(
     }
     if (!allowance.allowed) return errorState(allowance.reason ?? 'This plan is full.');
 
-    const service = createServiceClient();
-
-    const { data: document, error: documentError } = await service
-      .from('documents')
-      .insert({
-        org_id: orgId,
-        space_id: spaceId,
-        title,
-        mime_type: mimeType,
-        storage_path: storagePathFor(spaceId, objectName),
-        origin: 'upload',
-        created_by: userId,
+    const { data, error } = await createServiceClient()
+      .rpc('enqueue_document', {
+        p_document: {
+          org_id: orgId,
+          space_id: spaceId,
+          title,
+          mime_type: mimeType,
+          storage_path: storagePathFor(spaceId, objectName),
+          origin: 'upload',
+          created_by: userId,
+        },
       })
-      .select('id')
       .single();
-
-    if (documentError) {
-      return databaseErrorState('recording an uploaded document', documentError, {
-        fallback: 'That upload could not be recorded.',
+    if (error) {
+      return databaseErrorState('queuing an uploaded document', error, {
+        fallback: 'That upload could not be queued. Try again.',
       });
     }
-
-    const { error: jobError } = await service.from('ingest_jobs').insert({
-      org_id: orgId,
-      space_id: spaceId,
-      document_id: document.id,
-      stage: 'extract',
-    });
-
-    if (jobError) {
-      // The document row is already in, so the message tells the reader to upload again.
-      return databaseErrorState('queuing an uploaded document', jobError, {
-        fallback: 'That file was saved but nothing was queued to read it. Upload it again.',
-      });
-    }
-
-    // The row the plan meter is computed from, so a failure here is not discarded.
-    const { error: usageError } = await service
-      .from('usage_events')
-      .insert({ org_id: orgId, kind: 'document_ingested', quantity: 1 });
-
-    if (usageError) {
-      return databaseErrorState('metering an uploaded document', usageError, {
-        fallback: 'That file was saved and queued, but it was not counted against your plan.',
-      });
-    }
-
-    return successState({ documentId: document.id });
+    return successState({ documentId: data.document_id });
   }, '/documents');
 }
 

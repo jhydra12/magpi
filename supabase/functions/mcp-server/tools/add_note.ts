@@ -3,6 +3,9 @@
 import type { McpServer } from '@modelcontextprotocol/server';
 import { z } from 'zod';
 
+import { sha256Hex } from '../../_shared/crypto.ts';
+import { enqueueDocument } from '../../_shared/jobs/enqueue_document.ts';
+
 import { jsonResult, ToolError } from './result.ts';
 import type { ToolContext } from './types.ts';
 
@@ -50,47 +53,22 @@ export async function addNote(ctx: ToolContext, input: AddNoteInput): Promise<Fi
   // A note is an upload with no file picker: the text goes to storage and the ingest job reads
   // it back the way it reads any other upload. The space leads the path, which is what the
   // storage policy reads.
-  const storagePath = `${input.space_id}/${crypto.randomUUID()}.md`;
+  const storagePath = `${input.space_id}/notes/${await sha256Hex(
+    `${ctx.userClaims.id}:${input.title}:${input.content}`,
+  )}.md`;
   await ctx.notes.write(storagePath, input.content);
 
-  const { data: document, error } = await ctx.admin
-    .from('documents')
-    .insert({
-      org_id: ctx.orgId,
-      space_id: input.space_id,
-      title: input.title,
-      origin: 'upload',
-      mime_type: 'text/markdown',
-      storage_path: storagePath,
-      version: 1,
-    })
-    .select('id')
-    .single<{ id: string }>();
-  if (error || !document) {
-    throw new ToolError(`the note could not be filed: ${error?.message ?? 'no row'}`);
-  }
-
-  const { data: job, error: jobError } = await ctx.admin
-    .from('ingest_jobs')
-    .insert({
-      org_id: ctx.orgId,
-      space_id: input.space_id,
-      document_id: document.id,
-      status: 'queued',
-      stage: 'fetch',
-    })
-    .select('id')
-    .single<{ id: string }>();
-  if (jobError || !job) {
-    throw new ToolError(`the note could not be queued: ${jobError?.message ?? 'no row'}`);
-  }
-
-  return {
-    document_id: document.id,
+  const queued = await enqueueDocument(ctx.admin, {
+    org_id: ctx.orgId,
     space_id: input.space_id,
-    ingest_job_id: job.id,
-    status: 'queued',
-  };
+    title: input.title,
+    origin: 'upload',
+    mime_type: 'text/markdown',
+    storage_path: storagePath,
+    created_by: ctx.userClaims.id,
+  });
+  // Keep successfully uploaded bytes on an ambiguous database failure: retry uses this same path.
+  return { ...queued, space_id: input.space_id, status: 'queued' };
 }
 
 export function registerAddNoteTool(server: McpServer, ctx: ToolContext): void {

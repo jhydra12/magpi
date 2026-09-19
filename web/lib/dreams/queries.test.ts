@@ -622,7 +622,7 @@ describe('the entities a dream extracted', () => {
     expect(callsFor('entities')).toContainEqual(['eq', 'space_id', SPACE_ID]);
   });
 
-  it('reads every space the caller holds when no space is picked', async () => {
+  it('reads current-organization entities when no space is picked', async () => {
     const { context, callsFor } = recordingContext({
       responses: { spaces: [{ data: [getSpace()] }], entities: [{ data: [] }] },
     });
@@ -630,7 +630,7 @@ describe('the entities a dream extracted', () => {
     await loadEntities(context);
 
     const filters = callsFor('entities').filter((call) => call[0] === 'eq');
-    expect(filters).toEqual([]);
+    expect(filters).toEqual([['eq', 'org_id', context.orgId]]);
   });
 
   it('asks nothing further of the database when a space has no entities yet', async () => {
@@ -641,7 +641,7 @@ describe('the entities a dream extracted', () => {
     const page = await loadEntities(context);
 
     expect(page.groups).toEqual([]);
-    expect(page.spaces).toEqual([getSpace()]);
+    expect(page.spaces).toEqual([]);
     expect(callsFor('entity_mentions')).toEqual([]);
   });
 
@@ -678,7 +678,7 @@ describe('the entities a dream extracted', () => {
     expect(page.groups[0].entities[0].documents.map((document) => document.id)).toEqual(['doc-a']);
   });
 
-  it('still lists an entity when its mentions could not be read', async () => {
+  it('reports a failed mention query instead of pretending the entity has no documents', async () => {
     const { context } = recordingContext({
       responses: {
         spaces: [{ data: [getSpace()] }],
@@ -688,8 +688,6 @@ describe('the entities a dream extracted', () => {
       },
     });
 
-    const page = await loadEntities(context);
-
-    expect(page.groups[0].entities[0].documents).toEqual([]);
+    await expect(loadEntities(context)).rejects.toThrow('permission denied');
   });
 });

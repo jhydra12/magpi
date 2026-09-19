@@ -4,8 +4,10 @@ import { z } from 'zod';
 
 import { errorState, successState, type ActionState } from '@/lib/actions/state';
 import { withSession } from '@/lib/actions/with-session';
-import { requestDreamRun, type DreamRunOutcome } from '@/lib/dreams/edge';
+import { type DreamRunOutcome } from '@/lib/dreams/edge';
 import { setSpaceDreaming as writeSpaceDreaming } from '@/lib/spaces/dreaming';
+
+import { startDream } from '@/lib/dreams/start';
 
 const DREAMS_PATH = '/dreams';
 
@@ -20,23 +22,7 @@ export async function startDreamRun(
   const input = z.object({ spaceId: idSchema, kind: kindSchema }).safeParse({ spaceId, kind });
   if (!input.success) return errorState('Choose a space and a kind of run.');
 
-  return withSession(async (context) => {
-    const { data: space } = await context.supabase
-      .from('spaces')
-      .select('id, dreaming_enabled')
-      .eq('id', input.data.spaceId)
-      .maybeSingle();
-    if (!space) return errorState('You are not in that space.');
-    if (!space.dreaming_enabled) {
-      return errorState('Dreaming is switched off for this space. Turn it on first.');
-    }
-
-    const result = await requestDreamRun(context.supabase, {
-      spaceId: input.data.spaceId,
-      kind: input.data.kind,
-    });
-    return result.ok ? successState(result.data) : errorState(result.error);
-  }, DREAMS_PATH);
+  return withSession((context) => startDream(context, input.data), DREAMS_PATH);
 }
 
 export async function setSpaceDreaming(

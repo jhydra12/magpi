@@ -90,8 +90,12 @@ const claimedJobsSchema = z.array(z.object({
 export async function claimIngestJobs(
   db: SupabaseClient,
   limit: number,
+  orgId?: string,
 ): Promise<IngestJobRecord[]> {
-  const { data, error } = await db.rpc('claim_ingest_jobs', { p_limit: limit });
+  const { data, error } = await db.rpc('claim_ingest_jobs', {
+    p_limit: limit,
+    ...(orgId ? { p_org_id: orgId } : {}),
+  });
   if (error) {
     console.error('claiming ingest jobs failed', error.message);
     throw new ApiError(500, 'internal', 'the ingest queue could not be claimed');

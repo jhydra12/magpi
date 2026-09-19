@@ -14,3 +14,7 @@
 - Start dreaming means the complete workflow: entities, a summary, and document links. Removing a task selector must preserve all three operations.
 - Validate Compute speed claims with identical real work. App timeouts and scheduled queue delays are not platform limits, and more documents cannot increase work beyond fixed input caps.
 - Add a regression test whenever a Dream control or graph ID changes: global starts must leave navigation interactive, and every graph link must point to an existing node ID.
+- Verify graph fixes in the production browser: hover hit-testing does not prove that WebGL rendered. Inspect console errors and visually confirm nodes and links before reporting success. Canvas fillStyle preserves OKLCH; convert via getImageData when a renderer requires sRGB.
+- When stopping live entity polling after jobs complete, read activity before entity evidence so the final committed output is included in the last response.
+- Keep Compute positioning tied to current product sources and measured runs. Distinguish private-alpha capabilities from future networking and runtime plans.
+- The clean demo starts with Edge Functions only. Never deploy Compute automatically during cleanup or CI. The presenter deploys one Compute instance, cuts over queue processing, then scales to eleven during the demo.

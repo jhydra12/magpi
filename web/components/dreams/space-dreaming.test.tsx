@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -124,10 +124,10 @@ describe('dreaming in each space row', () => {
     expect(screen.queryByText('Recent Dream activity')).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Start dreaming' }));
     expect(actions.onRun).toHaveBeenCalledWith(SPACE_ID, 'all');
-    expect(refresh).toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
     expect(screen.queryByText('Next dream: 1:55am UTC')).not.toBeInTheDocument();
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
-    expect(screen.getByRole('status')).toHaveTextContent('Queued');
+    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Queued'));
   });
 
   it('keeps the page interactive while the all-spaces requests are pending', async () => {
@@ -143,7 +143,7 @@ describe('dreaming in each space row', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Start dreaming in all spaces' }));
     expect(onRun).toHaveBeenCalledTimes(2);
-    expect(screen.getByRole('button', { name: 'Start dreaming in all spaces' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Start dreaming in all spaces' })).toBeDisabled();
   });
 
   it('replaces the schedule immediately, then follows the saved run', async () => {
@@ -369,4 +369,76 @@ describe('dreaming in each space row', () => {
     expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
   });
+});
+
+it('waits for capacity before submitting more than four spaces and prevents duplicate starts', async () => {
+  const releases: Array<() => void> = [];
+  const onRun = vi.fn(
+    () =>
+      new Promise<Awaited<ReturnType<ReturnType<typeof getActions>['onRun']>>>((resolve) => {
+        releases.push(() =>
+          resolve(
+            successState({
+              dreamRunId: RUN_ID,
+              dreamRunIds: [RUN_ID],
+              status: 'queued',
+              outputDocumentId: null,
+            }),
+          ),
+        );
+      }),
+  );
+  render(
+    <SpaceDreaming
+      spaces={Array.from({ length: 9 }, (_, index) =>
+        getSpace({ id: String(index), name: `Space ${index}` }),
+      )}
+      initial={getInitial()}
+      onRun={onRun}
+      nextDreamLabel="1:55am UTC"
+    />,
+  );
+  const button = screen.getByRole('button', { name: 'Start dreaming in all spaces' });
+  await userEvent.click(button);
+  expect(onRun).toHaveBeenCalledTimes(4);
+  await userEvent.click(button);
+  expect(onRun).toHaveBeenCalledTimes(4);
+  await act(async () => {
+    releases.slice(0, 4).forEach((release) => release());
+  });
+  expect(onRun).toHaveBeenCalledTimes(8);
+  await act(async () => {
+    releases.slice(4, 8).forEach((release) => release());
+  });
+  expect(onRun).toHaveBeenCalledTimes(9);
+  await act(async () => {
+    releases[8]();
+  });
+  expect(button).toBeEnabled();
+});
+
+it('keeps an accepted new batch queued until its status arrives, hiding older completion', async () => {
+  const old = getActivityRun({ status: 'succeeded', finished_at: '2026-09-18T10:00:10.000Z' });
+  const newId = '22222222-2222-4222-8222-222222222222';
+  render(
+    <SpaceDreaming
+      spaces={[getSpace()]}
+      initial={getInitial([old])}
+      nextDreamLabel="1:55am UTC"
+      onRun={async () =>
+        successState({
+          dreamRunId: newId,
+          dreamRunIds: [newId],
+          status: 'queued',
+          outputDocumentId: null,
+        })
+      }
+    />,
+  );
+  await userEvent.click(screen.getByRole('button', { name: 'Start dreaming in all spaces' }));
+  expect(
+    within(screen.getByRole('group', { name: 'Engineering' })).getByRole('status'),
+  ).toHaveTextContent('Queued');
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+  expect(screen.queryByText(/Last dream:/)).not.toBeInTheDocument();
 });

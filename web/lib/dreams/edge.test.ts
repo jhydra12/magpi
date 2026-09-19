@@ -16,26 +16,17 @@ const LINKS_ID = '33333333-3333-4333-8333-333333333333';
 const DOC_ID = '22222222-3333-4444-8555-666666666666';
 
 describe('starting a dream run by hand', () => {
-  it('requires three distinct queued jobs when starting the full Dream', async () => {
+  it('queues the complete Dream in one atomic request', async () => {
     const ids = [ENTITY_ID, RUN_ID, LINKS_ID];
     const client = getClient({
-      data: { dream_run_id: ENTITY_ID, status: 'queued', output_document_id: null },
+      data: {
+        dream_run_id: RUN_ID,
+        dream_run_ids: ids,
+        status: 'queued',
+        output_document_id: null,
+      },
     });
-    client.functions.invoke
-      .mockResolvedValueOnce({
-        data: { dream_run_id: ids[0], status: 'queued', output_document_id: null },
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        data: { dream_run_id: ids[1], status: 'queued', output_document_id: null },
-        error: null,
-      })
-      .mockResolvedValueOnce({
-        data: { dream_run_id: ids[2], status: 'queued', output_document_id: null },
-        error: null,
-      });
-    const result = await requestDreamRun(client, { spaceId: 'space-1', kind: 'all' });
-    expect(result).toEqual({
+    expect(await requestDreamRun(client, { spaceId: 'space-1', kind: 'all' })).toEqual({
       ok: true,
       data: {
         dreamRunId: RUN_ID,
@@ -44,29 +35,13 @@ describe('starting a dream run by hand', () => {
         outputDocumentId: null,
       },
     });
-    expect(client.functions.invoke).toHaveBeenNthCalledWith(1, 'dream-run', {
-      body: { space_id: 'space-1', kind: 'entities' },
-    });
-    expect(client.functions.invoke).toHaveBeenNthCalledWith(2, 'dream-run', {
-      body: { space_id: 'space-1', kind: 'digest' },
-    });
-    expect(client.functions.invoke).toHaveBeenNthCalledWith(3, 'dream-run', {
-      body: { space_id: 'space-1', kind: 'connections' },
+    expect(client.functions.invoke).toHaveBeenCalledExactlyOnceWith('dream-run', {
+      body: { space_id: 'space-1', kind: 'all' },
     });
   });
 
-  it.each([0, 1, 2])('stops when one of the full-Dream tasks is refused (%i)', async (failedAt) => {
-    const client = getClient({
-      data: { dream_run_id: RUN_ID, status: 'queued', output_document_id: null },
-    });
-    client.functions.invoke.mockImplementation(async () =>
-      client.functions.invoke.mock.calls.length - 1 === failedAt
-        ? { data: null, error: { message: 'refused' } }
-        : {
-            data: { dream_run_id: RUN_ID, status: 'queued', output_document_id: null },
-            error: null,
-          },
-    );
+  it('reports failure of the complete enqueue operation', async () => {
+    const client = getClient({ error: { message: 'refused' } });
     expect((await requestDreamRun(client, { spaceId: 'space-1', kind: 'all' })).ok).toBe(false);
   });
 

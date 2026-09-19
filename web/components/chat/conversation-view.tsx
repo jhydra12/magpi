@@ -27,13 +27,24 @@ export function ConversationView({
   const [state, dispatch] = useReducer(chatReducer, initialChatState(initialTurns, initialTitle));
   const transcript = useRef<HTMLDivElement>(null);
   const started = useRef(false);
+  const request = useRef<AbortController | null>(null);
+
+  useEffect(() => () => request.current?.abort(), []);
 
   const ask = useCallback(
     async (question: string) => {
+      request.current?.abort();
+      const controller = new AbortController();
+      request.current = controller;
       dispatch({ type: 'ask', question, turnId: crypto.randomUUID() });
-      await askChat({ conversationId, message: question }, (event) =>
-        dispatch({ type: 'event', event }),
+      await askChat(
+        { conversationId, message: question },
+        (event) => {
+          if (!controller.signal.aborted) dispatch({ type: 'event', event });
+        },
+        { signal: controller.signal },
       );
+      if (controller.signal.aborted) return;
       // The history sidebar is server rendered, so a new title reaches it here.
       router.refresh();
     },

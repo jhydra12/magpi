@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
   batchUrl,
   manifestSchema,
+  manifestRunIds,
   options,
   spaceName,
   summarize,
@@ -174,4 +175,36 @@ test('missing and still queued runs keep the batch incomplete and its elapsed ti
   assert.equal(result.missing, 1);
   assert.equal(result.queued, 1);
   assert.equal(result.elapsedSeconds, 30);
+});
+
+test('full Dream batches include all three jobs per space in completion and missing counts', () => {
+  const base = fixture();
+  const manifest = manifestSchema.parse({
+    ...base,
+    spaces: base.spaces.map((space) => ({
+      ...space,
+      additionalRuns: [
+        { id: randomUUID(), kind: 'entities' },
+        { id: randomUUID(), kind: 'connections' },
+      ],
+    })),
+  });
+  const ids = manifestRunIds(manifest);
+  assert.equal(ids.length, 6);
+  assert.equal(
+    summarize(
+      manifest,
+      ids.map((id) => run(id)),
+      new Set(),
+    ).isFinished,
+    true,
+  );
+  const partial = summarize(
+    manifest,
+    ids.slice(0, 5).map((id) => run(id)),
+    new Set(),
+  );
+  assert.equal(partial.requested, 6);
+  assert.equal(partial.missing, 1);
+  assert.equal(partial.isFinished, false);
 });

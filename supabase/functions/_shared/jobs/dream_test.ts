@@ -1060,3 +1060,164 @@ Deno.test('Dream reports a failed status write instead of a completed run', asyn
     await stub.close();
   }
 });
+
+Deno.test('all 441 eligible entity chunks are processed and a repeated summary is paid for once', async () => {
+  const chunks = Array.from({ length: 441 }, (_, index) => ({
+    id: `chunk-${index}`,
+    document_id: `document-${index}`,
+    ordinal: 0,
+    content: `Northwind note ${index}`,
+    created_at: NOW.toISOString(),
+    space_id: SPACE,
+  }));
+  const fallback = replies({
+    known: knownNorthwind(),
+    counts: [{ entity_id: NORTHWIND, mentions: 500 }],
+  });
+  const stub = stubDb((request) => {
+    if (request.table === 'chunks' && request.method === 'GET') {
+      const params = new URLSearchParams(request.query);
+      const offset = Number(params.get('offset') ?? 0);
+      return { body: chunks.slice(offset, offset + Number(params.get('limit') ?? 400)) };
+    }
+    return fallback(request);
+  });
+  const models = fakeModels((input) =>
+    input.system.includes('one sentence')
+      ? JSON.stringify({ summaries: [{ name: 'Northwind', summary: 'A customer.' }] })
+      : JSON.stringify({ entities: [] })
+  );
+  try {
+    const result = await runDreamJob(dreamRun('entities'), jobDeps(stub, models));
+    assertEquals(result.kind, 'succeeded');
+    if (result.kind === 'succeeded') assertEquals(result.inputDocumentCount, 441);
+    assertEquals(summariesWritten(stub).length, 1);
+    assertEquals(
+      models.completeCalls.filter((call) => !call.system.includes('one sentence')).length,
+      12,
+    );
+    const mentions = requestsFor(stub, 'entity_mentions').flatMap((r) =>
+      Array.isArray(r.body) ? r.body : []
+    );
+    assertEquals(mentions.length, 441);
+  } finally {
+    await stub.close();
+  }
+});
+
+Deno.test('entity summaries have a run-wide allowance of 25 across batches', async () => {
+  const known = Array.from({ length: 30 }, (_, index) => ({
+    id: `entity-${index}`,
+    kind: 'project',
+    name: `Project ${index}X`,
+    canonical_name: `project ${index}x`,
+    summary: null,
+  }));
+  const chunks = Array.from({ length: 81 }, (_, index) => ({
+    id: `chunk-${index}`,
+    document_id: `document-${index}`,
+    ordinal: 0,
+    content: known.map((entity) => entity.name).join(' '),
+    created_at: NOW.toISOString(),
+    space_id: SPACE,
+  }));
+  const stub = stubDb(
+    replies({
+      chunks,
+      known,
+      counts: known.map((entity) => ({ entity_id: entity.id, mentions: 5 })),
+    }),
+  );
+  const models = fakeModels((input) =>
+    input.system.includes('one sentence')
+      ? JSON.stringify({
+        summaries: known.slice(0, 25).map((entity) => ({
+          name: entity.name,
+          summary: 'A project.',
+        })),
+      })
+      : JSON.stringify({ entities: [] })
+  );
+  try {
+    assertEquals(
+      (await runDreamJob(dreamRun('entities'), jobDeps(stub, models))).kind,
+      'succeeded',
+    );
+    assertEquals(summariesWritten(stub).length, 25);
+    assertEquals(
+      models.completeCalls.filter((call) => call.system.includes('one sentence')).length,
+      1,
+    );
+  } finally {
+    await stub.close();
+  }
+});
+
+Deno.test('a digest covers all 241 chunks through bounded model batches', async () => {
+  const chunks = Array.from({ length: 241 }, (_, index) => ({
+    id: `chunk-${index}`,
+    document_id: `document-${index}`,
+    ordinal: 0,
+    content: `Document note ${index}`,
+    created_at: NOW.toISOString(),
+    space_id: SPACE,
+  }));
+  const fallback = replies();
+  const stub = stubDb((request) => {
+    if (request.table === 'chunks' && request.method === 'GET') {
+      const params = new URLSearchParams(request.query);
+      const offset = Number(params.get('offset') ?? 0);
+      return { body: chunks.slice(offset, offset + Number(params.get('limit') ?? 120)) };
+    }
+    return fallback(request);
+  });
+  const models = fakeModels(() => 'A cited digest of the notes.');
+  try {
+    const result = await runDreamJob(dreamRun('digest'), jobDeps(stub, models));
+    assertEquals(result.kind, 'succeeded');
+    if (result.kind === 'succeeded') assertEquals(result.inputDocumentCount, 241);
+    assertEquals(models.completeCalls.length, 3);
+    assertEquals(models.completeCalls.at(-1)?.user, '[chunk-240]\nDocument note 240');
+  } finally {
+    await stub.close();
+  }
+});
+
+Deno.test('connections compare every eligible document beyond the 40-document page', async () => {
+  const docs = Array.from({ length: 41 }, (_, index) => ({
+    id: `doc-${index}`,
+    title: `Document ${index}`,
+    origin: 'upload',
+    connection_id: null,
+    url: null,
+    updated_at: NOW.toISOString(),
+    space_id: SPACE,
+  }));
+  const stub = stubDb((request) => {
+    if (request.table === 'documents' && request.method === 'GET') {
+      const params = new URLSearchParams(request.query);
+      const offset = Number(params.get('offset') ?? 0);
+      return { body: docs.slice(offset, offset + Number(params.get('limit') ?? 40)) };
+    }
+    if (request.table === 'chunks' && request.method === 'GET') {
+      const ids = inFilter(request.query, 'document_id');
+      return {
+        body: docs.filter((doc) => ids?.has(doc.id)).map((doc) => ({
+          id: `chunk-${doc.id}`,
+          document_id: doc.id,
+          content: doc.title,
+        })),
+      };
+    }
+    return { body: [] };
+  });
+  const models = fakeModels(() => '');
+  try {
+    const result = await runDreamJob(dreamRun('connections'), jobDeps(stub, models));
+    assertEquals(result.kind, 'succeeded');
+    if (result.kind === 'succeeded') assertEquals(result.inputDocumentCount, 41);
+    assertEquals(models.embedCalls.map((texts) => texts.length), [40, 1]);
+  } finally {
+    await stub.close();
+  }
+});

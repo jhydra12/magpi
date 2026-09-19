@@ -160,14 +160,16 @@ export function createModelRunner(deps: ModelRunnerDeps): ModelRunner {
     read: (payload: Record<string, unknown>) => T,
   ): Promise<T> {
     const startedAt = deps.now().getTime();
+    let usage: Usage = { inputTokens: 0, outputTokens: 0 };
     try {
       const payload = await call();
+      usage = readUsage(payload);
       const result = read(payload);
       await record(deps, {
         orgId,
         purpose,
         model,
-        usage: readUsage(payload),
+        usage,
         startedAt,
         succeeded: true,
       });
@@ -177,7 +179,7 @@ export function createModelRunner(deps: ModelRunnerDeps): ModelRunner {
         orgId,
         purpose,
         model,
-        usage: { inputTokens: 0, outputTokens: 0 },
+        usage,
         startedAt,
         succeeded: false,
       });

@@ -82,17 +82,12 @@ security definer
 set search_path = ''
 as $$
 begin
-  -- Compute polls the ingestion queue continuously. Remove an older scheduled worker.
-  perform cron.unschedule('ingest-worker')
-  where exists (select 1 from cron.job where jobname = 'ingest-worker');
-
   perform cron.schedule(
     'sync-worker', '0 * * * *',
     $job$select public.invoke_worker('sync-worker', 10)$job$
   );
 
-  -- 01:55 UTC. The dream compute instance drains the queue as soon as the rows appear, so nothing
-  -- schedules dream-worker any more. The Edge Function stays deployed as the manual path.
+  -- Queue nightly work without changing the operator's execution mode.
   perform cron.schedule(
     'queue-nightly-dreams', '55 1 * * *',
     $job$select public.queue_nightly_dreams()$job$

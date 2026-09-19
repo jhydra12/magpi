@@ -31,6 +31,9 @@ const LIGHT_STEPS = [
   { name: 'typecheck (functions)', cmd: 'pnpm', argv: ['typecheck:functions'], needs: 'deno' },
   { name: 'web unit tests', cmd: 'pnpm', argv: ['test'] },
   { name: 'function unit tests', cmd: 'pnpm', argv: ['test:functions'], needs: 'deno' },
+  { name: 'Compute tests', cmd: 'pnpm', argv: ['compute:test'] },
+  { name: 'Dream rehearsal tests', cmd: 'pnpm', argv: ['dream:rehearsal:test'] },
+  { name: 'seed and corpus tests', cmd: 'pnpm', argv: ['test:seeds'] },
   { name: 'workflow contract', cmd: 'node', argv: ['scripts/workflow-contract-check.mjs'] },
   { name: 'raw color', cmd: 'node', argv: ['scripts/check-raw-color.mjs'] },
   { name: 'scheduled workers', cmd: 'node', argv: ['scripts/check-scheduled-workers.mjs'] },
@@ -38,6 +41,7 @@ const LIGHT_STEPS = [
   { name: 'secrets agree', cmd: 'node', argv: ['scripts/check-secrets.mjs'] },
   { name: 'compat tokens', cmd: 'node', argv: ['scripts/check-compat-tokens.mjs'] },
   { name: 'corpus', cmd: 'node', argv: ['scripts/check-corpus.mjs'] },
+  { name: 'graph browser regression', cmd: 'pnpm', argv: ['test:graph'] },
   { name: 'web build', cmd: 'pnpm', argv: ['build'] },
 ];
 
