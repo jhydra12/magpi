@@ -8,8 +8,8 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock('@/lib/analytics/access', () => ({ resolveAdminAccess: mocks.access }));
 vi.mock('@/lib/admin/compute-reset', () => ({
-  resetDreamCompute: mocks.compute,
-  isDreamComputeAbsent: mocks.absent,
+  resetAllComputeInstances: mocks.compute,
+  areComputeInstancesAbsent: mocks.absent,
   assertComputeResetConfigured: mocks.configured,
 }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));

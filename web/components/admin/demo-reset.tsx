@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 const STEPS = [
   { id: 'pause', label: 'Stop Dream processing' },
   { id: 'chats', label: 'Delete chat history' },
-  { id: 'compute', label: 'Delete Compute' },
+  { id: 'compute', label: 'Delete all Compute services' },
   { id: 'data', label: 'Delete generated Dream data' },
   { id: 'edge', label: 'Restore Edge Functions' },
 ] as const;
@@ -38,7 +38,11 @@ export function DemoReset() {
 
   async function reset() {
     if (busy.current) return;
-    if (!window.confirm('Reset the demo, delete Compute, and delete all generated Dream output?'))
+    if (
+      !window.confirm(
+        'Reset the demo, delete every Compute service, and delete all generated Dream output?',
+      )
+    )
       return;
     busy.current = true;
     setPending(true);
