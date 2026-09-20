@@ -155,9 +155,25 @@ Reset verification: focused UI, action, and management API tests pass; 287 datab
 
 - [x] Read the remote migration record and compare it with the live function definition.
 - [x] Restore the exact recorded migration file and verify local and remote histories match.
-- [ ] Run the project gate, merge the fix, and verify the Supabase deploy workflow.
+- [x] Run the project gate and merge the fix.
+- [ ] Verify the Supabase deploy workflow after restarting its stalled hosted gate.
 
 ## Review
 
 - The merge deployment failed because remote migration `20260919230000` was absent from the repository. Restored its exact recorded SQL and confirmed its live function definition matches.
 - `supabase migration list --linked` now shows every local and remote migration in sync. A separate dry run was blocked by a temporary database connection circuit breaker and made no changes.
+- The post-merge deploy run stopped reporting progress in its 15-minute light-gate job for over an hour; it is being restarted before migration deployment can be confirmed.
+
+# Reset all Compute services
+
+- [x] Trace the reset action and confirm it only deletes the service named `dream`.
+- [x] Delete every service returned by the Compute management API and wait until none remain before clearing data.
+- [x] Add tests for multiple services, in-progress deletions, and retry behavior.
+- [x] Run the project gate and verify the reset checklist wording.
+- [ ] Create and merge the fix PR.
+
+## Review
+
+- Reset must remove every named service in this demo project before deleting generated data or restoring Edge execution.
+- Every locally available light-gate check passed, including the production build; all 23 focused reset tests passed.
+- Do not invoke the live reset while testing this change.

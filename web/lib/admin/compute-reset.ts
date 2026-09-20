@@ -47,7 +47,7 @@ export function assertComputeResetConfigured(
 }
 
 const resourceSchema = z.object({
-  id: z.string(),
+  id: z.string().min(1),
   attributes: z.object({
     build_state: z.enum(['active', 'building', 'failed']),
     deleting: z.boolean().optional(),
@@ -59,10 +59,11 @@ async function request(
   config: Extract<ComputeResetConfig, { kind: 'hosted' }>,
   fetcher: typeof globalThis.fetch,
   method: 'GET' | 'DELETE',
+  instanceId?: string,
 ): Promise<Response> {
   try {
     return await fetcher(
-      `https://api.supabase.com/v2/projects/${config.projectRef}/compute${method === 'DELETE' ? '/dream' : ''}`,
+      `https://api.supabase.com/v2/projects/${config.projectRef}/compute${instanceId ? `/${encodeURIComponent(instanceId)}` : ''}`,
       {
         method,
         headers: { Authorization: `Bearer ${config.token}` },
@@ -75,10 +76,10 @@ async function request(
   }
 }
 
-async function dreamResource(
+async function computeResources(
   config: Extract<ComputeResetConfig, { kind: 'hosted' }>,
   fetcher: typeof globalThis.fetch,
-): Promise<z.infer<typeof resourceSchema> | undefined> {
+): Promise<z.infer<typeof resourceSchema>[]> {
   const response = await request(config, fetcher, 'GET');
   if (!response.ok) {
     throw new Error(
@@ -94,34 +95,39 @@ async function dreamResource(
   const result = listSchema.safeParse(body);
   if (!result.success)
     throw new Error('Compute returned an unexpected response. Reset remains paused.');
-  return result.data.data.find((resource) => resource.id === 'dream');
+  return result.data.data;
 }
 
 /** Only an authoritative successful list can confirm hosted Compute is gone. */
-export async function isDreamComputeAbsent(
+export async function areComputeInstancesAbsent(
   dependencies: ComputeResetDependencies = {},
 ): Promise<boolean> {
   const config = assertComputeResetConfigured(dependencies.env);
   if (config.kind === 'local') return true;
-  return !(await dreamResource(config, dependencies.fetch ?? globalThis.fetch));
+  return (await computeResources(config, dependencies.fetch ?? globalThis.fetch)).length === 0;
 }
 
 /** Advance asynchronous teardown by one bounded step. Calling again safely polls deletion. */
-export async function resetDreamCompute(
+export async function resetAllComputeInstances(
   dependencies: ComputeResetDependencies = {},
 ): Promise<{ complete: boolean }> {
   const config = assertComputeResetConfigured(dependencies.env);
   if (config.kind === 'local') return { complete: true };
   const fetcher = dependencies.fetch ?? globalThis.fetch;
-  const resource = await dreamResource(config, fetcher);
-  if (!resource) return { complete: true };
-  if (resource.attributes.deleting === true) return { complete: false };
-  const response = await request(config, fetcher, 'DELETE');
-  // A competing reset can delete between the list and this request. Re-list next time.
-  if (!response.ok && response.status !== 404 && response.status !== 409) {
-    throw new Error(
-      `Compute deletion failed (HTTP ${response.status}). Check management access and retry.`,
-    );
+  const resources = await computeResources(config, fetcher);
+  if (resources.length === 0) return { complete: true };
+
+  for (const resource of resources) {
+    if (resource.attributes.deleting === true) continue;
+    const response = await request(config, fetcher, 'DELETE', resource.id);
+    // Another reset can change or delete a service after the list request.
+    if (!response.ok && response.status !== 404 && response.status !== 409) {
+      throw new Error(
+        `Compute deletion failed (HTTP ${response.status}). Check management access and retry.`,
+      );
+    }
   }
+
+  // Deletion is asynchronous; a later stage call must confirm the list is empty.
   return { complete: false };
 }
