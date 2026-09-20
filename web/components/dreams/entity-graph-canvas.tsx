@@ -109,14 +109,18 @@ export default function EntityGraphCanvas({
             </span>
           ))}
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-            <span aria-hidden="true" className="size-2.5 rounded-full bg-muted-foreground" />
+            <span
+              aria-hidden="true"
+              className="size-2.5 rounded-full"
+              style={{ backgroundColor: colors?.document ?? 'var(--graph-document)' }}
+            />
             Files
           </span>
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">
             <span
               aria-hidden="true"
               className="h-px w-4"
-              style={{ backgroundColor: colors?.link ?? 'var(--primary)' }}
+              style={{ backgroundColor: colors?.shared ?? 'var(--graph-shared)' }}
             />
             Shared files
           </span>
@@ -194,7 +198,7 @@ export default function EntityGraphCanvas({
             }}
             nodeVal={(node) => ((node as GraphNode).kind === 'entity' ? 5 : 1.4)}
             linkColor={(link) =>
-              (link as GraphLink).kind === 'shared' ? colors.link : colors.document
+              (link as GraphLink).kind === 'shared' ? colors.shared : colors.document
             }
             linkWidth={(link) => ((link as GraphLink).kind === 'shared' ? 1.8 : 0.45)}
             linkDirectionalParticles={(link) => ((link as GraphLink).kind === 'shared' ? 2 : 0)}

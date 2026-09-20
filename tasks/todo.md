@@ -141,9 +141,12 @@ Reset verification: focused UI, action, and management API tests pass; 287 datab
 - [x] Make the graph frame adapt to short and narrow viewports; fit the camera on first render and after size changes.
 - [x] Add a compact category and relationship legend plus keyboard- and touch-accessible entity selection and details.
 - [x] Replace the timed arranging overlay with status based on active Dream state and persisted graph counts; keep node positions during refresh.
-- [ ] Align graph colors with theme tokens and verify rendered pixels, layout, and browser errors in both themes at desktop and mobile sizes.
-- [ ] Run focused tests, lint, typecheck, and production build; record evidence for each improvement.
+- [x] Align graph colors with theme tokens and verify rendered pixels, layout, and browser errors in both themes at desktop and mobile sizes.
+- [x] Run focused tests, lint, typecheck, and production build; record evidence for each improvement.
 
 ## Review
 
-- Pending implementation on `improve-digital-brain-graph`, with one commit for each of the four graph improvements.
+- Completed on `improve-digital-brain-graph` in four commits, one for each graph improvement.
+- The web suite passed: 1,281 tests across 141 files. Web lint had no errors and seven warnings in unrelated files.
+- The production build and web typecheck passed. The color-token check passed.
+- Three real-browser graph tests passed, including color conversion, visible pixels, responsive sizing, entity selection, and no page errors in Light and Dark at desktop and mobile sizes.

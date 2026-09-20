@@ -19,8 +19,8 @@ export function readGraphColors() {
   };
   return {
     background: resolve('--background'),
-    document: resolve('--muted-foreground'),
-    link: resolve('--primary'),
+    document: resolve('--graph-document'),
+    shared: resolve('--graph-shared'),
     person: resolve('--graph-person'),
     project: resolve('--graph-project'),
     customer: resolve('--graph-customer'),

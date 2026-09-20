@@ -31,10 +31,15 @@ for (const theme of ['light', 'dark']) {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     const background = theme === 'dark' ? 'oklch(.19 calc(.005 * .5) 159)' : 'oklch(.99 .002 159)';
+    const palette =
+      theme === 'dark'
+        ? ['#2dd4bf', '#c4b5fd', '#fde047', '#fb923c', '#94a3b8', '#5eead4']
+        : ['#0f766e', '#6d28d9', '#a16207', '#c2410c', '#64748b', '#0f766e'];
     await page.setViewportSize({ width: 1200, height: 900 });
     await page.setContent(`<style>
       :root { --background: ${background}; --muted-foreground: oklch(.6 .02 159); --primary: oklch(.76 .15 159);
-        --graph-person:#14b8a6; --graph-project:#8b5cf6; --graph-customer:#eab308; --graph-decision:#f97316; }
+        --graph-person:${palette[0]}; --graph-project:${palette[1]}; --graph-customer:${palette[2]};
+        --graph-decision:${palette[3]}; --graph-document:${palette[4]}; --graph-shared:${palette[5]}; }
       body { margin:0; background:var(--background); }
       #root { width:min(900px,100vw); margin:auto; }
       section { position:relative; }
