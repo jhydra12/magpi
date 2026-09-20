@@ -11,7 +11,7 @@ const bundled = build({
         id: String(i), name: 'Person ' + i, summary: null,
         documents: [{ id: 'doc-' + Math.floor(i / 2), title: 'File ' + Math.floor(i / 2), url: null }]
       })) }];
-      createRoot(document.getElementById('root')).render(<Graph groups={groups} />);`,
+      createRoot(document.getElementById('root')).render(<Graph groups={groups} active />);`,
     resolveDir: path.resolve('web'),
     loader: 'tsx',
   },
@@ -43,6 +43,7 @@ for (const theme of ['light', 'dark']) {
     await page.addScriptTag({ content: (await bundled).outputFiles[0].text });
     const canvas = page.locator('canvas').first();
     await expect(canvas).toBeVisible();
+    await expect(page.getByRole('status')).toHaveText('Dream in progress · 20 entities · 10 files');
     await expect
       .poll(async () => canvas.evaluate((node) => node.getBoundingClientRect().width))
       .toBe(900);

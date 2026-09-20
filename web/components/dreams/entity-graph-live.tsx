@@ -24,13 +24,17 @@ export function EntityGraphLive({
   spaceId?: string;
 }) {
   const router = useRouter();
-  const [observation, setObservation] = useState({ initial, groups: initial });
-  const groups = observation.initial === initial ? observation.groups : initial;
+  const [observation, setObservation] = useState({ initial, groups: initial, active });
+  const current =
+    observation.initial === initial ? observation : { initial, groups: initial, active };
+  const groups = current.groups;
+  const graphActive = current.active;
   const [failure, setFailure] = useState<string | null>(null);
   useEffect(() => {
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
     let previous = JSON.stringify(initial);
+    let previousActive = active;
     let isActive = active;
     let needsMetadataRefresh = active;
     let inFlight = false;
@@ -59,9 +63,10 @@ export function EntityGraphLive({
           const next = entityGraphResponseSchema.parse(await response.json());
           if (controller.signal.aborted) return;
           const signature = JSON.stringify(next.groups);
-          if (signature !== previous) {
-            setObservation({ initial, groups: next.groups });
+          if (signature !== previous || next.active !== previousActive) {
+            setObservation({ initial, groups: next.groups, active: next.active });
             previous = signature;
+            previousActive = next.active;
           }
           setFailure(null);
           failures = 0;
@@ -115,17 +120,19 @@ export function EntityGraphLive({
   return (
     <>
       {failure ? <p role="alert">{failure}</p> : null}
-      {groups.length === 0 ? (
+      {groups.length === 0 && !graphActive ? (
         <EmptyState title="No entities yet" />
       ) : (
         <>
-          <EntityGraph groups={groups} />
-          <details className="group">
-            <summary className="flex cursor-pointer list-none items-center gap-2 py-4 text-sm text-muted-foreground [&::-webkit-details-marker]:hidden">
-              <span className="transition-transform group-open:rotate-90">›</span>Detail
-            </summary>
-            <EntityGroups groups={groups} />
-          </details>
+          <EntityGraph groups={groups} active={graphActive} />
+          {groups.length > 0 ? (
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-center gap-2 py-4 text-sm text-muted-foreground [&::-webkit-details-marker]:hidden">
+                <span className="transition-transform group-open:rotate-90">›</span>Detail
+              </summary>
+              <EntityGroups groups={groups} />
+            </details>
+          ) : null}
         </>
       )}
     </>

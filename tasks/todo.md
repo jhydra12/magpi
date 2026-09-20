@@ -140,7 +140,7 @@ Reset verification: focused UI, action, and management API tests pass; 287 datab
 
 - [x] Make the graph frame adapt to short and narrow viewports; fit the camera on first render and after size changes.
 - [x] Add a compact category and relationship legend plus keyboard- and touch-accessible entity selection and details.
-- [ ] Replace the timed arranging overlay with status based on active Dream state and persisted graph counts; keep node positions during refresh.
+- [x] Replace the timed arranging overlay with status based on active Dream state and persisted graph counts; keep node positions during refresh.
 - [ ] Align graph colors with theme tokens and verify rendered pixels, layout, and browser errors in both themes at desktop and mobile sizes.
 - [ ] Run focused tests, lint, typecheck, and production build; record evidence for each improvement.
 

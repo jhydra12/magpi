@@ -10,7 +10,13 @@ import { readGraphColors } from './graph-colors';
 
 import { buildGraph, retainGraphPositions, type GraphNode, type GraphLink } from './graph-data';
 
-export default function EntityGraphCanvas({ groups }: { groups: readonly EntityGroup[] }) {
+export default function EntityGraphCanvas({
+  groups,
+  active,
+}: {
+  groups: readonly EntityGroup[];
+  active: boolean;
+}) {
   const [graphState, setGraphState] = useState(() => ({ groups, graph: buildGraph(groups) }));
   if (groups !== graphState.groups) {
     setGraphState({ groups, graph: retainGraphPositions(buildGraph(groups), graphState.graph) });
@@ -20,13 +26,18 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [hoveredLink, setHoveredLink] = useState<GraphLink | null>(null);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-  const [isArranging, setIsArranging] = useState(true);
   const detailNode = hoveredNode ?? selectedNode;
   const containerRef = useRef<HTMLDivElement>(null);
   const hasFittedInitialGraph = useRef(false);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [colors, setColors] = useState<ReturnType<typeof readGraphColors> | null>(null);
   const entities = graph.nodes.filter((node) => node.kind === 'entity');
+  const documentCount = graph.nodes.filter((node) => node.kind === 'document').length;
+  const count = (total: number, noun: string) =>
+    `${total} ${total === 1 ? noun : noun === 'entity' ? 'entities' : `${noun}s`}`;
+  const summary = active
+    ? `Dream in progress · ${count(entities.length, 'entity')} · ${count(documentCount, 'file')}`
+    : `${count(entities.length, 'entity')} · ${count(documentCount, 'file')} · ${count(graph.links.length, 'link')}`;
   const entityColor = (kind: string) => {
     if (!colors) return 'var(--muted-foreground)';
     return kind === 'project'
@@ -58,12 +69,10 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
       attributes: true,
       attributeFilter: ['data-theme'],
     });
-    const timeout = window.setTimeout(() => setIsArranging(false), 5000);
     return () => {
       observer.disconnect();
       resize.disconnect();
       cancelAnimationFrame(frame);
-      window.clearTimeout(timeout);
     };
   }, []);
 
@@ -112,44 +121,53 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
             Shared files
           </span>
         </div>
-        <details className="relative z-20">
-          <summary className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:bg-muted">
-            Browse entities ({entities.length})
-          </summary>
-          <div className="absolute top-full right-0 mt-2 max-h-72 max-w-[min(22rem,calc(100vw-2rem))] min-w-64 overflow-y-auto rounded-lg border border-border bg-background p-2 shadow-lg">
-            <ul aria-label="Graph entities" className="flex flex-col gap-1">
-              {entities.map((node) => (
-                <li key={node.id}>
-                  <button
-                    type="button"
-                    aria-label={`${node.label}, ${node.entityKind}, ${node.documents?.length ?? 0} files`}
-                    aria-current={selectedNode?.id === node.id ? 'true' : undefined}
-                    onClick={() => selectNode(node)}
-                    className="flex w-full items-center justify-between gap-3 rounded px-2 py-1.5 text-left text-sm hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span
-                        aria-hidden="true"
-                        className="size-2 shrink-0 rounded-full"
-                        style={{ backgroundColor: entityColor(node.entityKind ?? '') }}
-                      />
-                      <span className="truncate">{node.label}</span>
-                    </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {node.documents?.length ?? 0} files
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </details>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p role="status" aria-live="polite" className="text-xs text-muted-foreground">
+            {summary}
+          </p>
+          <details className="relative z-20">
+            <summary className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:bg-muted">
+              Browse entities ({entities.length})
+            </summary>
+            <div className="absolute top-full right-0 mt-2 max-h-72 max-w-[min(22rem,calc(100vw-2rem))] min-w-64 overflow-y-auto rounded-lg border border-border bg-background p-2 shadow-lg">
+              <ul aria-label="Graph entities" className="flex flex-col gap-1">
+                {entities.map((node) => (
+                  <li key={node.id}>
+                    <button
+                      type="button"
+                      aria-label={`${node.label}, ${node.entityKind}, ${node.documents?.length ?? 0} files`}
+                      aria-current={selectedNode?.id === node.id ? 'true' : undefined}
+                      onClick={() => selectNode(node)}
+                      className="flex w-full items-center justify-between gap-3 rounded px-2 py-1.5 text-left text-sm hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span
+                          aria-hidden="true"
+                          className="size-2 shrink-0 rounded-full"
+                          style={{ backgroundColor: entityColor(node.entityKind ?? '') }}
+                        />
+                        <span className="truncate">{node.label}</span>
+                      </span>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {node.documents?.length ?? 0} files
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </details>
+        </div>
       </header>
       <div
         ref={containerRef}
         className="entity-graph-stage h-[clamp(22rem,70svh,42.5rem)] w-full overflow-hidden"
       >
-        {colors && size.width > 0 && size.height > 0 ? (
+        {graph.nodes.length === 0 ? (
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            {active ? 'Waiting for the first entities' : 'No entities yet'}
+          </div>
+        ) : colors && size.width > 0 && size.height > 0 ? (
           <ForceGraph3D
             ref={graphRef}
             graphData={graph}
@@ -191,7 +209,6 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
               setHoveredNode(null);
             }}
             onEngineStop={() => {
-              setIsArranging(false);
               if (!hasFittedInitialGraph.current) {
                 graphRef.current?.zoomToFit(500, 48);
                 hasFittedInitialGraph.current = true;
@@ -200,9 +217,6 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
           />
         ) : null}
       </div>
-      {isArranging ? (
-        <div className="pointer-events-none absolute inset-0 animate-pulse bg-foreground/[0.04]" />
-      ) : null}
       {detailNode || hoveredLink ? (
         <aside className="border-t border-border bg-background px-4 py-3 text-sm">
           {hoveredLink ? (
