@@ -150,3 +150,14 @@ Reset verification: focused UI, action, and management API tests pass; 287 datab
 - The web suite passed: 1,281 tests across 141 files. Web lint had no errors and seven warnings in unrelated files.
 - The production build and web typecheck passed. The color-token check passed.
 - Three real-browser graph tests passed, including color conversion, visible pixels, responsive sizing, entity selection, and no page errors in Light and Dark at desktop and mobile sizes.
+
+# Restore the missing worker migration
+
+- [x] Read the remote migration record and compare it with the live function definition.
+- [x] Restore the exact recorded migration file and verify local and remote histories match.
+- [ ] Run the project gate, merge the fix, and verify the Supabase deploy workflow.
+
+## Review
+
+- The merge deployment failed because remote migration `20260919230000` was absent from the repository. Restored its exact recorded SQL and confirmed its live function definition matches.
+- `supabase migration list --linked` now shows every local and remote migration in sync. A separate dry run was blocked by a temporary database connection circuit breaker and made no changes.
