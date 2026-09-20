@@ -7,14 +7,37 @@
   --color-demo: oklch(0.52 0.19 295);
   --color-demo-foreground: oklch(0.99 0 295);
 
-  --graph-person: #14b8a6;
-  --graph-project: #8b5cf6;
-  --graph-customer: #eab308;
-  --graph-decision: #f97316;
+  --graph-person: #0f766e;
+  --graph-project: #6d28d9;
+  --graph-customer: #a16207;
+  --graph-decision: #c2410c;
+  --graph-document: #64748b;
+  --graph-shared: #0f766e;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-source-code-pro), ui-monospace, SFMono-Regular, monospace;
+}
+
+:root:not([data-theme='light']) {
+  @media (prefers-color-scheme: dark) {
+    --graph-person: #2dd4bf;
+    --graph-project: #c4b5fd;
+    --graph-customer: #fde047;
+    --graph-decision: #fb923c;
+    --graph-document: #94a3b8;
+    --graph-shared: #5eead4;
+  }
+}
+
+[data-theme='dark'],
+[data-theme='classic-dark'] {
+  --graph-person: #2dd4bf;
+  --graph-project: #c4b5fd;
+  --graph-customer: #fde047;
+  --graph-decision: #fb923c;
+  --graph-document: #94a3b8;
+  --graph-shared: #5eead4;
 }
 
 :root {

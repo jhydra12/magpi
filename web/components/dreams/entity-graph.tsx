@@ -6,6 +6,12 @@ import type { EntityGroup } from '@/lib/dreams/entities';
 
 const EntityGraphCanvas = dynamic(() => import('./entity-graph-canvas'), { ssr: false });
 
-export function EntityGraph({ groups }: { groups: readonly EntityGroup[] }) {
-  return <EntityGraphCanvas groups={groups} />;
+export function EntityGraph({
+  groups,
+  active,
+}: {
+  groups: readonly EntityGroup[];
+  active: boolean;
+}) {
+  return <EntityGraphCanvas groups={groups} active={active} />;
 }

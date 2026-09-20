@@ -9,8 +9,16 @@ const router = vi.hoisted(() => ({ refresh: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
 
 vi.mock('./entity-graph', () => ({
-  EntityGraph: ({ groups }: { groups: { entities: { name: string }[] }[] }) => (
-    <div>{groups.flatMap((group) => group.entities.map((entity) => entity.name)).join(',')}</div>
+  EntityGraph: ({
+    groups,
+    active,
+  }: {
+    groups: { entities: { name: string }[] }[];
+    active: boolean;
+  }) => (
+    <div data-testid="entity-graph" data-active={String(active)}>
+      {groups.flatMap((group) => group.entities.map((entity) => entity.name)).join(',')}
+    </div>
   ),
 }));
 vi.mock('./entity-groups', () => ({ EntityGroups: () => null }));
@@ -35,10 +43,13 @@ it('adds real returned entities to an initially empty graph and stops after comp
     .mockResolvedValueOnce(Response.json({ active: false, groups }));
   vi.stubGlobal('fetch', fetcher);
   render(<EntityGraphLive groups={[]} active />);
+  expect(screen.queryByText('No entities yet')).not.toBeInTheDocument();
+  expect(screen.getByTestId('entity-graph')).toHaveAttribute('data-active', 'true');
   await act(async () => {
     await Promise.resolve();
   });
   expect(screen.getByText('Ada')).toBeVisible();
+  expect(screen.getByTestId('entity-graph')).toHaveAttribute('data-active', 'true');
   await act(async () => {
     await vi.advanceTimersByTimeAsync(2000);
   });
@@ -46,6 +57,7 @@ it('adds real returned entities to an initially empty graph and stops after comp
     await vi.advanceTimersByTimeAsync(10000);
   });
   expect(fetcher).toHaveBeenCalledTimes(2);
+  expect(screen.getByTestId('entity-graph')).toHaveAttribute('data-active', 'false');
   expect(router.refresh).toHaveBeenCalledTimes(1);
 });
 
