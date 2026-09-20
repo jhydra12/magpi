@@ -22,6 +22,7 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
   const [isArranging, setIsArranging] = useState(true);
   const detailNode = hoveredNode;
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasFittedInitialGraph = useRef(false);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [colors, setColors] = useState<ReturnType<typeof readGraphColors> | null>(null);
 
@@ -46,12 +47,21 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
     };
   }, []);
 
+  useEffect(() => {
+    if (size.width === 0 || size.height === 0) return;
+    const frame = requestAnimationFrame(() => graphRef.current?.zoomToFit(350, 48));
+    return () => cancelAnimationFrame(frame);
+  }, [size.width, size.height]);
+
   return (
     <section
       className="relative overflow-hidden rounded-[var(--radius-panel)] border border-border bg-background"
       aria-label="Entity graph"
     >
-      <div ref={containerRef} className="h-[min(70vh,680px)] min-h-[520px] w-full overflow-hidden">
+      <div
+        ref={containerRef}
+        className="entity-graph-stage h-[clamp(22rem,70svh,42.5rem)] w-full overflow-hidden"
+      >
         {colors && size.width > 0 && size.height > 0 ? (
           <ForceGraph3D
             ref={graphRef}
@@ -94,7 +104,10 @@ export default function EntityGraphCanvas({ groups }: { groups: readonly EntityG
             }}
             onEngineStop={() => {
               setIsArranging(false);
-              graphRef.current?.zoomToFit(500, 48);
+              if (!hasFittedInitialGraph.current) {
+                graphRef.current?.zoomToFit(500, 48);
+                hasFittedInitialGraph.current = true;
+              }
             }}
           />
         ) : null}
