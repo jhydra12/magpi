@@ -88,6 +88,11 @@ for (const theme of ['light', 'dark']) {
     await expect
       .poll(async () => canvas.evaluate((node) => node.getBoundingClientRect().height))
       .toBe(490);
+    await page.getByText(/^Browse entities/).click();
+    await page.getByRole('button', { name: 'Person 1, person, 1 files' }).click();
+    const details = page.getByRole('complementary');
+    await expect(details.getByText('Person 1', { exact: true })).toBeVisible();
+    await expect(details.getByText('person · 1 file')).toBeVisible();
     await expect
       .poll(async () => {
         const screenshot = await canvas.screenshot();
