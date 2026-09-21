@@ -1231,6 +1231,7 @@ export type Database = {
         Returns: string
       }
       dream_execution_mode: { Args: never; Returns: string }
+      freshen_demo_corpus: { Args: { p_org_id: string }; Returns: undefined }
       enqueue_document: {
         Args: { p_document: Json; p_force?: boolean }
         Returns: {

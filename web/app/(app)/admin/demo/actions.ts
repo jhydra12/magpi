@@ -97,7 +97,7 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
   if (access.kind === 'forbidden') return errorState('Only an owner or admin can reset the demo.');
   const db = access.elevated;
   try {
-    if (!['pause', 'chats', 'compute', 'data', 'edge'].includes(step))
+    if (!['pause', 'chats', 'compute', 'data', 'freshen', 'edge'].includes(step))
       return errorState('Unknown reset step.');
     assertComputeResetConfigured();
     if (step === 'pause') {
@@ -121,6 +121,14 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
     if (step === 'data') {
       const result = await deleteGeneratedDreamData(access);
       return result.status === 'error' ? result : successState({ complete: true });
+    }
+    if (step === 'freshen') {
+      // Seeded chunks keep the timestamp they were first ingested with, which soon falls outside
+      // the window a digest reads, so the demo would show a dream that writes nothing.
+      const { error } = await db.rpc('freshen_demo_corpus', { p_org_id: access.context.orgId });
+      if (error) throw new Error('Source documents could not be refreshed.');
+      revalidatePath('/dreams');
+      return successState({ complete: true });
     }
     const { count, error: runsError } = await db
       .from('dream_runs')

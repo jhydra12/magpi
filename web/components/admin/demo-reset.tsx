@@ -11,6 +11,7 @@ const STEPS = [
   { id: 'chats', label: 'Delete chat history' },
   { id: 'compute', label: 'Delete all Compute services' },
   { id: 'data', label: 'Delete generated Dream data' },
+  { id: 'freshen', label: 'Refresh source document timestamps' },
   { id: 'edge', label: 'Restore Edge Functions' },
 ] as const;
 type Step = (typeof STEPS)[number]['id'];
@@ -20,6 +21,7 @@ const initialStatuses: Record<Step, Status> = {
   chats: 'pending',
   compute: 'pending',
   data: 'pending',
+  freshen: 'pending',
   edge: 'pending',
 };
 const STATUS_LABELS: Record<Status, string> = {
