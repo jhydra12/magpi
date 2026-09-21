@@ -103,6 +103,10 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
     if (step === 'pause') {
       const { error } = await db.rpc('set_dream_execution_mode', { p_mode: 'paused' });
       if (error) throw new Error('Dream processing could not be paused.');
+      // Pausing unschedules the workers that would retire their own abandoned rows, so a run
+      // whose worker died would otherwise keep this step waiting for it forever.
+      const { error: sweepError } = await db.rpc('sweep_stale_worker_runs');
+      if (sweepError) throw new Error('Stalled Dream work could not be cleared.');
       return successState({ complete: await hasNoActiveWorkers(db) });
     }
     const { data: mode, error: modeError } = await db.rpc('dream_execution_mode');
