@@ -16,8 +16,8 @@ import { type SupabaseContext, withOAuthProtectedResource, withSupabase } from '
 
 import { serviceClient } from '../_shared/db.ts';
 import { liveHttp } from '../_shared/deps.ts';
-import { denoEnv, openAiKey } from '../_shared/env.ts';
-import { createModelRunner } from '../_shared/model_client.ts';
+import { denoEnv } from '../_shared/env.ts';
+import { modelRunnerFromEnv } from '../_shared/jobs/runtime.ts';
 import { enforceRateLimits } from '../_shared/rate_limit.ts';
 import { registerTools, type ToolContext } from './tools/index.ts';
 import type { NoteStore } from './tools/types.ts';
@@ -94,12 +94,7 @@ async function handleMcp(request: Request, ctx: SupabaseContext): Promise<Respon
     admin,
     userClaims,
     jwtClaims: ctx.jwtClaims!,
-    models: createModelRunner({
-      db: admin,
-      apiKey: openAiKey(denoEnv),
-      fetch: liveHttp.fetch,
-      now: () => new Date(),
-    }),
+    models: modelRunnerFromEnv(admin, liveHttp.fetch, () => new Date(), denoEnv),
     notes: storageNotes(admin),
     orgId: await orgOf(ctx, userClaims.id),
   };

@@ -1,8 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-import { coreEnv, type EnvSource, openAiKey } from '../../../functions/_shared/env.ts';
-import { createModelRunner } from '../../../functions/_shared/model_client.ts';
-import { storageUploads } from '../../../functions/_shared/jobs/runtime.ts';
+import { coreEnv, type EnvSource } from '../../../functions/_shared/env.ts';
+import { modelRunnerFromEnv, storageUploads } from '../../../functions/_shared/jobs/runtime.ts';
 import type { JobDeps } from '../../../functions/_shared/jobs/types.ts';
 
 /** Bounds database and model requests, including their response bodies. */
@@ -32,7 +31,7 @@ export function dreamDepsFromEnv(source: EnvSource, budgetMs: number): JobDeps {
   return {
     db,
     http: { fetch: fetcher, now },
-    models: createModelRunner({ db, apiKey: openAiKey(source), fetch: fetcher, now }),
+    models: modelRunnerFromEnv(db, fetcher, now, source),
     uploads: storageUploads(db),
     env: source,
     budgetMs,

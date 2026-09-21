@@ -9,6 +9,74 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analysis_runs: {
+        Row: {
+          commit_sha: string | null
+          created_at: string
+          default_branch: string | null
+          error: string | null
+          finished_at: string | null
+          id: string
+          org_id: string
+          progress_label: string | null
+          repository_name: string
+          repository_owner: string
+          repository_url: string
+          result: Json | null
+          stage: string | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["analysis_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          commit_sha?: string | null
+          created_at?: string
+          default_branch?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          org_id: string
+          progress_label?: string | null
+          repository_name: string
+          repository_owner: string
+          repository_url: string
+          result?: Json | null
+          stage?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["analysis_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          commit_sha?: string | null
+          created_at?: string
+          default_branch?: string | null
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          org_id?: string
+          progress_label?: string | null
+          repository_name?: string
+          repository_owner?: string
+          repository_url?: string
+          result?: Json | null
+          stage?: string | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["analysis_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_runs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chunks: {
         Row: {
           content: string
@@ -230,6 +298,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      demo_settings: {
+        Row: {
+          id: boolean
+          model_rehearsal: boolean
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          model_rehearsal?: boolean
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          model_rehearsal?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       documents: {
         Row: {
@@ -1231,7 +1317,6 @@ export type Database = {
         Returns: string
       }
       dream_execution_mode: { Args: never; Returns: string }
-      freshen_demo_corpus: { Args: { p_org_id: string }; Returns: undefined }
       enqueue_document: {
         Args: { p_document: Json; p_force?: boolean }
         Returns: {
@@ -1274,6 +1359,7 @@ export type Database = {
           mentions: number
         }[]
       }
+      freshen_demo_corpus: { Args: { p_org_id: string }; Returns: undefined }
       invoke_worker: {
         Args: { p_batch: number; p_worker: string }
         Returns: undefined
@@ -1281,6 +1367,7 @@ export type Database = {
       is_org_admin: { Args: { p_org_id: string }; Returns: boolean }
       is_org_member: { Args: { p_org_id: string }; Returns: boolean }
       is_space_member: { Args: { p_space_id: string }; Returns: boolean }
+      model_rehearsal_enabled: { Args: never; Returns: boolean }
       org_member_emails: {
         Args: { p_org_id: string }
         Returns: {
@@ -1337,12 +1424,15 @@ export type Database = {
         }[]
       }
       set_dream_execution_mode: { Args: { p_mode: string }; Returns: undefined }
+      set_model_rehearsal: { Args: { p_enabled: boolean }; Returns: boolean }
       sweep_stale_worker_runs: { Args: never; Returns: undefined }
       text_search_query: { Args: { p_text: string }; Returns: unknown }
       visible_space_ids: { Args: never; Returns: string[] }
+      wake_compute_dream_worker: { Args: never; Returns: undefined }
       wake_edge_dream_worker: { Args: never; Returns: undefined }
     }
     Enums: {
+      analysis_status: "queued" | "analyzing" | "succeeded" | "failed"
       connection_status: "active" | "syncing" | "error" | "revoked" | "expired"
       document_origin: "upload" | "sync" | "dream"
       dream_kind: "entities" | "digest" | "connections"
@@ -1500,6 +1590,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      analysis_status: ["queued", "analyzing", "succeeded", "failed"],
       connection_status: ["active", "syncing", "error", "revoked", "expired"],
       document_origin: ["upload", "sync", "dream"],
       dream_kind: ["entities", "digest", "connections"],

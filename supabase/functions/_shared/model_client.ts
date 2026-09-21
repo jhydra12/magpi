@@ -33,7 +33,7 @@ export interface ModelRunnerDeps extends HttpDeps, ClockDeps {
   apiKey: string;
 }
 
-interface Usage {
+export interface Usage {
   inputTokens: number;
   outputTokens: number;
 }
@@ -53,7 +53,7 @@ function readUsage(payload: Record<string, unknown>): Usage {
 }
 
 /** Logs the call, failures included. Awaited so the isolate cannot end before the insert. */
-async function record(
+export async function record(
   deps: ModelRunnerDeps,
   row: {
     orgId: string;
