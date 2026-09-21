@@ -128,8 +128,8 @@ export async function runDreamJob(run: DreamRunRecord, deps: JobDeps): Promise<D
     await finish(pass, 'succeeded', outcome, null);
     observe(pass, 'completed', outcome);
     return { kind: 'succeeded', ...outcome };
-  } catch (err) {
-    if (cancellation.signal.aborted) err = cancellation.signal.reason;
+  } catch (caught) {
+    const err = cancellation.signal.aborted ? cancellation.signal.reason : caught;
     if (err instanceof StageTimeout) {
       observe(pass, 'timeout');
       await finish(pass, 'timeout', reached(pass), withStage(pass.stage, err.message));
