@@ -371,7 +371,10 @@ for (const kind of ['digest', 'entities', 'connections'] as const) {
         db: stub.db,
         apiKey: 'test-key',
         now: () => NOW,
-        fetch: (_input, init) => waitForCancellation(init?.signal ?? undefined),
+        // Deno and Node each declare a RequestInit and only one of them puts signal on it, so
+        // the parameter arrives as a union the property cannot be read off directly.
+        fetch: (_input, init) =>
+          waitForCancellation((init as { signal?: AbortSignal } | undefined)?.signal),
       });
       const result = await runDreamJob(dreamRun(kind), jobDeps(stub, models));
       assert(aborted);
