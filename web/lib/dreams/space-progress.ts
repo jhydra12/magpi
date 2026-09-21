@@ -45,5 +45,17 @@ export function summarizeSpaceDream(runs: readonly DreamActivityRun[]) {
     failed.length && !active
       ? `${completed} of ${tasks.length} tasks completed · ${failed.length} failed`
       : `${completed} of ${tasks.length} tasks completed · ${currentTask}`;
-  return { run, completed, total: tasks.length, label, failed };
+  // The digest is worth opening whenever it wrote something, even if a sibling task failed.
+  const digest = tasks.find(
+    (task) =>
+      task.kind === 'digest' && task.status === 'succeeded' && Boolean(task.output_document_id),
+  );
+  return {
+    run,
+    completed,
+    total: tasks.length,
+    label,
+    failed,
+    digestRunId: digest?.id ?? null,
+  };
 }

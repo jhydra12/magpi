@@ -55,14 +55,15 @@ export function SpaceDreamProgress({
   const hasFailed = run.status === 'failed' || run.status === 'timeout';
   const label = tasks && tasks.total > 1 ? tasks.label : isComplete ? 'Completed' : status.label;
   const percent = isComplete ? 100 : tasks ? Math.floor((tasks.completed / tasks.total) * 100) : 0;
+  const outputRunId = tasks?.digestRunId ?? (isComplete && run.output_document_id ? run.id : null);
 
   return (
     <div className="flex min-w-40 flex-1 flex-col gap-1.5">
       <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
         <span role="status">{label}</span>
         <div className="flex items-center gap-3">
-          {isComplete && run.output_document_id ? (
-            <Link href={`/dreams/${run.id}`} className="text-brand-link hover:underline">
+          {outputRunId ? (
+            <Link href={`/dreams/${outputRunId}`} className="text-brand-link hover:underline">
               Open output
             </Link>
           ) : null}
