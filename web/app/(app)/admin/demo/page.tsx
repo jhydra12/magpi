@@ -1,15 +1,23 @@
 import { Panel } from '@/components/admin/panel';
 import { SectionHeader } from '@/components/admin/section-header';
 import { DemoReset } from '@/components/admin/demo-reset';
+import { RehearsalModeToggle } from '@/components/admin/rehearsal-mode';
+import { readRehearsalMode } from './rehearsal-mode';
 import { resolveAdminAccess } from '@/lib/analytics/access';
 
 export default async function DemoPage() {
   const access = await resolveAdminAccess();
   if (access.kind !== 'granted') return null;
+  const rehearsal = await readRehearsalMode();
 
   return (
     <div className="flex flex-col gap-10">
       <SectionHeader title="Demo" />
+      {rehearsal.status === 'success' ? (
+        <Panel title="Rehearsal mode">
+          <RehearsalModeToggle initial={rehearsal.data} />
+        </Panel>
+      ) : null}
       <Panel title="Reset demo">
         <div className="flex flex-col gap-4">
           <p className="max-w-xl text-sm text-muted-foreground">

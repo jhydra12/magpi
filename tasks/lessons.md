@@ -20,3 +20,7 @@
 - The clean demo starts with Edge Functions only. Never deploy Compute automatically during cleanup or CI. The presenter deploys one Compute instance, cuts over queue processing, then scales to eleven during the demo.
 - The full demo reset must delete chat conversations and folders after Dream processing pauses, so the chat screen returns to a clean state.
 - Keep the Supabase setup action current in the production workflow. An old action can fail before `supabase db push`, leaving production migrations behind even when the GitHub deployment job starts.
+- Answer in plain, short sentences. No long tables, staged headings, or explanatory scaffolding unless asked for a report. State the finding, then the fix.
+- After a `git pull`, apply pending migrations to the local stack before assuming the app is broken. Missing RPCs read as schema-cache errors ("Could not find the function ... in the schema cache").
+- `supabase stop` kills the `supabase-beta functions serve` process the local stack relies on for function secrets. Restart it after any stack restart.
+- `recentChunks` and `recentDocuments` page until exhausted, so `MAX_INPUT_CHUNKS` and `INPUT_PAGE_CHUNKS` are page sizes, not caps. Every dream reads the whole window.
