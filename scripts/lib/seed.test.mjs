@@ -211,3 +211,40 @@ test('schedule validation includes mode-controlled quoted and dollar-quoted jobs
     [{ name: 'example', body: "select public.invoke_worker('example', 1)" }],
   );
 });
+
+test('drain recovers a job whose worker abandoned it at running', async () => {
+  // The claim only reclaims a running job after fifteen minutes, which outlasts the drain,
+  // so a worker that dies mid-job stalls every remaining pass at nothing to claim.
+  const states = [
+    { ...clear, running: 1 },
+    { ...clear, running: 1 },
+    { ...clear, queued: 1 },
+  ];
+  const pending = [...states];
+  let recovered = 0;
+  const result = await drainIngestion({
+    snapshot: async () => pending.shift() ?? clear,
+    runBatch: async () => ({ claimed: 0 }),
+    wait: async () => {},
+    recoverStalled: async () => {
+      recovered += 1;
+    },
+    maxPasses: 6,
+  });
+  assert.deepEqual(result, clear);
+  assert.equal(recovered, 2);
+});
+
+test('drain leaves a running job alone while work is still queued', async () => {
+  const pending = [{ ...clear, running: 1, queued: 3 }, clear];
+  let recovered = 0;
+  await drainIngestion({
+    snapshot: async () => pending.shift() ?? clear,
+    runBatch: async () => ({ claimed: 3 }),
+    wait: async () => {},
+    recoverStalled: async () => {
+      recovered += 1;
+    },
+  });
+  assert.equal(recovered, 0);
+});
