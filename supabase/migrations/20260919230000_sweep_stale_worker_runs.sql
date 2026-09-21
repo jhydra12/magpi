@@ -19,5 +19,6 @@ begin
     and coalesce(claimed_at, created_at) < now() - interval '2 minutes';
 end;
 $$;
+
 revoke all on function public.sweep_stale_worker_runs() from public, anon, authenticated;
 grant execute on function public.sweep_stale_worker_runs() to service_role;

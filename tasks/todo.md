@@ -135,3 +135,45 @@
 - [x] Test reset behavior and configure server-only management access.
 
 Reset verification: focused UI, action, and management API tests pass; 287 database assertions and 10 integration tests pass. Production build passes. Server management access is configured as a production secret; deployed reset verification remains pending.
+
+# Improve the Digital Brain entity graph
+
+- [x] Make the graph frame adapt to short and narrow viewports; fit the camera on first render and after size changes.
+- [x] Add a compact category and relationship legend plus keyboard- and touch-accessible entity selection and details.
+- [x] Replace the timed arranging overlay with status based on active Dream state and persisted graph counts; keep node positions during refresh.
+- [x] Align graph colors with theme tokens and verify rendered pixels, layout, and browser errors in both themes at desktop and mobile sizes.
+- [x] Run focused tests, lint, typecheck, and production build; record evidence for each improvement.
+
+## Review
+
+- Completed on `improve-digital-brain-graph` in four commits, one for each graph improvement.
+- The web suite passed: 1,281 tests across 141 files. Web lint had no errors and seven warnings in unrelated files.
+- The production build and web typecheck passed. The color-token check passed.
+- Three real-browser graph tests passed, including color conversion, visible pixels, responsive sizing, entity selection, and no page errors in Light and Dark at desktop and mobile sizes.
+
+# Restore the missing worker migration
+
+- [x] Read the remote migration record and compare it with the live function definition.
+- [x] Restore the exact recorded migration file and verify local and remote histories match.
+- [x] Run the project gate and merge the fix.
+- [ ] Verify the Supabase deploy workflow after restarting its stalled hosted gate.
+
+## Review
+
+- The merge deployment failed because remote migration `20260919230000` was absent from the repository. Restored its exact recorded SQL and confirmed its live function definition matches.
+- `supabase migration list --linked` now shows every local and remote migration in sync. A separate dry run was blocked by a temporary database connection circuit breaker and made no changes.
+- The post-merge deploy run stopped reporting progress in its 15-minute light-gate job for over an hour; it is being restarted before migration deployment can be confirmed.
+
+# Reset all Compute services
+
+- [x] Trace the reset action and confirm it only deletes the service named `dream`.
+- [x] Delete every service returned by the Compute management API and wait until none remain before clearing data.
+- [x] Add tests for multiple services, in-progress deletions, and retry behavior.
+- [x] Run the project gate and verify the reset checklist wording.
+- [ ] Create and merge the fix PR.
+
+## Review
+
+- Reset must remove every named service in this demo project before deleting generated data or restoring Edge execution.
+- Every locally available light-gate check passed, including the production build; all 23 focused reset tests passed.
+- Do not invoke the live reset while testing this change.

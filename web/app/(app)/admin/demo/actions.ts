@@ -5,9 +5,9 @@ import { revalidatePath } from 'next/cache';
 import { resolveAdminAccess } from '@/lib/analytics/access';
 import { errorState, successState, type ActionState } from '@/lib/actions/state';
 import {
-  resetDreamCompute,
+  resetAllComputeInstances,
   assertComputeResetConfigured,
-  isDreamComputeAbsent,
+  areComputeInstancesAbsent,
 } from '@/lib/admin/compute-reset';
 import { dreamRateLimitBuckets } from './rate-limit';
 
@@ -115,8 +115,8 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
     if (!(await hasNoActiveWorkers(db)))
       return errorState('Dream work is still finishing. Start Reset again to wait for it.');
     if (step === 'chats') return deleteDemoChatHistory(access);
-    if (step === 'compute') return successState(await resetDreamCompute());
-    if (!(await isDreamComputeAbsent()))
+    if (step === 'compute') return successState(await resetAllComputeInstances());
+    if (!(await areComputeInstancesAbsent()))
       return errorState('Compute deletion has not finished. Start Reset again.');
     if (step === 'data') {
       const result = await deleteGeneratedDreamData(access);
