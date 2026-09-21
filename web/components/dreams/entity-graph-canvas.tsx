@@ -9,6 +9,30 @@ import type { EntityGroup } from '@/lib/dreams/entities';
 import { readGraphColors } from './graph-colors';
 
 import { buildGraph, retainGraphPositions, type GraphNode, type GraphLink } from './graph-data';
+import { placeCamera } from './graph-camera';
+
+/**
+ * Three turns at 60 / speed seconds, so this is a full turn in a little under a minute: enough
+ * to read the shape as it comes round, slow enough that a label stays readable.
+ */
+const ROTATION_SPEED = 1.125;
+
+/** Orbit controls, as far as this component uses them. */
+interface OrbitLike {
+  autoRotate: boolean;
+  autoRotateSpeed: number;
+}
+
+/** The renderer types its camera as the base class, which does not declare a far plane. */
+type PerspectiveLike = { far: number; updateProjectionMatrix(): void };
+
+/**
+ * A link's ends are ids until the renderer has run, and the node objects themselves afterwards,
+ * because it resolves them in place. Either way this is the id.
+ */
+function endId(end: GraphLink['source']): string {
+  return typeof end === 'string' ? end : ((end as unknown as GraphNode).id ?? '');
+}
 
 export default function EntityGraphCanvas({
   groups,
@@ -25,32 +49,43 @@ export default function EntityGraphCanvas({
   // Files are most of the lines on screen: one per name in each of them, and none of them say
   // anything a person is reading the graph for. Off by default, and one click away.
   const [showFiles, setShowFiles] = useState(false);
-  const graph = useMemo(
-    () =>
-      showFiles
-        ? wholeGraph
-        : {
-            nodes: wholeGraph.nodes.filter((node) => node.kind !== 'document'),
-            links: wholeGraph.links.filter((link) => link.kind !== 'mention'),
-          },
-    [wholeGraph, showFiles],
-  );
+  const { graph, degrees } = useMemo(() => {
+    const links = showFiles
+      ? wholeGraph.links
+      : wholeGraph.links.filter((link) => link.kind !== 'mention');
+    const counts = new Map<string, number>();
+    for (const link of links) {
+      for (const end of [endId(link.source), endId(link.target)]) {
+        counts.set(end, (counts.get(end) ?? 0) + 1);
+      }
+    }
+    // A name with nothing left to join it to says nothing on a graph, and hundreds of them
+    // scattered around the edge are what makes one hard to read. They stay in Browse entities.
+    const nodes = wholeGraph.nodes.filter(
+      (node) => (showFiles || node.kind !== 'document') && counts.has(node.id),
+    );
+    return { graph: { nodes, links }, degrees: counts };
+  }, [wholeGraph, showFiles]);
   const graphRef = useRef<ForceGraphMethods<GraphNode, GraphLink> | undefined>(undefined);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [hoveredLink, setHoveredLink] = useState<GraphLink | null>(null);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const detailNode = hoveredNode ?? selectedNode;
   const containerRef = useRef<HTMLDivElement>(null);
-  const hasFittedInitialGraph = useRef(false);
+  const ticks = useRef(0);
+  // Turning would fight the camera move that framing a chosen node makes, so it waits.
+  const isRotating = selectedNode === null;
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [colors, setColors] = useState<ReturnType<typeof readGraphColors> | null>(null);
   const entities = wholeGraph.nodes.filter((node) => node.kind === 'entity');
   const documentCount = wholeGraph.nodes.filter((node) => node.kind === 'document').length;
   const count = (total: number, noun: string) =>
     `${total} ${total === 1 ? noun : noun === 'entity' ? 'entities' : `${noun}s`}`;
+  // The settled line counts what is drawn; Browse entities beside it still lists every name.
+  const drawn = graph.nodes.filter((node) => node.kind === 'entity').length;
   const summary = active
     ? `Dream in progress · ${count(entities.length, 'entity')} · ${count(documentCount, 'file')}`
-    : `${count(entities.length, 'entity')} · ${count(documentCount, 'file')} · ${count(graph.links.length, 'link')}`;
+    : `${count(drawn, 'entity')} · ${count(documentCount, 'file')} · ${count(graph.links.length, 'link')}`;
   const entityColor = (kind: string) => {
     if (!colors) return 'var(--muted-foreground)';
     return kind === 'project'
@@ -61,6 +96,28 @@ export default function EntityGraphCanvas({
           ? colors.decision
           : colors.person;
   };
+  /** Frames the whole graph from the tilt it turns through. */
+  const frameGraph = (transitionMs: number) => {
+    const graphApi = graphRef.current;
+    if (!graphApi || size.height === 0) return;
+    const placement = placeCamera(graph.nodes, size.width / size.height);
+    if (!placement) return;
+
+    // The renderer's own far plane is 2000, and a graph of a few hundred names is framed from
+    // further out than that, which draws nothing at all. The plane follows the fit.
+    const reach = Math.hypot(
+      placement.position.x - placement.lookAt.x,
+      placement.position.y - placement.lookAt.y,
+      placement.position.z - placement.lookAt.z,
+    );
+    const camera = graphApi.camera() as unknown as PerspectiveLike | undefined;
+    if (camera && camera.far < reach * 2) {
+      camera.far = reach * 2;
+      camera.updateProjectionMatrix();
+    }
+    graphApi.cameraPosition(placement.position, placement.lookAt, transitionMs);
+  };
+
   const selectNode = (node: GraphNode) => {
     setSelectedNode(node);
     setHoveredNode(null);
@@ -91,9 +148,19 @@ export default function EntityGraphCanvas({
 
   useEffect(() => {
     if (size.width === 0 || size.height === 0) return;
-    const frame = requestAnimationFrame(() => graphRef.current?.zoomToFit(350, 48));
+    const frame = requestAnimationFrame(() => frameGraph(350));
     return () => cancelAnimationFrame(frame);
+    // Reframed on resize, not on every simulation tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [size.width, size.height]);
+
+  // Orbit controls turn the graph; the renderer already calls update() every frame.
+  useEffect(() => {
+    const controls = graphRef.current?.controls() as OrbitLike | undefined;
+    if (!controls) return;
+    controls.autoRotate = isRotating;
+    controls.autoRotateSpeed = ROTATION_SPEED;
+  }, [isRotating, colors, size.width]);
 
   return (
     <section
@@ -199,6 +266,7 @@ export default function EntityGraphCanvas({
             height={size.height}
             cooldownTime={5000}
             showNavInfo={false}
+            controlType="orbit"
             nodeLabel={(node) => {
               const item = node as GraphNode;
               return item.kind === 'document' ? item.label : `${item.label} · ${item.entityKind}`;
@@ -218,7 +286,9 @@ export default function EntityGraphCanvas({
             nodeVal={(node) => {
               const item = node as GraphNode;
               // A name that ties many files together should read as the hub it is.
-              return item.kind === 'document' ? 1.2 : 3 + Math.min(12, (item.degree ?? 0) * 0.5);
+              return item.kind === 'document'
+                ? 1.2
+                : 3 + Math.min(12, (degrees.get(item.id) ?? 0) * 0.5);
             }}
             linkColor={(link) =>
               (link as GraphLink).kind === 'shared' ? colors.shared : colors.document
@@ -243,12 +313,13 @@ export default function EntityGraphCanvas({
               setHoveredLink((link as GraphLink | null) ?? null);
               setHoveredNode(null);
             }}
-            onEngineStop={() => {
-              if (!hasFittedInitialGraph.current) {
-                graphRef.current?.zoomToFit(500, 48);
-                hasFittedInitialGraph.current = true;
-              }
+            onEngineTick={() => {
+              // The layout has no coordinates until it has run, so the fit cannot be done once
+              // on mount. Reframing as it settles also lets a person watch it find its shape.
+              ticks.current += 1;
+              if (ticks.current % 10 === 0) frameGraph(0);
             }}
+            onEngineStop={() => frameGraph(400)}
           />
         ) : null}
       </div>
