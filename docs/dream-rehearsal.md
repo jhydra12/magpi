@@ -33,6 +33,12 @@ The manual operation disables Edge queue drivers, waits for in-flight work to
 finish, and deploys exactly one Compute instance. It does not submit synthetic
 Dream results. Confirm one instance is ready before discussing throughput.
 
+Queue inserts send an HTTP wake to the public Compute worker after the transaction
+commits. While dreams are queued or running, a ten-second database schedule repeats
+the wake so an idle instance or a missed request cannot strand the queue. No HTTP
+requests are sent once the queue is empty. Pausing for a reset or switching back to
+Edge removes the Compute wake schedule; resuming Compute wakes pending work again.
+
 ```bash
 supabase-beta compute status dream --project-ref <project-ref>
 supabase-beta compute logs dream --kind app -f --project-ref <project-ref>
