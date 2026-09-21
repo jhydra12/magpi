@@ -36,6 +36,12 @@ export async function ingestSeed(
       const result = await response.json();
       console.log(`ingestion: ${result.claimed ?? 0} claimed`);
     },
+    recoverStalled: async () => {
+      const { error: sweepError } = await client.rpc('sweep_stale_worker_runs');
+      if (sweepError)
+        throw new Error(`Stalled ingestion could not be recovered: ${sweepError.message}`);
+      console.log('ingestion: requeued a job whose worker did not come back');
+    },
     wait,
   });
   console.log("Ingestion complete: every document's latest job succeeded.");
