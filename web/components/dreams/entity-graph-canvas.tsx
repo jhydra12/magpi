@@ -2,7 +2,7 @@
 
 import ForceGraph3D from 'react-force-graph-3d';
 import type { ForceGraphMethods } from 'react-force-graph-3d';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { EntityGroup } from '@/lib/dreams/entities';
 
@@ -21,7 +21,20 @@ export default function EntityGraphCanvas({
   if (groups !== graphState.groups) {
     setGraphState({ groups, graph: retainGraphPositions(buildGraph(groups), graphState.graph) });
   }
-  const graph = graphState.graph;
+  const wholeGraph = graphState.graph;
+  // Files are most of the lines on screen: one per name in each of them, and none of them say
+  // anything a person is reading the graph for. Off by default, and one click away.
+  const [showFiles, setShowFiles] = useState(false);
+  const graph = useMemo(
+    () =>
+      showFiles
+        ? wholeGraph
+        : {
+            nodes: wholeGraph.nodes.filter((node) => node.kind !== 'document'),
+            links: wholeGraph.links.filter((link) => link.kind !== 'mention'),
+          },
+    [wholeGraph, showFiles],
+  );
   const graphRef = useRef<ForceGraphMethods<GraphNode, GraphLink> | undefined>(undefined);
   const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
   const [hoveredLink, setHoveredLink] = useState<GraphLink | null>(null);
@@ -31,8 +44,8 @@ export default function EntityGraphCanvas({
   const hasFittedInitialGraph = useRef(false);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [colors, setColors] = useState<ReturnType<typeof readGraphColors> | null>(null);
-  const entities = graph.nodes.filter((node) => node.kind === 'entity');
-  const documentCount = graph.nodes.filter((node) => node.kind === 'document').length;
+  const entities = wholeGraph.nodes.filter((node) => node.kind === 'entity');
+  const documentCount = wholeGraph.nodes.filter((node) => node.kind === 'document').length;
   const count = (total: number, noun: string) =>
     `${total} ${total === 1 ? noun : noun === 'entity' ? 'entities' : `${noun}s`}`;
   const summary = active
@@ -108,14 +121,20 @@ export default function EntityGraphCanvas({
               {label}
             </span>
           ))}
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <label className="inline-flex cursor-pointer items-center gap-1.5 text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={showFiles}
+              onChange={(event) => setShowFiles(event.target.checked)}
+              className="size-3 accent-[var(--graph-document)]"
+            />
             <span
               aria-hidden="true"
               className="size-2.5 rounded-full"
               style={{ backgroundColor: colors?.document ?? 'var(--graph-document)' }}
             />
             Files
-          </span>
+          </label>
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">
             <span
               aria-hidden="true"
@@ -196,12 +215,24 @@ export default function EntityGraphCanvas({
                       ? colors.decision
                       : colors.person;
             }}
-            nodeVal={(node) => ((node as GraphNode).kind === 'entity' ? 5 : 1.4)}
+            nodeVal={(node) => {
+              const item = node as GraphNode;
+              // A name that ties many files together should read as the hub it is.
+              return item.kind === 'document' ? 1.2 : 3 + Math.min(12, (item.degree ?? 0) * 0.5);
+            }}
             linkColor={(link) =>
               (link as GraphLink).kind === 'shared' ? colors.shared : colors.document
             }
-            linkWidth={(link) => ((link as GraphLink).kind === 'shared' ? 1.8 : 0.45)}
-            linkDirectionalParticles={(link) => ((link as GraphLink).kind === 'shared' ? 2 : 0)}
+            linkOpacity={0.35}
+            linkWidth={(link) => {
+              const item = link as GraphLink;
+              // Width carries the weight, so a tie backed by four files reads louder than one
+              // backed by a single file, instead of every line shouting equally.
+              return item.kind === 'shared' ? Math.min(3.2, 0.7 + (item.weight ?? 1) * 0.7) : 0.25;
+            }}
+            linkDirectionalParticles={(link) =>
+              (link as GraphLink).kind === 'shared' && ((link as GraphLink).weight ?? 1) > 2 ? 2 : 0
+            }
             linkDirectionalParticleSpeed={0.005}
             onNodeHover={(node) => {
               setHoveredNode((node as GraphNode | null) ?? null);

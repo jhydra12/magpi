@@ -97,8 +97,31 @@ it('builds a large sparse graph without scanning every entity pair against every
   const start = performance.now();
   const graph = buildGraph(groups);
   expect(graph.nodes).toHaveLength(2000);
-  expect(graph.links).toHaveLength(5000);
+  // 3000 mentions, and a pair link for each of the 2000 co-occurrences that survives pruning.
+  const mentions = graph.links.filter((link) => link.kind === 'mention');
+  expect(mentions).toHaveLength(3000);
+  expect(graph.links.length).toBeLessThanOrEqual(5000);
   expect(performance.now() - start).toBeLessThan(1000);
+});
+
+it('draws no pair links for a file crowded with names, since it says nothing about any pair', () => {
+  // Twelve names in one file would be 66 pairs unpruned; a file that crowded contributes none
+  // unless another file repeats the pair.
+  const crowded = [
+    {
+      kind: 'person' as const,
+      label: 'People',
+      entities: Array.from({ length: 12 }, (_, i) => ({
+        id: String(i),
+        name: `Person ${i}`,
+        summary: null,
+        documents: [{ id: 'doc-0', title: 'Release notes', url: null }],
+      })),
+    },
+  ];
+  const graph = buildGraph(crowded);
+  expect(graph.links.filter((link) => link.kind === 'shared')).toHaveLength(0);
+  expect(graph.links.filter((link) => link.kind === 'mention')).toHaveLength(12);
 });
 
 it('preserves existing simulation coordinates when new nodes arrive', () => {
