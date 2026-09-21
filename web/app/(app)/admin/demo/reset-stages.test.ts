@@ -22,10 +22,12 @@ function setup({ active = false, mode = 'paused' } = {}) {
   query.select.mockReturnValue(query);
   query.delete.mockReturnValue(query);
   query.eq.mockResolvedValue(result);
-  const rpc = vi.fn(async (name: string) => ({
-    data: name === 'dream_execution_mode' ? mode : null,
-    error: null,
-  }));
+  const rpc = vi.fn(
+    async (name: string): Promise<{ data: string | null; error: { message: string } | null }> => ({
+      data: name === 'dream_execution_mode' ? mode : null,
+      error: null,
+    }),
+  );
   const from = vi.fn((table: string) => {
     if (!table) throw new Error('Table required');
     return query;
@@ -247,5 +249,32 @@ describe('generated data reset', () => {
     });
     expect(remove).not.toHaveBeenCalled();
     expect(requests.some((request) => request.operation === 'delete')).toBe(false);
+  });
+});
+
+describe('freshening the source corpus during a reset', () => {
+  it('refreshes source timestamps only after Compute is gone', async () => {
+    const { rpc } = setup();
+    expect(await resetDemoStep('freshen')).toEqual({
+      status: 'success',
+      data: { complete: true },
+    });
+    expect(rpc).toHaveBeenCalledWith('freshen_demo_corpus', { p_org_id: 'org' });
+  });
+
+  it('refuses to freshen while Compute remains', async () => {
+    const { rpc } = setup();
+    mocks.absent.mockResolvedValue(false);
+    expect((await resetDemoStep('freshen')).status).toBe('error');
+    expect(rpc).not.toHaveBeenCalledWith('freshen_demo_corpus', expect.anything());
+  });
+
+  it('reports a freshen failure rather than claiming the demo is ready', async () => {
+    const { rpc } = setup();
+    rpc.mockImplementation(async (name: string) => {
+      if (name === 'freshen_demo_corpus') return { data: null, error: { message: 'no rows' } };
+      return { data: name === 'dream_execution_mode' ? 'paused' : null, error: null };
+    });
+    expect((await resetDemoStep('freshen')).status).toBe('error');
   });
 });
