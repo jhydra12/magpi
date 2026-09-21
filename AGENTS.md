@@ -43,3 +43,30 @@ logging, or deleting a compute instance; anything under compute/v1 URLs), read
 `.claude/skills/supabase-compute/SKILL.md` first and follow it. Its
 references/ directory holds the Management API wire format, worked examples,
 and troubleshooting. Load those only when the task needs them.
+
+### Dream demo cutover is part of implementation
+
+The demo starts with Dream processing on Edge Functions. When the user asks to
+implement Dream processing on Compute or move dreaming to Compute, complete the
+build, deployment, cutover, and verification in that same task. The user does not
+have a separate cutover step in the demo and should not need another prompt.
+
+- Read `docs/dream-rehearsal.md` and `scripts/dream-cutover.mjs` before deployment.
+- Build the requested implementation afresh under the rules above. The cutover
+  script is integration infrastructure, not a substitute for the new build.
+- Run `node scripts/dream-cutover.mjs --project-ref <project-ref>` against the
+  intended project as part of the deployment. It switches the execution mode to
+  Compute, stops new Edge claims, waits for in-flight work to finish, and deploys
+  one Compute instance. If the new implementation changes that interface, update
+  the integration so it performs the same coordinated transition.
+- Verify the database reports Compute mode, the deployed worker is ready, and
+  queued Dream work is actually claimed and completed by Compute. Also verify
+  the Compute wake/retry schedule is active so an idle worker resumes without a
+  manual HTTP request. Deployment success alone is not task completion.
+- If deployment or cutover verification fails, restore Edge processing and report
+  the failure. Do not leave the queue assigned to an unavailable Compute worker.
+- Deploy one instance for the initial cutover; scale only when the user asks.
+
+This applies to the request to implement or move Dream processing. Read-only
+inspection, unrelated Compute services, and fixes that should preserve the
+current execution mode must not trigger a cutover.
