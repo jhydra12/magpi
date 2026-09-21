@@ -27,17 +27,38 @@ export async function resetDreams(): Promise<ActionState> {
     if (pauseError) throw new Error('Dream processing could not be paused.');
 
     // Claims share the execution-mode lock, so no new worker can start after the pause.
-    // Existing workers must finish before their output can safely be removed.
-    const { count, error: activeError } = await db
+    // Queued work can stop immediately. Running workers acknowledge only after
+    // aborting their model requests and settling any writes already in progress.
+    const { error: queuedError } = await db
       .from('dream_runs')
-      .select('id', { count: 'exact', head: true })
+      .update({
+        status: 'failed',
+        error: 'cancel: reset requested',
+        finished_at: new Date().toISOString(),
+      })
+      .eq('org_id', context.orgId)
+      .eq('status', 'queued');
+    if (queuedError) throw new Error('Queued dreams could not be cancelled.');
+    const { error: cancelError } = await db
+      .from('dream_runs')
+      .update({ error: 'cancel: reset requested' })
       .eq('org_id', context.orgId)
       .eq('status', 'running');
-    if (activeError || count === null) throw new Error('Active dreams could not be checked.');
-    if (count > 0)
-      throw new Error(
-        'Dreams are still running. Wait for them to finish, then reset dreams again.',
-      );
+    if (cancelError) throw new Error('Active dreams could not be cancelled.');
+
+    const deadline = Date.now() + 15_000;
+    while (true) {
+      const { count, error: activeError } = await db
+        .from('dream_runs')
+        .select('id', { count: 'exact', head: true })
+        .eq('org_id', context.orgId)
+        .eq('status', 'running');
+      if (activeError || count === null) throw new Error('Active dreams could not be checked.');
+      if (count === 0) break;
+      if (Date.now() >= deadline)
+        throw new Error('Dream cancellation has not been acknowledged. Try Reset dreams again.');
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
 
     // Delete in bounded batches so every generated file is removed, even above the API row limit.
     while (true) {
