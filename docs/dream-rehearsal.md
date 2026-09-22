@@ -1,6 +1,6 @@
 # Dream rehearsal
 
-The starting state uses Edge Functions only. **Start dreaming** queues three
+The starting state uses Edge Functions only. **Process** queues three
 real tasks per space: a summary, entity extraction, and document links. The
 Edge driver drains that queue sequentially. Keep elapsed-time labels visible
 when cutting waits. Progress comes from worker reports and saved task results.
@@ -13,7 +13,7 @@ when cutting waits. Progress comes from worker reports and saved task results.
 3. Confirm no hosted `dream` Compute service is running. A previous rehearsal
    must be stopped before enabling Edge queue drivers. Never run competing
    Edge and Compute consumers for a timed comparison.
-4. Confirm the Edge driver is enabled and Start dreaming progresses without
+4. Confirm the Edge driver is enabled and Process progresses without
    leaving the page open. Open actual summaries, entity mentions, and links.
 
 CI does not deploy Compute. Production promotion waits for the same-commit

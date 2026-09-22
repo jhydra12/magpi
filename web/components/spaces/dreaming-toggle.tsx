@@ -24,8 +24,9 @@ export function DreamingToggle({ spaceId, enabled }: { spaceId: string; enabled:
       <div className="max-w-[var(--measure-prose)]">
         <h2 className="font-heading text-sm font-medium text-foreground">Dreaming</h2>
         <p className="mt-1 text-sm text-tertiary-foreground">
-          Once a night Magpi re-reads what came into this space that day, extracts the people and
-          projects it mentions, links related documents, and writes a digest back into the space.
+          Once a night Digital Brain re-reads what came into this space that day, extracts the
+          people and projects it mentions, links related documents, and writes a digest back into
+          the space.
         </p>
       </div>
 

@@ -22,7 +22,7 @@ function clientName(details: OAuthAuthorizationDetails): string {
   return name && name.length > 0 ? name : 'An application';
 }
 
-/** The library's consent flow, on Magpi's sign-in shell. Signed-out people go to /sign-in first. */
+/** The library's consent flow, on Digital Brain's sign-in shell. Signed-out people go to /sign-in first. */
 export function OAuthConsent({ authorizationId }: { authorizationId: string | null }) {
   const { details, error, isLoading, decision, approve, deny } = useOAuthConsent({
     authorizationId,
@@ -50,7 +50,7 @@ export function OAuthConsent({ authorizationId }: { authorizationId: string | nu
 
   return (
     <AuthShell
-      title={`${clientName(details)} wants to read your Magpi`}
+      title={`${clientName(details)} wants to read your Digital Brain`}
       description="It will act as you. It can see what you can see, and nothing else."
     >
       <div className="flex flex-col gap-6">

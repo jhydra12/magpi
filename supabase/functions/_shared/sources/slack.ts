@@ -263,7 +263,7 @@ export const slackDriver: SourceDriver = {
     return options;
   },
 
-  // Slack user tokens do not expire unless token rotation is on, and Magpi's app does not use it.
+  // Slack user tokens do not expire unless token rotation is on, and Digital Brain's app does not use it.
   refresh(_deps: SourceDeps): Promise<RefreshOutcome> {
     return Promise.resolve({ kind: 'not_supported' });
   },

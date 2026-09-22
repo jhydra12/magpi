@@ -64,7 +64,7 @@ export async function readDocument(
     origin: data.origin,
     mime_type: data.mime_type,
     updated_at: data.updated_at,
-    // The text Magpi indexed, in order, rather than the original file bytes.
+    // The text Digital Brain indexed, in order, rather than the original file bytes.
     content: pieces.map((chunk) => chunk.content).join('\n\n'),
     chunk_count: pieces.length,
   };

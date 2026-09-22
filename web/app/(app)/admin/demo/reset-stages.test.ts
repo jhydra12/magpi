@@ -15,13 +15,9 @@ vi.mock('@/lib/admin/compute-reset', () => ({
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 import { resetDemoStep } from './actions';
 
-function setup({ active = false, mode = 'paused' } = {}) {
+function setup({ active = false, mode = 'paused', spaces = [] as readonly string[] } = {}) {
   vi.resetAllMocks();
-  const result = { count: active ? 1 : 0, error: null, data: [] };
-  const query = { select: vi.fn(), delete: vi.fn(), eq: vi.fn() };
-  query.select.mockReturnValue(query);
-  query.delete.mockReturnValue(query);
-  query.eq.mockResolvedValue(result);
+  const insert = vi.fn();
   const rpc = vi.fn(
     async (name: string): Promise<{ data: string | null; error: { message: string } | null }> => ({
       data: name === 'dream_execution_mode' ? mode : null,
@@ -30,6 +26,31 @@ function setup({ active = false, mode = 'paused' } = {}) {
   );
   const from = vi.fn((table: string) => {
     if (!table) throw new Error('Table required');
+    const result = {
+      count: active ? 1 : 0,
+      error: null,
+      data: table === 'spaces' ? spaces.map((id) => ({ id })) : [],
+    };
+    const query = {
+      select: vi.fn(),
+      delete: vi.fn(),
+      insert: vi.fn(),
+      eq: vi.fn(),
+      in: vi.fn(),
+      order: vi.fn(),
+      then(resolve: (value: typeof result) => unknown) {
+        return Promise.resolve(resolve(result));
+      },
+    };
+    query.select.mockReturnValue(query);
+    query.delete.mockReturnValue(query);
+    query.insert.mockImplementation((rows: unknown) => {
+      insert(rows);
+      return query;
+    });
+    query.eq.mockReturnValue(query);
+    query.in.mockReturnValue(query);
+    query.order.mockReturnValue(query);
     return query;
   });
   mocks.access.mockResolvedValue({
@@ -39,7 +60,7 @@ function setup({ active = false, mode = 'paused' } = {}) {
   });
   mocks.absent.mockResolvedValue(true);
   mocks.compute.mockResolvedValue({ complete: true });
-  return { rpc, from };
+  return { rpc, from, insert };
 }
 
 describe('verified demo reset stages', () => {
@@ -98,10 +119,27 @@ describe('verified demo reset stages', () => {
     expect((await resetDemoStep('data')).status).toBe('error');
     expect(from.mock.calls.map((call) => call[0])).toEqual(['dream_runs', 'ingest_jobs']);
   });
-  it('restores Edge only after Compute is gone and Dream runs are cleared', async () => {
+  it('restores Edge when Compute is gone and no Dream work is active', async () => {
     const { rpc } = setup();
     expect(await resetDemoStep('edge')).toEqual({ status: 'success', data: { complete: true } });
     expect(rpc).toHaveBeenCalledWith('set_dream_execution_mode', { p_mode: 'edge' });
+  });
+  it('prepares finished Dream rows for every enabled space', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-22T19:45:00.000Z'));
+    const { insert } = setup({ spaces: ['one', 'two', 'three', 'four', 'five'] });
+
+    expect(await resetDemoStep('seed')).toEqual({
+      status: 'success',
+      data: { complete: true },
+    });
+    expect(insert).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ status: 'timeout', finished_at: '2026-09-22T06:01:00.000Z' }),
+        expect.objectContaining({ status: 'succeeded', finished_at: '2026-09-22T06:01:00.000Z' }),
+      ]),
+    );
+    vi.useRealTimers();
   });
 });
 

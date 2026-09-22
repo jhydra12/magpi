@@ -6,7 +6,7 @@ the Notion page "Select 2026 Keynote Demo Flow". Keep the two the same.
 ## Rehearsing without paying for it
 
 `SB_MODEL_REHEARSAL=1` swaps the OpenAI client for a stand-in that builds each
-answer out of the text the prompt already carries. One press of "Start dreaming"
+answer out of the text the prompt already carries. One press of "Process"
 costs about $1.17 against the real provider, which is why rehearsing it a dozen
 times emptied the account before the keynote.
 

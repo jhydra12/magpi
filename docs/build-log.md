@@ -460,7 +460,7 @@ to see.
 
 ## Phase 21: The MCP server, on what Supabase shipped
 
-**Shipped.** Magpi has an MCP server. Five tools: `search`, `get_document`,
+**Shipped.** Digital Brain has an MCP server. Five tools: `search`, `get_document`,
 `list_spaces`, `add_note` and `whoami`, hand-written, one file each. Claude can
 be handed a URL and end up reading this knowledge base with its owner's own
 permissions.
@@ -469,14 +469,14 @@ It is built on what the BYO MCP project actually shipped rather than around it.
 `withOAuthProtectedResource` and `withSupabase` from `@supabase/server` 1.6.0,
 and `@modelcontextprotocol/server` 2.0.0 for the protocol, which is the
 2026-07-28 revision. The Library's `mcp-server` block is the skeleton and its
-consent block is the shape of the consent screen, rewritten in Magpi's own
+consent block is the shape of the consent screen, rewritten in Digital Brain's own
 design rather than installed.
 
 The public guide for this still says authenticated MCP is coming soon. It is
 wrong, or at least behind: the middleware landed in `@supabase/server` in
 August, marked alpha in September, and it works. What did slip is tool
 generation from the PostgREST schema, which was pulled from the Select roadmap
-on the tenth. Magpi does not want it anyway. Generated tools would offer
+on the tenth. Digital Brain does not want it anyway. Generated tools would offer
 `delete_documents` to anything that connected; these five are curated, which is
 what that project's own PRFAQ says a real deployment should do.
 
@@ -529,12 +529,12 @@ asking for it, filed in January, still unanswered. DCR stays available for
 backwards compatibility, so this works today. It is worth knowing which way that
 goes before anyone depends on it.
 
-## Phase 22: Magpi sends its own email
+## Phase 22: Digital Brain sends its own email
 
-**Shipped.** Every account email is Magpi's: its words, its design, its
+**Shipped.** Every account email is Digital Brain's: its words, its design, its
 delivery. The auth server sends none. That is one setting, `[auth.hook.send_email]`
 pointing at `supabase/functions/auth-email/`, and after it there is nothing
-about a Magpi email in anybody's dashboard.
+about a Digital Brain email in anybody's dashboard.
 
 Six templates in React Email, rendered in the edge function: confirm your
 address, reset your password, a sign-in link, the two halves of an email change,
@@ -551,7 +551,7 @@ of conversation rather than a dependency. A deployed project has a key and goes
 over Resend's HTTP API instead.
 
 Verified end to end rather than by inspection: a password reset through the auth
-API arrived in Mailpit two seconds later, from Magpi's address, with Magpi's
+API arrived in Mailpit two seconds later, from Digital Brain's address, with Digital Brain's
 subject, carrying the ground colour, the sheen, the mark and a link into the
 confirm route.
 
@@ -565,7 +565,7 @@ because the two halves of an email change are supposed to need two clicks, and
 one wrong token would collapse it to one.
 
 **Did not ship.** The invitation email has its words and no sender: organization
-invites are Magpi's own table rather than a GoTrue flow, so that one does not
+invites are Digital Brain's own table rather than a GoTrue flow, so that one does not
 come through the hook and still needs wiring to the members screen, which today
 hands the raw token back to the browser and emails nobody.
 

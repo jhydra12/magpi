@@ -1,4 +1,4 @@
-// Every email Magpi sends, and the one place their words live.
+// Every email Digital Brain sends, and the one place their words live.
 //
 // Each one says what happened, what it wants, and what to do if it was not you. Nothing else:
 // an account email is read in four seconds by somebody who is mid-task.
@@ -24,11 +24,11 @@ export function confirmSignup({ siteUrl, actionUrl }: Addressed): Rendered {
   return {
     subject: 'Confirm your email address',
     body: (
-      <Shell preview='One click and your Magpi account is ready.' siteUrl={siteUrl}>
+      <Shell preview='One click and your Digital Brain account is ready.' siteUrl={siteUrl}>
         <Heading>Confirm your email address</Heading>
         <Paragraph>
-          You are one click from a Magpi account. Confirm this address and you can start connecting
-          the places your team already writes things down.
+          You are one click from a Digital Brain account. Confirm this address and you can start
+          connecting the places your team already writes things down.
         </Paragraph>
         <Action href={actionUrl}>Confirm my email</Action>
         <Paragraph quiet>{NOT_YOU}</Paragraph>
@@ -40,9 +40,9 @@ export function confirmSignup({ siteUrl, actionUrl }: Addressed): Rendered {
 
 export function resetPassword({ siteUrl, actionUrl }: Addressed): Rendered {
   return {
-    subject: 'Reset your Magpi password',
+    subject: 'Reset your Digital Brain password',
     body: (
-      <Shell preview='Pick a new password for Magpi.' siteUrl={siteUrl}>
+      <Shell preview='Pick a new password for Digital Brain.' siteUrl={siteUrl}>
         <Heading>Reset your password</Heading>
         <Paragraph>
           Somebody asked to reset the password on this account. The link works once, and for an
@@ -60,10 +60,10 @@ export function resetPassword({ siteUrl, actionUrl }: Addressed): Rendered {
 
 export function magicLink({ siteUrl, actionUrl }: Addressed): Rendered {
   return {
-    subject: 'Your Magpi sign-in link',
+    subject: 'Your Digital Brain sign-in link',
     body: (
-      <Shell preview='Sign in to Magpi without a password.' siteUrl={siteUrl}>
-        <Heading>Sign in to Magpi</Heading>
+      <Shell preview='Sign in to Digital Brain without a password.' siteUrl={siteUrl}>
+        <Heading>Sign in to Digital Brain</Heading>
         <Paragraph>This link signs you in on the device that opens it. It works once.</Paragraph>
         <Action href={actionUrl}>Sign me in</Action>
         <Paragraph quiet>{NOT_YOU}</Paragraph>
@@ -82,14 +82,14 @@ export function changeEmail(
   { newEmail, isNewAddress }: { newEmail: string; isNewAddress: boolean },
 ): Rendered {
   return {
-    subject: 'Confirm the change to your Magpi email',
+    subject: 'Confirm the change to your Digital Brain email',
     body: (
       <Shell preview='Confirm the change to the address you sign in with.' siteUrl={siteUrl}>
         <Heading>Confirm your new email address</Heading>
         <Paragraph>
           {isNewAddress
-            ? `Somebody asked to move a Magpi account to this address, ${newEmail}. Confirming here is one half of it.`
-            : `Somebody asked to move this Magpi account to ${newEmail}. Approving here is one half of it.`}
+            ? `Somebody asked to move a Digital Brain account to this address, ${newEmail}. Confirming here is one half of it.`
+            : `Somebody asked to move this Digital Brain account to ${newEmail}. Approving here is one half of it.`}
         </Paragraph>
         <Paragraph>
           We asked both addresses. The change only takes effect once both have said yes, and until
@@ -110,34 +110,34 @@ export function changeEmail(
 
 export function reauthenticate({ siteUrl }: { siteUrl: string }, code: string): Rendered {
   return {
-    subject: 'Your Magpi confirmation code',
+    subject: 'Your Digital Brain confirmation code',
     body: (
-      <Shell preview='The code Magpi just asked you for.' siteUrl={siteUrl}>
+      <Shell preview='The code Digital Brain just asked you for.' siteUrl={siteUrl}>
         <Heading>Your confirmation code</Heading>
-        <Paragraph>Magpi asked you to confirm it is you. The code is:</Paragraph>
+        <Paragraph>Digital Brain asked you to confirm it is you. The code is:</Paragraph>
         <Heading>{code}</Heading>
         <Paragraph quiet>
-          {NOT_YOU} Nobody from Magpi will ever ask you to read this code out.
+          {NOT_YOU} Nobody from Digital Brain will ever ask you to read this code out.
         </Paragraph>
       </Shell>
     ),
   };
 }
 
-/** Magpi's own, rather than the auth server's: an organization asking somebody to join it. */
+/** Digital Brain's own, rather than the auth server's: an organization asking somebody to join it. */
 export function orgInvite(
   { siteUrl, actionUrl }: Addressed,
   { organization, invitedBy }: { organization: string; invitedBy: string },
 ): Rendered {
   return {
-    subject: `${invitedBy} invited you to ${organization} on Magpi`,
+    subject: `${invitedBy} invited you to ${organization} on Digital Brain`,
     body: (
-      <Shell preview={`Join ${organization} on Magpi.`} siteUrl={siteUrl}>
+      <Shell preview={`Join ${organization} on Digital Brain.`} siteUrl={siteUrl}>
         <Heading>You have been invited to {organization}</Heading>
         <Paragraph>
           {invitedBy} added you to {organization}{' '}
-          on Magpi, where the team's notes, issues and documents can be asked questions in one
-          place.
+          on Digital Brain, where the team's notes, issues and documents can be asked questions in
+          one place.
         </Paragraph>
         <Paragraph>
           You will only see the spaces somebody puts you in. The invitation expires in a week.

@@ -77,8 +77,8 @@ export function ConnectionActions({
             <DialogHeader>
               <DialogTitle>Disconnect {connection.account}?</DialogTitle>
               <DialogDescription>
-                Magpi stops reading this account. Documents already imported stay in their spaces
-                and stay searchable.
+                Digital Brain stops reading this account. Documents already imported stay in their
+                spaces and stay searchable.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

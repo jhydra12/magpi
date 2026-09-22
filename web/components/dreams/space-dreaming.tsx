@@ -141,7 +141,7 @@ function SpaceRow({
           disabled={!space.dreaming_enabled || isStarting || isActive || isGlobalPending}
           onClick={startDreaming}
         >
-          Start dreaming
+          Process
         </Button>
       </div>
       {!space.dreaming_enabled ? (
@@ -246,11 +246,11 @@ export function SpaceDreaming({
     <Button
       variant="default"
       className="w-fit shrink-0"
-      aria-label="Start dreaming in all spaces"
+      aria-label="Process all"
       disabled={isGlobalPending || spaces.every((space) => !space.dreaming_enabled)}
       onClick={startAllDreams}
     >
-      Start dreaming
+      Process all
     </Button>
   );
   return (

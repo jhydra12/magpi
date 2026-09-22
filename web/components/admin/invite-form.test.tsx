@@ -66,7 +66,9 @@ describe('inviting a colleague', () => {
 
     expect(await screen.findByText(`${BASE_URL}/invite/${TOKEN}`)).toBeInTheDocument();
     expect(
-      screen.getByText('This is the only time the link is shown. Magpi stores a hash of it.'),
+      screen.getByText(
+        'This is the only time the link is shown. Digital Brain stores a hash of it.',
+      ),
     ).toBeInTheDocument();
   });
 

@@ -1,12 +1,12 @@
-# Magpi
+# Digital Brain
 
 A team knowledge base with a chat interface.
 
 ## What it does
 
-You sign up, connect Notion, Linear, Slack and Google Drive, or upload files directly. Magpi chunks the content, embeds it, and stores it in Postgres. Then you ask questions in a conversation and get answers with citations back to the source.
+You sign up, connect Notion, Linear, Slack and Google Drive, or upload files directly. Digital Brain chunks the content, embeds it, and stores it in Postgres. Then you ask questions in a conversation and get answers with citations back to the source.
 
-Overnight, Magpi dreams. A scheduled job re-reads what came in that day, extracts entities, links documents that are about the same thing, and writes a digest back into the space. Dreaming is the reason the product feels like a brain instead of a search box.
+Overnight, Digital Brain dreams. A scheduled job re-reads what came in that day, extracts entities, links documents that are about the same thing, and writes a digest back into the space. Dreaming is the reason the product feels like a brain instead of a search box.
 
 ## Who it is for
 
@@ -28,7 +28,7 @@ Every document lives in exactly one **space**. There are three kinds:
 
 When you connect a source or upload a file, you pick the space. That is the whole model. No nesting, no inheritance, no per-document sharing.
 
-Magpi owns its permission boundary rather than mirroring the boundaries of the tools it reads from. Mirrored permissions always propagate late, and late is the same as wrong when someone leaves the company.
+Digital Brain owns its permission boundary rather than mirroring the boundaries of the tools it reads from. Mirrored permissions always propagate late, and late is the same as wrong when someone leaves the company.
 
 ## The primary jobs
 
@@ -43,7 +43,7 @@ Magpi owns its permission boundary rather than mirroring the boundaries of the t
 - Not a file manager. Documents are read, cited and searched, never organized into folders.
 - Not an ACL mirror. It does not reproduce Notion's or Slack's permission graph.
 - Not an agent platform. It answers questions about your content. It does not take actions in your tools.
-- Not a wiki. Nobody writes into Magpi by hand except the dream job.
+- Not a wiki. Nobody writes into Digital Brain by hand except the dream job.
 
 ## Tone
 

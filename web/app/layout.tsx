@@ -13,7 +13,7 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export const metadata: Metadata = {
-  title: 'Magpi',
+  title: 'Digital Brain',
   description: 'A team knowledge base with a chat interface.',
 };
 

@@ -94,13 +94,13 @@ describe('a page heading', () => {
     render(
       <PageHeader
         title="Documents"
-        description="Everything Magpi has read."
+        description="Everything Digital Brain has read."
         actions={<button type="button">Upload</button>}
       />,
     );
 
     expect(screen.getByRole('heading', { name: 'Documents' })).toBeInTheDocument();
-    expect(screen.getByText('Everything Magpi has read.')).toBeInTheDocument();
+    expect(screen.getByText('Everything Digital Brain has read.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Upload' })).toBeInTheDocument();
   });
 

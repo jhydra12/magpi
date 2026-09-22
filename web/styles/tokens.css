@@ -1,4 +1,4 @@
-/* Magpi's own tokens. Loads last, so it wins over the vendored Supabase layers. */
+/* Digital Brain's own tokens. Loads last, so it wins over the vendored Supabase layers. */
 
 @theme {
   /* The only colour off the derived palette, and the only one that should be. The demo sign-in

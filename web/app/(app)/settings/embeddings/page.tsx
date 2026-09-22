@@ -9,8 +9,8 @@ export default function EmbeddingsSettingsPage() {
       <div className="flex max-w-[var(--measure-prose)] flex-col gap-3 text-sm">
         <p className="text-foreground">
           Every document you connect is turned into numbers so it can be searched by meaning rather
-          than by keyword. Magpi uses <code className="text-brand">{MODELS.embedding}</code>, and
-          the account it bills is ours.
+          than by keyword. Digital Brain uses <code className="text-brand">{MODELS.embedding}</code>
+          , and the account it bills is ours.
         </p>
         <p className="text-tertiary-foreground">
           Bringing your own key is not built yet. When it is, it will live here, and the model your

@@ -2,7 +2,7 @@ import { ShellRow } from '@/components/app/shell-row';
 import { PricingTable } from '@/components/billing/pricing-table';
 
 export const metadata = {
-  title: 'Pricing | Magpi',
+  title: 'Pricing | Digital Brain',
   description: 'Free for one personal space. Team is per person, per month.',
 };
 
@@ -15,7 +15,8 @@ export default function PricingPage() {
         </h1>
         <p className="mt-5 text-base text-muted-foreground">
           Every plan reads the same way and answers with the same citations. What changes is how
-          many people you can bring, and whether Magpi goes and fetches your sources for you.
+          many people you can bring, and whether Digital Brain goes and fetches your sources for
+          you.
         </p>
       </section>
 

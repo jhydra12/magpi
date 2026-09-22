@@ -89,7 +89,7 @@ describe('running a dream by hand', () => {
     expect(callsFor('spaces')).toEqual([]);
   });
 
-  it('refuses a kind of dream Magpi does not run', async () => {
+  it('refuses a kind of dream Digital Brain does not run', async () => {
     const { callsFor } = database({});
 
     const state = await startDreamRun(SPACE_ID, 'summary' as 'digest');

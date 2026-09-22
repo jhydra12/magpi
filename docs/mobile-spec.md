@@ -111,7 +111,7 @@ or tapped a citation.
   client stores the name and never a value.
 - **Loading.** Three skeleton rows in the history list, composer disabled.
 - **Empty.** The primary screen for a new user. Title, one sentence on what
-  Magpi does, and two actions: upload a document, connect a source. It does
+  Digital Brain does, and two actions: upload a document, connect a source. It does
   not apologize for being empty.
 - **Error.** The error text from the failed query, plus a retry.
 - **Content.** The composer, the space filter, and the conversation list grouped
@@ -303,7 +303,7 @@ one line for line, so the transport is spelled out.
   `documents.ingest.running`, `documents.ingest.failed`,
   `documents.ingest.timeout`.
 - **Permissions.** iOS: none for `.fileImporter`. Photo library access, only if
-  image upload ships, reason string "Magpi needs access to add a photo to your
+  image upload ships, reason string "Digital Brain needs access to add a photo to your
   knowledge base." Android: none on API 33 and above for SAF.
 - **Offline and refresh.** The list is cached. An upload started offline is
   refused with a clear message rather than queued, because the storage upload
@@ -436,6 +436,23 @@ one line for line, so the transport is spelled out.
 - **Offline and refresh.** Cached and readable offline. Pull-to-refresh refetches.
 - **Proposed analytics events.** `entities_opened`, `entity_mention_opened`.
 
+### Dream log
+
+- **Screen name.** Dream log
+- **Web route.** `/dreams/log`
+- **Deep link.** `magpi://dreams/log`
+- **Data contract.** Nights from `loadDreamsPage`, grouped by date.
+- **Loading.** List skeleton.
+- **Empty.** Shows "No dreams yet" when there are no nights.
+- **Error.** Query error text plus retry.
+- **Content.** The dated history of Dream runs.
+- **Navigation.** Opened from Dreams.
+- **Components.** Web `components/dreams/dream-log.tsx`. Native list.
+- **Proposed string keys.** `dreams.log.empty`, `dreams.log.title`.
+- **Permissions.** Signed-in organization member.
+- **Offline and refresh.** Cached history; refresh requires a network.
+- **Proposed analytics events.** `dream_log_opened`.
+
 ### Dream run
 
 - **Screen name.** Dream run
@@ -490,6 +507,26 @@ one line for line, so the transport is spelled out.
 - **Offline and refresh.** Last fetched values are cached with their timestamp
   shown, so a stale number is never presented as live.
 - **Proposed analytics events.** `admin_opened`.
+
+### Admin demo
+
+- **Screen name.** Admin demo
+- **Web route.** `/admin/demo`
+- **Deep link.** `magpi://admin/demo`
+- **Data contract.** Rehearsal mode and the current demo reset state.
+- **Loading.** Show controls after admin access and rehearsal mode resolve.
+- **Empty.** Reset controls remain available before the first run.
+- **Error.** Show reset or rehearsal errors beside the affected control.
+- **Content.** Rehearsal mode, full demo reset, and Dream reset controls.
+- **Navigation.** Admin side navigation.
+- **Components.** Web `components/admin/demo-reset.tsx` and
+  `components/admin/rehearsal-mode.tsx`. Native form controls.
+- **Proposed string keys.** `admin.demo.title`, `admin.demo.reset`,
+  `admin.demo.rehearsal`.
+- **Permissions.** Owner or admin.
+- **Offline and refresh.** Requires a network; never cache reset actions.
+- **Proposed analytics events.** `demo_reset_requested`,
+  `rehearsal_mode_changed`.
 
 ### Admin searches
 

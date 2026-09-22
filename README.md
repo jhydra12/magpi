@@ -1,7 +1,7 @@
-# Magpi
+# Digital Brain
 
 A team knowledge base with a chat interface, on stock Supabase. Connect Notion,
-Linear, Slack and Google Drive, or upload files. Magpi chunks and embeds the
+Linear, Slack and Google Drive, or upload files. Digital Brain chunks and embeds the
 content into Postgres, and you ask questions and get cited answers. Overnight it
 dreams: a job re-reads the day, extracts entities, links related documents and
 writes a digest back into the space.
@@ -33,9 +33,10 @@ another project you have running.
 
 ## The demo company
 
-`supabase/corpus/` is Supaphone, a fictional maker of a folding phone. Seven
-people, 34 shared spaces and three personal spaces. This loads it into the project `web/.env.local`
-points at:
+`supabase/corpus/` is Supaphone, a fictional customer communications software
+company. Its 32 Launch Week source documents span four shared spaces. The seed
+creates seven people, 34 shared spaces and three personal spaces. This loads the
+corpus into the project `web/.env.local` points at:
 
 ```bash
 node --env-file=web/.env.local scripts/seed-demo.mjs
@@ -151,7 +152,7 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    fixture writes. It does not demonstrate actual Dream execution. Existing
    history from earlier seeds is preserved by source-only seeding.
 
-5. Rehearse the full Dream: **Start dreaming** queues a daily summary, entity
+5. Rehearse the full Dream: **Process** queues a daily summary, entity
    extraction, and document links. Verify saved results for all three. Record
    the runtime, application budget, and concurrency used in each take. See
    [Dream rehearsal](docs/dream-rehearsal.md) for the full three-task, one-versus-eleven comparison and [demo positioning](docs/compute-demo-positioning.md) for the claims to verify.
@@ -203,7 +204,7 @@ below uses `supabase-beta`, the beta CLI, because Compute only exists there.
    delete from public.dream_runs where triggered_by is not null;
    ```
 
-5. Remove the Magpi connector from ChatGPT. Adding it again registers a new
+5. Remove the Digital Brain connector from ChatGPT. Adding it again registers a new
    client, which is what brings the consent screen back.
 
 6. Open the windows. Terminal in the repo. Codex with the three worktrees.
@@ -221,15 +222,15 @@ remains unverified. See [Dream rehearsal](docs/dream-rehearsal.md).
 
 **1. Ask the brain.**
 
-Do: Chat. Type "When will the Fold product ship?"
+Do: Chat. Ask "What are we launching in the next Launch Week?" Then ask "What's at risk of not making it?"
 
 Say: This is my company's digital brain. Notion, Linear, Slack and Drive all
 feed it. I ask it a question and it answers with citations. Every night it dreams: it re-reads what came
 in that day and links it to everything it already knows.
 
-**2. Start dreaming.**
+**2. Process.**
 
-Do: Dreams. Engineering. Start dreaming. Show the three tasks and their elapsed
+Do: Dreams. Engineering. Process. Show the three tasks and their elapsed
 time. Use a separately rehearsed Edge take only after verifying the same
 inputs and outputs. Describe any failure using the recorded error and budget.
 
@@ -307,7 +308,7 @@ curl https://vvfegdrzrzjyekvrfyoj.supabase.co/compute/v1/dream/
 Say: Deploying works like an Edge Function. One command. Let's check its status.
 
 Do: After cutover confirms one ready Compute instance, return to Dreams, Engineering,
-Start dreaming. Follow all three run IDs in the logs:
+Process. Follow all three run IDs in the logs:
 
 ```bash
 supabase-beta compute logs dream --kind app -f --project-ref vvfegdrzrzjyekvrfyoj
@@ -347,14 +348,14 @@ instance picks up separate jobs. Watch the completion count and elapsed time.
 Do, in order:
 
 1. Library tab. MCP Server page. Press Copy Prompt.
-2. In Magpi: Settings, MCP and API. Copy the address.
+2. In Digital Brain: Settings, MCP and API. Copy the address.
 3. ChatGPT: Settings, Connectors, Create. Paste
    `https://vvfegdrzrzjyekvrfyoj.supabase.co/functions/v1/mcp-server`.
 4. The consent screen opens in the app. Press Allow.
-5. In ChatGPT, ask "When will the Fold product ship?"
+5. In ChatGPT, ask "What's at risk of not making it?"
 
 Say: The brain is useful once it lives inside the tools people already use. So
-let's give Magpi an MCP server. It is a library block: one command to add, or
+let's give Digital Brain an MCP server. It is a library block: one command to add, or
 copy this prompt and let your agent do it. I did that. Five tools, deployed like
 any other function.
 
@@ -378,7 +379,7 @@ Do "Before every run" again, so the next one starts clean.
 
 ### Known gaps
 
-- There is no per-user list of authorized agents in Magpi yet. Removing the
+- There is no per-user list of authorized agents in Digital Brain yet. Removing the
   connector in ChatGPT is the reset.
 - The Compute variant of the MCP Server block is not on the library site. Step
   9 uses the Edge Function block, which is what is deployed.

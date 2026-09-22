@@ -68,7 +68,7 @@ describe('dreaming in each space row', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       '2 of 3 tasks completed · Finding related documents',
     );
-    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Process' })).toBeDisabled();
     act(() => vi.advanceTimersByTime(1000));
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '66');
     rerender(
@@ -84,7 +84,7 @@ describe('dreaming in each space row', () => {
       />,
     );
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
-    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Process' })).toBeEnabled();
   });
 
   it('preserves partial completion and shows a failed task instead of claiming success', () => {
@@ -123,7 +123,7 @@ describe('dreaming in each space row', () => {
     expect(screen.queryByRole('switch')).not.toBeInTheDocument();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
     expect(screen.queryByText('Recent Dream activity')).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Start dreaming' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Process' }));
     expect(actions.onRun).toHaveBeenCalledWith(SPACE_ID, 'all');
     expect(refresh).not.toHaveBeenCalled();
     expect(screen.queryByText('Next dream: 1:55am UTC')).not.toBeInTheDocument();
@@ -142,9 +142,9 @@ describe('dreaming in each space row', () => {
       />,
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'Start dreaming in all spaces' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Process all' }));
     expect(onRun).toHaveBeenCalledTimes(2);
-    expect(screen.getByRole('button', { name: 'Start dreaming in all spaces' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Process all' })).toBeDisabled();
   });
 
   it('replaces the schedule immediately, then follows the saved run', async () => {
@@ -164,10 +164,10 @@ describe('dreaming in each space row', () => {
       onRun: vi.fn().mockReturnValue(pending.promise),
     };
     const { rerender } = render(<SpaceDreaming {...props} initial={getInitial()} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Start dreaming' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Process' }));
     expect(screen.queryByText('Next dream: 1:55am UTC')).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Starting…');
-    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Process' })).toBeDisabled();
     await act(async () => {
       pending.resolve(
         successState({
@@ -208,7 +208,7 @@ describe('dreaming in each space row', () => {
     expect(row.getByRole('progressbar')).toHaveAttribute('aria-valuetext', 'Running');
     expect(row.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
     expect(row.getByLabelText('Engineering elapsed time')).toHaveTextContent('00:10');
-    expect(row.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
+    expect(row.getByRole('button', { name: 'Process' })).toBeDisabled();
     expect(
       within(screen.getByRole('group', { name: 'Finance' })).queryByRole('progressbar'),
     ).not.toBeInTheDocument();
@@ -251,7 +251,7 @@ describe('dreaming in each space row', () => {
       'href',
       `/dreams/${RUN_ID}`,
     );
-    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Process' })).toBeEnabled();
   });
 
   it('shows a queued job ahead of an older completed run', () => {
@@ -292,7 +292,7 @@ describe('dreaming in each space row', () => {
       within(screen.getByRole('group', { name: 'Engineering' })).getByRole('alert'),
     ).toHaveTextContent(/model unavailable/i);
     expect(screen.getByLabelText('Engineering elapsed time')).toHaveTextContent('00:08');
-    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Process' })).toBeEnabled();
   });
 
   it('keeps finished progress and its output link on a fresh page load', () => {
@@ -314,6 +314,31 @@ describe('dreaming in each space row', () => {
       'href',
       `/dreams/${RUN_ID}`,
     );
+    expect(screen.getByRole('status')).toHaveTextContent('Last dream: 10:00am UTC');
+    expect(screen.getByRole('status')).toHaveClass('text-brand-600');
+  });
+
+  it('shows a timed out reset row in red', () => {
+    const { container } = render(
+      <SpaceDreaming
+        spaces={[getSpace()]}
+        initial={getInitial([
+          getActivityRun({
+            status: 'timeout',
+            started_at: '2026-09-18T05:56:00.000Z',
+            finished_at: '2026-09-18T06:01:00.000Z',
+            error: 'processing did not finish before the time limit',
+          }),
+        ])}
+        {...getActions()}
+      />,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent('Timed out');
+    expect(screen.getByRole('status')).toHaveClass('text-destructive-600');
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+    expect(screen.getByRole('alert')).toHaveTextContent(/did not finish before the time limit/i);
+    expect(container.querySelector('.bg-destructive-600')).toBeInTheDocument();
   });
 
   it('links to a digest whose sibling task failed', () => {
@@ -406,7 +431,7 @@ describe('dreaming in each space row', () => {
         {...getActions()}
       />,
     );
-    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Process' })).toBeDisabled();
   });
 
   it('reports a refused start in its space row', async () => {
@@ -415,10 +440,10 @@ describe('dreaming in each space row', () => {
       onRun: vi.fn().mockResolvedValue({ status: 'error', message: 'Not allowed.' }),
     };
     render(<SpaceDreaming spaces={[getSpace()]} initial={getInitial()} {...actions} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Start dreaming' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Process' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Not allowed.');
     expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Process' })).toBeEnabled();
   });
 });
 
@@ -449,7 +474,7 @@ it('waits for capacity before submitting more than four spaces and prevents dupl
       nextDreamLabel="1:55am UTC"
     />,
   );
-  const button = screen.getByRole('button', { name: 'Start dreaming in all spaces' });
+  const button = screen.getByRole('button', { name: 'Process all' });
   await userEvent.click(button);
   expect(onRun).toHaveBeenCalledTimes(4);
   await userEvent.click(button);
@@ -486,7 +511,7 @@ it('keeps an accepted new batch queued until its status arrives, hiding older co
       }
     />,
   );
-  await userEvent.click(screen.getByRole('button', { name: 'Start dreaming in all spaces' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Process all' }));
   expect(
     within(screen.getByRole('group', { name: 'Engineering' })).getByRole('status'),
   ).toHaveTextContent('Queued');

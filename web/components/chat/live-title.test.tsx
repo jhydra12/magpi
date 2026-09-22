@@ -19,9 +19,9 @@ describe('LiveTitle', () => {
     vi.useFakeTimers();
     const view = render(<LiveTitle text="New conversation" />);
 
-    view.rerender(<LiveTitle text="Fold S1 materials" />);
+    view.rerender(<LiveTitle text="EU Region materials" />);
 
-    expect(screen.getByText('Fold S1 materials')).toBeInTheDocument();
+    expect(screen.getByText('EU Region materials')).toBeInTheDocument();
     expect(screen.getByText('New conversation')).toHaveAttribute('aria-hidden', 'true');
 
     act(() => {
@@ -29,6 +29,6 @@ describe('LiveTitle', () => {
     });
 
     expect(screen.queryByText('New conversation')).not.toBeInTheDocument();
-    expect(screen.getByText('Fold S1 materials')).toBeInTheDocument();
+    expect(screen.getByText('EU Region materials')).toBeInTheDocument();
   });
 });

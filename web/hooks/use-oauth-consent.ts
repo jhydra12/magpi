@@ -1,4 +1,4 @@
-// The Supabase Library's OAuth Consent block, hook only. Magpi keeps its own consent UI on the
+// The Supabase Library's OAuth Consent block, hook only. Digital Brain keeps its own consent UI on the
 // design tokens and drives it with this. Vendored from supabase.com/library, oauth-consent-nextjs.
 import { isAuthSessionMissingError } from '@supabase/supabase-js';
 import type { OAuthAuthorizationDetails } from '@supabase/supabase-js';

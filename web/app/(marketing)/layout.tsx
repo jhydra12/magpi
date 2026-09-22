@@ -16,7 +16,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             className="flex items-center gap-2 font-heading text-base tracking-tight text-foreground"
           >
             <MagpieMark />
-            Magpi
+            Digital Brain
           </Link>
           <div className="flex items-center gap-3">
             <Link

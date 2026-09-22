@@ -33,11 +33,11 @@ describe('connection status', () => {
     const view = describeConnectionStatus(
       getConnectionStatus({
         status: 'revoked',
-        statusDetail: 'The workspace owner removed Magpi.',
+        statusDetail: 'The workspace owner removed Digital Brain.',
       }),
     );
 
-    expect(view.reason).toBe('The workspace owner removed Magpi.');
+    expect(view.reason).toBe('The workspace owner removed Digital Brain.');
     expect(view.recovery).toEqual({ kind: 'reconnect', label: 'Reconnect' });
     expect(view.tone).not.toBe('progress');
   });

@@ -71,13 +71,13 @@ export function describeScopeSelection(selection: ScopeSelection): string {
 export function describeEmptySelection(kind: ScopeSelectionKind): string | null {
   switch (kind) {
     case 'channel':
-      return 'Send a channel to a space and Magpi starts reading it.';
+      return 'Send a channel to a space and Digital Brain starts reading it.';
     case 'folder':
-      return 'Send a folder to a space and Magpi starts reading it.';
+      return 'Send a folder to a space and Digital Brain starts reading it.';
     case 'workspace':
-      return 'Send this workspace to a space and Magpi starts reading it.';
+      return 'Send this workspace to a space and Digital Brain starts reading it.';
     case 'repository':
-      return 'Send a repository to a space and Magpi starts reading its markdown.';
+      return 'Send a repository to a space and Digital Brain starts reading its markdown.';
     default: {
       const unhandled: never = kind;
       throw new Error(`Unhandled scope selection kind: ${String(unhandled)}`);

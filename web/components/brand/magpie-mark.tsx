@@ -1,4 +1,4 @@
-/** The Magpi mark and the hero bird. Every fill is a token from web/styles/tokens.css. */
+/** The Digital Brain mark and the hero bird. Every fill is a token from web/styles/tokens.css. */
 
 /** The wordmark bird: three planes, one lit, one shadowed, one sheen. */
 export function MagpieMark({ size = 22 }: { size?: number }) {

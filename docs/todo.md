@@ -1,4 +1,4 @@
-# Magpi: progress ledger
+# Digital Brain: progress ledger
 
 One ledger, checkable items. A phase is done when it works end to end, has a
 test, and is committed.
@@ -48,7 +48,7 @@ test, and is committed.
 
 - [x] Hybrid search RPC
 - [x] `hnsw.iterative_scan` on the function, measured 0 of 5 against 5 of 5
-- [ ] Magpi measured at 10k, 100k, 1M with a 1 percent filter, in `docs/retrieval.md`
+- [ ] Digital Brain measured at 10k, 100k, 1M with a 1 percent filter, in `docs/retrieval.md`
 
 ## Phase 6: Chat
 
@@ -117,7 +117,7 @@ wall visibly: a timed-out job names the stage it died in, the run page leads
 with it, and the copy says a space this size is expected to fail. What is
 missing is the number.
 
-Magpi at scale. `docs/retrieval.md` has the method written down and no
+Digital Brain at scale. `docs/retrieval.md` has the method written down and no
 numbers, at 10k, 100k and 1M chunks with a filter matching 1 percent of rows.
 What is settled is the correctness: `hnsw.iterative_scan` is on the function
 because with it off a caller got zero of their own five rows. What is not

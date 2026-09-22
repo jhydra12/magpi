@@ -4,7 +4,7 @@ Research checked September 19, 2026. This note combines current repository behav
 
 ## What the demo should say
 
-“Magpi reads our documents and builds a connected view of the company. We can run that background work on Supabase Compute, alongside our database. Watch what happens when we add ten more workers.”
+“Digital Brain reads our documents and builds a connected view of the company. We can run that background work on Supabase Compute, alongside our database. Watch what happens when we add ten more workers.”
 
 Use the Dreams queue to show completed work increasing, then leave the presenter on the entity graph while new entities and document connections appear. Hover over a connection to show its source files. Keep the corpus, models, and processing code identical during the comparison. Report the measured change in completion rate after the new instances are ready.
 

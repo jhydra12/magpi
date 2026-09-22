@@ -17,8 +17,8 @@ export default function McpSettingsPage() {
       <Panel title="Connect an agent">
         <div className="flex max-w-[var(--measure-prose)] flex-col gap-4 text-sm">
           <p className="text-foreground">
-            Magpi speaks MCP, so an agent can search everything you have connected instead of
-            reading each source itself. Give it this address.
+            Digital Brain speaks MCP, so an agent can search everything you have connected instead
+            of reading each source itself. Give it this address.
           </p>
 
           <div className="flex items-center gap-2 rounded-[var(--radius-panel)] border border-border bg-background py-2 pr-2 pl-4">

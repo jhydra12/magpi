@@ -21,7 +21,7 @@ test('Dream submission leaves navigation responsive and Entities can be refreshe
     await page.getByRole('button', { name: 'Sign in', exact: true }).click();
     await page.waitForURL('**/chat');
     await page.goto('/dreams');
-    await page.getByRole('button', { name: 'Start dreaming in all spaces' }).click();
+    await page.getByRole('button', { name: 'Process all' }).click();
     await page.getByRole('link', { name: 'Entities', exact: true }).click();
     await expect(page).toHaveURL(/\/dreams\/entities$/);
     await expect(page.getByText('No entities yet')).toBeVisible();

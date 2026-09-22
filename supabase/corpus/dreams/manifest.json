@@ -1,334 +1,48 @@
 [
   {
-    "space": "engineering",
-    "night": "2026-09-06",
-    "day": "2026-09-05",
-    "path": "dreams/engineering-2026-09-06.md",
-    "cited": [
-      "engineering/linear-HW-110-ipx4-three-hinges",
-      "engineering/linear-ORI-44-desk-stand-detection",
-      "engineering/linear-ORI-50-screen-reader-order",
-      "engineering/notion-ori-shell-crash-runbook"
-    ],
-    "links": [
-      {
-        "a": "engineering/linear-ORI-44-desk-stand-detection",
-        "b": "engineering/notion-ori-shell-crash-runbook",
-        "rationale": "Both documents are related to the functioning or troubleshooting of the Ori shell interface or hardware."
-      }
-    ]
-  },
-  {
-    "space": "finance",
-    "night": "2026-09-06",
-    "day": "2026-09-05",
-    "path": "dreams/finance-2026-09-06.md",
-    "cited": [
-      "finance/drive-unit-cost-model-walkthrough",
-      "finance/linear-OPS-40-unit-cost-rollup",
-      "finance/notion-accessory-margin",
-      "finance/notion-unit-cost-model",
-      "finance/upload-bom-rollup-export"
-    ],
-    "links": [
-      {
-        "a": "finance/drive-unit-cost-model-walkthrough",
-        "b": "finance/notion-unit-cost-model",
-        "rationale": "Both are about the unit cost model for Fold S1."
-      },
-      {
-        "a": "finance/linear-OPS-40-unit-cost-rollup",
-        "b": "finance/notion-unit-cost-model",
-        "rationale": "Both reference Fold S1 unit cost details and roll-ups."
-      }
-    ]
-  },
-  {
-    "space": "marketing",
-    "night": "2026-09-06",
-    "day": "2026-09-05",
-    "path": "dreams/marketing-2026-09-06.md",
-    "cited": [
-      "marketing/drive-segment-and-colourway-crosstab",
-      "marketing/notion-korea-japan-weighting",
-      "marketing/notion-press-briefing"
-    ],
-    "links": []
-  },
-  {
     "space": "company",
-    "night": "2026-09-07",
-    "day": "2026-09-06",
-    "path": "dreams/company-2026-09-07.md",
-    "cited": [
-      "company/drive-packaging-and-accessories-note"
-    ],
+    "night": "2026-09-22",
+    "day": "2026-09-21",
+    "path": "dreams/company-2026-09-22.md",
+    "cited": ["company/drive-launch-week-briefing-notes"],
     "links": []
   },
   {
     "space": "engineering",
-    "night": "2026-09-07",
-    "day": "2026-09-06",
-    "path": "dreams/engineering-2026-09-07.md",
+    "night": "2026-09-22",
+    "day": "2026-09-21",
+    "path": "dreams/engineering-2026-09-22.md",
     "cited": [
-      "engineering/linear-ENG-230-thermal-four-pane-video",
-      "engineering/notion-meniscus-c-incoming-inspection"
-    ],
-    "links": []
-  },
-  {
-    "space": "finance",
-    "night": "2026-09-07",
-    "day": "2026-09-06",
-    "path": "dreams/finance-2026-09-07.md",
-    "cited": [
-      "finance/notion-board-pack-notes",
-      "finance/notion-tier-two-inventory-split"
-    ],
-    "links": []
-  },
-  {
-    "space": "marketing",
-    "night": "2026-09-07",
-    "day": "2026-09-06",
-    "path": "dreams/marketing-2026-09-07.md",
-    "cited": [
-      "marketing/notion-field-segment-durability-claims",
-      "marketing/notion-messaging-faq"
-    ],
-    "links": []
-  },
-  {
-    "space": "company",
-    "night": "2026-09-08",
-    "day": "2026-09-07",
-    "path": "dreams/company-2026-09-08.md",
-    "cited": [
-      "company/drive-board-update-september-markets"
-    ],
-    "links": []
-  },
-  {
-    "space": "engineering",
-    "night": "2026-09-08",
-    "day": "2026-09-07",
-    "path": "dreams/engineering-2026-09-08.md",
-    "cited": [
-      "engineering/drive-thermal-analysis-desk-mode",
-      "engineering/linear-ENG-259-carrier-lab-checklist",
-      "engineering/linear-HW-95-hinge2-torque-drift",
-      "engineering/linear-ORI-31-scroll-position-lost",
-      "engineering/notion-firmware-release-checklist"
+      "engineering/linear-ENG-410-audit-retention",
+      "engineering/linear-SEC-214-partner-scopes",
+      "engineering/drive-partner-api-security-review",
+      "engineering/drive-eu-region-load-test"
     ],
     "links": [
       {
-        "a": "engineering/linear-ENG-259-carrier-lab-checklist",
-        "b": "engineering/notion-firmware-release-checklist",
-        "rationale": "Both documents are checklists related to engineering or testing procedures."
-      }
-    ]
-  },
-  {
-    "space": "finance",
-    "night": "2026-09-08",
-    "day": "2026-09-07",
-    "path": "dreams/finance-2026-09-08.md",
-    "cited": [
-      "finance/drive-board-financials-commentary",
-      "finance/linear-OPS-43-tooling-amortisation"
-    ],
-    "links": []
-  },
-  {
-    "space": "marketing",
-    "night": "2026-09-08",
-    "day": "2026-09-07",
-    "path": "dreams/marketing-2026-09-08.md",
-    "cited": [
-      "marketing/linear-GTM-15-outer-layer-messaging",
-      "marketing/notion-demo-script",
-      "marketing/notion-launch-plan",
-      "marketing/notion-retail-display-units"
-    ],
-    "links": [
-      {
-        "a": "marketing/notion-demo-script",
-        "b": "marketing/notion-launch-plan",
-        "rationale": "Both documents are related to launching a product or feature, indicating they concern the same initiative or process."
-      }
-    ]
-  },
-  {
-    "space": "company",
-    "night": "2026-09-09",
-    "day": "2026-09-08",
-    "path": "dreams/company-2026-09-09.md",
-    "cited": [
-      "company/linear-OPS-58-allhands-time",
-      "company/notion-accessory-lineup",
-      "company/notion-all-hands-2026-09-08",
-      "company/notion-glossary"
-    ],
-    "links": [
-      {
-        "a": "company/linear-OPS-58-allhands-time",
-        "b": "company/notion-all-hands-2026-09-08",
-        "rationale": "Both documents concern scheduling details for company all hands meetings."
-      }
-    ]
-  },
-  {
-    "space": "engineering",
-    "night": "2026-09-09",
-    "day": "2026-09-08",
-    "path": "dreams/engineering-2026-09-09.md",
-    "cited": [
-      "engineering/linear-ENG-218-meniscus-c-haze",
-      "engineering/linear-ENG-250-fcc-part15-prescan",
-      "engineering/linear-HW-134-yield-binning-hinge-torque",
-      "engineering/linear-HW-138-meniscus-second-source",
-      "engineering/linear-ORI-19-fold-drops-frames",
-      "engineering/linear-ORI-38-continuity-spec"
-    ],
-    "links": [
-      {
-        "a": "engineering/linear-ENG-218-meniscus-c-haze",
-        "b": "engineering/linear-HW-138-meniscus-second-source",
-        "rationale": "Both documents reference 'Meniscus-C,' suggesting they are related to the same material or product series."
-      },
-      {
-        "a": "engineering/linear-ENG-250-fcc-part15-prescan",
-        "b": "engineering/linear-ORI-19-fold-drops-frames",
-        "rationale": "Both mention 'fold states,' indicating a focus on changes or conditions during device folding or operation."
-      }
-    ]
-  },
-  {
-    "space": "finance",
-    "night": "2026-09-09",
-    "day": "2026-09-08",
-    "path": "dreams/finance-2026-09-09.md",
-    "cited": [
-      "finance/slack-supply-chain-2026-09-08-pilot-po",
-      "finance/upload-colourway-cost-delta-sheet"
-    ],
-    "links": []
-  },
-  {
-    "space": "marketing",
-    "night": "2026-09-09",
-    "day": "2026-09-08",
-    "path": "dreams/marketing-2026-09-09.md",
-    "cited": [
-      "marketing/drive-tier-one-readiness-memo",
-      "marketing/linear-GTM-18-hero-unit",
-      "marketing/linear-GTM-9-carrier-comms-plan",
-      "marketing/notion-naming-review",
-      "marketing/slack-gtm-2026-09-08-packaging-print-slot",
-      "marketing/upload-carrier-alder-sell-in-sheet"
-    ],
-    "links": [
-      {
-        "a": "marketing/linear-GTM-9-carrier-comms-plan",
-        "b": "marketing/upload-carrier-alder-sell-in-sheet",
-        "rationale": "Both documents discuss coordination or materials related to carriers, implying they're about carrier partnerships or communications."
-      }
-    ]
-  },
-  {
-    "space": "company",
-    "night": "2026-09-10",
-    "day": "2026-09-09",
-    "path": "dreams/company-2026-09-10.md",
-    "cited": [
-      "company/drive-colourway-decision-note",
-      "company/linear-OPS-55-shenzhen-travel",
-      "company/notion-first-quarter-build-plan",
-      "company/notion-launch-market-summary",
-      "company/slack-general-2026-09-09-cert-lab-slot"
-    ],
-    "links": []
-  },
-  {
-    "space": "engineering",
-    "night": "2026-09-10",
-    "day": "2026-09-09",
-    "path": "dreams/engineering-2026-09-10.md",
-    "cited": [
-      "engineering/linear-HW-130-pilot-line-drawing-package",
-      "engineering/linear-HW-142-folio-case-hinge-clearance",
-      "engineering/slack-firmware-2026-09-09-ori-rc2",
-      "engineering/slack-hardware-2026-09-09-desk-stand-magnet",
-      "engineering/upload-accessory-drop-test-report",
-      "engineering/upload-finish-gloss-panel-results",
-      "engineering/upload-test-house-readiness-checklist"
-    ],
-    "links": [
-      {
-        "a": "engineering/slack-firmware-2026-09-09-ori-rc2",
-        "b": "engineering/slack-hardware-2026-09-09-desk-stand-magnet",
-        "rationale": "Both documents are dated 9 September 2026 and use hashtags referencing different functional areas, suggesting they report on status or updates for the same project timeline."
-      }
-    ]
-  },
-  {
-    "space": "finance",
-    "night": "2026-09-10",
-    "day": "2026-09-09",
-    "path": "dreams/finance-2026-09-10.md",
-    "cited": [
-      "finance/drive-forecast-revenue-model",
-      "finance/linear-OPS-47-supplier-payment-terms",
-      "finance/linear-OPS-74-suwon-colour-run-slots",
-      "finance/notion-demand-to-tooling-plan",
-      "finance/slack-finance-2026-09-09-four-colours-cost",
-      "finance/upload-supplier-quote-scan-outer-layer",
-      "finance/upload-suwon-colour-run-quote"
-    ],
-    "links": [
-      {
-        "a": "finance/upload-supplier-quote-scan-outer-layer",
-        "b": "finance/linear-OPS-47-supplier-payment-terms",
-        "rationale": "Both documents discuss aspects related to the outer layer supplier, with one about payment and buffer stock, and the other about a supplier quote for the outer layer."
-      },
-      {
-        "a": "finance/upload-suwon-colour-run-quote",
-        "b": "finance/linear-OPS-74-suwon-colour-run-slots",
-        "rationale": "Both documents concern the Suwon colour run, with one about booking slots and the other about a quote for that activity."
+        "a": "engineering/linear-SEC-214-partner-scopes",
+        "b": "engineering/drive-partner-api-security-review",
+        "rationale": "Both record the open Partner API scope review."
       }
     ]
   },
   {
     "space": "marketing",
-    "night": "2026-09-10",
-    "day": "2026-09-09",
-    "path": "dreams/marketing-2026-09-10.md",
+    "night": "2026-09-22",
+    "day": "2026-09-21",
+    "path": "dreams/marketing-2026-09-22.md",
     "cited": [
-      "marketing/drive-regional-demand-model",
-      "marketing/linear-GTM-12-embargo-briefings",
-      "marketing/linear-GTM-27-packaging-art-deadline",
-      "marketing/linear-GTM-29-carrier-sell-in-commitments",
-      "marketing/linear-GTM-31-lock-colourway-names",
-      "marketing/linear-GTM-33-creator-desk-state-video",
-      "marketing/notion-colourway-names-and-copy",
-      "marketing/notion-positioning-by-segment",
-      "marketing/slack-design-2026-09-09-commuter-hero-shot",
-      "marketing/slack-design-2026-09-09-packaging",
-      "marketing/slack-gtm-2026-09-09-ink-or-moss-leads",
-      "marketing/upload-carrier-birch-sell-in-sheet",
-      "marketing/upload-panel-research-segment-tables"
+      "marketing/linear-GTM-62-shared-inbox-import",
+      "marketing/drive-usage-alerts-send-check"
     ],
-    "links": [
-      {
-        "a": "marketing/slack-design-2026-09-09-commuter-hero-shot",
-        "b": "marketing/slack-design-2026-09-09-packaging",
-        "rationale": "Both documents are labeled '#design — 9 September 2026', suggesting they are records of the same meeting or design review."
-      },
-      {
-        "a": "marketing/linear-GTM-27-packaging-art-deadline",
-        "b": "marketing/linear-GTM-31-lock-colourway-names",
-        "rationale": "Both documents refer to locking or signing off on the four colourway names before the packaging art is released, indicating they address the packaging release process dependent on colourway name approval."
-      }
-    ]
+    "links": []
+  },
+  {
+    "space": "finance",
+    "night": "2026-09-22",
+    "day": "2026-09-21",
+    "path": "dreams/finance-2026-09-22.md",
+    "cited": ["finance/linear-FIN-81-billing-reconciliation"],
+    "links": []
   }
 ]

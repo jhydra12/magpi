@@ -52,9 +52,9 @@ Deno.test('every account email goes to the address it is about', () => {
 
   const cases = [
     ['signup', 'Confirm your email address'],
-    ['recovery', 'Reset your Magpi password'],
-    ['magiclink', 'Your Magpi sign-in link'],
-    ['reauthentication', 'Your Magpi confirmation code'],
+    ['recovery', 'Reset your Digital Brain password'],
+    ['magiclink', 'Your Digital Brain sign-in link'],
+    ['reauthentication', 'Your Digital Brain confirmation code'],
   ] as const;
 
   for (const [action, subject] of cases) {

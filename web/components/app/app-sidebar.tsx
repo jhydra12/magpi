@@ -60,7 +60,7 @@ function SidebarBody({ email, canAdminister }: { email: string | null; canAdmini
           className="flex min-w-0 items-center gap-2.5 font-heading text-[15px] tracking-tight text-foreground"
         >
           <MagpieMark size={22} />
-          Magpi
+          Digital Brain
         </Link>
         <div className="shrink-0">
           <ThemeToggle />
@@ -121,7 +121,7 @@ function MobileChrome({ email, canAdminister }: { email: string | null; canAdmin
         className="flex items-center gap-2.5 font-heading text-[15px] tracking-tight text-foreground"
       >
         <MagpieMark size={22} />
-        Magpi
+        Digital Brain
       </Link>
 
       {open ? (

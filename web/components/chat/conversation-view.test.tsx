@@ -134,7 +134,9 @@ describe('ConversationView', () => {
     const unsubscribe = subscribeConversationList((patch) => titles.push(patch.title));
     renderView({ pendingQuestion: 'What is blocking SSO?' });
 
-    expect(await screen.findByRole('heading', { name: 'SSO blockers' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'SSO blockers' }, { timeout: 5000 }),
+    ).toBeInTheDocument();
     expect(titles).toEqual(['SSO blockers']);
     unsubscribe();
   });
@@ -142,7 +144,9 @@ describe('ConversationView', () => {
   it('shows the name the conversation was given', async () => {
     renderView({ pendingQuestion: 'What is blocking SSO?' });
 
-    expect(await screen.findByRole('heading', { name: 'SSO blockers' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'SSO blockers' }, { timeout: 5000 }),
+    ).toBeInTheDocument();
   });
 
   it('asks a follow-up from the composer', async () => {

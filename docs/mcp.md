@@ -1,6 +1,6 @@
 # MCP server
 
-Magpi's MCP server is one Edge Function at `supabase/functions/mcp-server/`,
+Digital Brain's MCP server is one Edge Function at `supabase/functions/mcp-server/`,
 built on what Supabase ships for this: `withOAuthProtectedResource` and
 `withSupabase` from `@supabase/server`, and `@modelcontextprotocol/server` 2.x
 for the protocol itself. The five tools are hand-written, one file each, under
@@ -13,7 +13,7 @@ and a database client scoped to whoever sent it.
 
 **The product's own session.** A backend that already has a signed-in user
 forwards their access token. Nothing to approve, because the person is already
-signed in to Magpi.
+signed in to Digital Brain.
 
 **An external client, over OAuth.** Claude, or anything else with a Connect
 button, gets a 401 carrying `WWW-Authenticate: Bearer resource_metadata="…"`.
@@ -177,7 +177,7 @@ Output:
 ```
 
 `content` is the document's chunks concatenated in ordinal order, which is the
-text Magpi actually indexed rather than the original file bytes.
+text Digital Brain actually indexed rather than the original file bytes.
 
 **RLS path.** A select on `documents` under `documents_select_visible`, then a
 select on `chunks` ordered by `ordinal` under `chunks_select_visible`. Both
@@ -298,9 +298,9 @@ hole in every plan limit.
 ## Where this came from
 
 The Supabase Library block `mcp-server` is the skeleton, and `oauth-consent`
-is the shape of the consent screen, rewritten in Magpi's own design rather than
+is the shape of the consent screen, rewritten in Digital Brain's own design rather than
 installed. Tool generation from the PostgREST schema, which is the other half of
-that launch, is deliberately not used: Magpi's five tools are curated, and a
+that launch, is deliberately not used: Digital Brain's five tools are curated, and a
 generated set would offer `create_chunks` and `delete_documents` to anything
 that connected.
 

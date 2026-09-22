@@ -1,6 +1,6 @@
 # Retrieval
 
-How Magpi finds the chunks that answer a question, and what its recall actually
+How Digital Brain finds the chunks that answer a question, and what its recall actually
 is once a permission filter is applied.
 
 ## The design
@@ -90,8 +90,9 @@ A dream digest is a summary of the documents a question is about, so it scores
 well on both arms for that question. After a week of nightly digests, or an
 afternoon of rehearsal runs, a budget of twelve passages can fill with summaries
 that mention the topic and leave out the source that states the fact. This is
-what happened with the Fold S1 launch date on 18 September 2026: ten of twelve
-passages were digests, none of which carried the date the GTM-7 ticket locks.
+the failure this cap prevents: a question about the Partner API date could
+retrieve several digests while missing the calendar page that names Wednesday
+28 October.
 
 So after fusion, `search` joins each candidate to its document and keeps at most
 `greatest(1, match_count / 4)` chunks whose document has `origin = 'dream'`,
@@ -325,7 +326,7 @@ trivial cast above it.
 What remains to be measured is the cost, not the correctness. The table
 below is where that measurement goes.
 
-## Magpi measurement
+## Digital Brain measurement
 
 Every value here is `not measured` as of 2026-09-09. Filter selectivity is the
 fraction of chunks in the corpus that the querying user can see, which is the

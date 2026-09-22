@@ -21,7 +21,7 @@ export function AuthShell({
         className="flex items-center gap-2.5 font-heading text-lg tracking-tight text-foreground"
       >
         <MagpieMark size={26} />
-        Magpi
+        Digital Brain
       </Link>
 
       <div className="w-full max-w-sm">

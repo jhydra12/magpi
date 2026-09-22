@@ -29,7 +29,7 @@ it('resets dreams independently and disables both reset buttons during the reque
   await act(async () => {
     finish({ status: 'success', data: undefined });
   });
-  expect(screen.getByRole('status')).toHaveTextContent('Dreams reset. Ready to dream again.');
+  expect(screen.getByRole('status')).toHaveTextContent('Dreams reset. Ready to process again.');
   expect(resetStep).not.toHaveBeenCalled();
 });
 
@@ -80,6 +80,7 @@ it('waits for each real stage and shows a dismissable toast only after all succe
     'compute',
     'data',
     'freshen',
+    'seed',
     'edge',
   ]);
   expect(rows.every((row) => row.textContent?.includes('Complete'))).toBe(true);
@@ -116,6 +117,7 @@ it('stops on failure and retries the entire sequence without a false success toa
     'compute',
     'data',
     'freshen',
+    'seed',
     'edge',
   ]);
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();

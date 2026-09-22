@@ -7,7 +7,7 @@ export type DreamKind = Enums<'dream_kind'>;
 
 /** The one sentence that defines the word, shown the first time it appears on any screen. */
 export const DREAM_DEFINITION =
-  'Dreaming is overnight processing: once a night, per space, Magpi re-reads what came in that day, extracts entities, links documents about the same thing, and writes a digest back into the space.';
+  'Dreaming is overnight processing: once a night, per space, Digital Brain re-reads what came in that day, extracts entities, links documents about the same thing, and writes a digest back into the space.';
 
 /** The stages a dream job moves through, which the worker records as a prefix on `error`. */
 export const DREAM_STAGES = ['collect', 'extract', 'embed', 'synthesize', 'write'] as const;

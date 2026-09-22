@@ -31,8 +31,8 @@ Deno.test('a name never runs across a line break', () => {
 
 Deno.test('two ordinary capitalised words are a person, a part number is not', () => {
   assertEquals(kindOf('Jane Okonkwo', 'Jane Okonkwo reviewed it.'), 'person');
-  assertEquals(kindOf('Fold S1', 'The Fold S1 launch slipped a week.'), 'project');
-  assertEquals(kindOf('Meniscus Labs', 'Meniscus Labs is the account we renewed.'), 'customer');
+  assertEquals(kindOf('EU Region', 'The EU Region launch slipped a week.'), 'project');
+  assertEquals(kindOf('Example Labs', 'Example Labs is the account we renewed.'), 'customer');
 });
 
 Deno.test('a lifted sentence keeps its shape and loses its markup', () => {

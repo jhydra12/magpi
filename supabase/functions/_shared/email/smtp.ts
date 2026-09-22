@@ -55,7 +55,7 @@ export function buildMessage(message: Message): string {
   return `${headers.join('\r\n')}\r\n\r\n${dotStuff(message.html)}`;
 }
 
-/** `Magpi <no-reply@magpi.test>` is for a person to read; the envelope wants the address alone. */
+/** `Digital Brain <no-reply@digitalbrain.test>` is for a person to read; the envelope wants the address alone. */
 export function addressOf(value: string): string {
   return /<([^>]+)>/.exec(value)?.[1] ?? value.trim();
 }

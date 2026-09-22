@@ -97,7 +97,7 @@ Deno.test('a code exchange returns the token set and the account label', async (
     refresh_token: 'rt_1',
     expires_in: 3600,
     scope: 'read write',
-    workspace_name: 'Magpi HQ',
+    workspace_name: 'Digital Brain HQ',
   });
   const tokens = await oauthDriverFor(record('notion'), deps).exchangeCode({
     clientId: 'id',
@@ -110,7 +110,7 @@ Deno.test('a code exchange returns the token set and the account label', async (
   assertEquals(tokens.accessToken, 'at_1');
   assertEquals(tokens.refreshToken, 'rt_1');
   assertEquals(tokens.scopes, ['read', 'write']);
-  assertEquals(tokens.externalAccountId, 'Magpi HQ');
+  assertEquals(tokens.externalAccountId, 'Digital Brain HQ');
   assert(tokens.expiresAt !== null);
 });
 
@@ -131,7 +131,7 @@ Deno.test('slack lifts the user token out of authed_user', async () => {
   const deps = answering({
     ok: true,
     access_token: 'bot-token',
-    team: { name: 'Magpi' },
+    team: { name: 'Digital Brain' },
     authed_user: { access_token: 'user-token', scope: 'search:read' },
   });
   const tokens = await oauthDriverFor(record('slack'), deps).exchangeCode({
@@ -142,7 +142,7 @@ Deno.test('slack lifts the user token out of authed_user', async () => {
     codeVerifier: 'verifier',
   });
   assertEquals(tokens.accessToken, 'user-token');
-  assertEquals(tokens.externalAccountId, 'Magpi');
+  assertEquals(tokens.externalAccountId, 'Digital Brain');
 });
 
 Deno.test('a provider signalling failure with a 200 and an error field still fails', async () => {
