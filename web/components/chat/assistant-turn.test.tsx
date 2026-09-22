@@ -48,6 +48,7 @@ describe('AssistantTurn', () => {
 
     expect(screen.getByRole('link', { name: /Q3 platform notes/ })).toBeInTheDocument();
     expect(screen.queryByText('Never cited')).not.toBeInTheDocument();
+    expect(screen.queryByText('The SSO rollout is blocked on ENG-4417.')).not.toBeInTheDocument();
   });
 
   it('keeps the answer readable when its source is out of reach', () => {

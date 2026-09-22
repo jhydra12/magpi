@@ -9,6 +9,7 @@ import type { Tables } from '@/lib/database.types';
 import { cn } from '@/lib/utils';
 
 import { ConversationMenu } from './conversation-menu';
+import { LiveTitle } from './live-title';
 
 export type SidebarConversation = Pick<Tables<'conversations'>, 'id' | 'title' | 'folder_id'>;
 
@@ -53,7 +54,7 @@ export function ConversationList({ conversations, folders, onChanged }: Conversa
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
-              {title}
+              <LiveTitle text={title} />
             </Link>
             <ConversationMenu
               conversationId={conversation.id}

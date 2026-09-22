@@ -1,9 +1,10 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ConversationFolder } from '@/hooks/use-conversation-folders';
 import type { ActionState } from '@/lib/actions/state';
+import { publishConversation } from '@/lib/chat/history-sync';
 
 const CONVERSATION_ID = '44444444-4444-4444-8444-444444444444';
 const FOLDER_ID = '55555555-5555-4555-8555-555555555555';
@@ -148,6 +149,21 @@ describe('HistorySidebar', () => {
       'aria-current',
       'page',
     );
+  });
+
+  it('adds a conversation as it is opened, then renames it without reading the list again', () => {
+    query.data = [];
+    render(<HistorySidebar />);
+
+    act(() => publishConversation({ id: CONVERSATION_ID, title: null, folderId: null }));
+
+    expect(screen.getByRole('link', { name: 'Untitled conversation' })).toBeInTheDocument();
+    expect(screen.queryByText('Nothing asked yet.')).toBeNull();
+
+    act(() => publishConversation({ id: CONVERSATION_ID, title: 'Duo launch' }));
+
+    expect(screen.getByRole('link', { name: 'Duo launch' })).toBeInTheDocument();
+    expect(queryKeys.every((key) => key === 0)).toBe(true);
   });
 
   it('names a conversation that never got a title', () => {

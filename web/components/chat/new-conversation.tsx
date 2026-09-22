@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { createConversationAction } from '@/app/(app)/chat/actions';
+import { publishConversation } from '@/lib/chat/history-sync';
 
 import { Composer } from './composer';
 import { SpaceFilter, type SpaceOption } from './space-filter';
@@ -33,6 +34,7 @@ export function NewConversation({ spaces }: NewConversationProps) {
       return;
     }
 
+    publishConversation({ id: state.data, title: null, folderId: null });
     router.push(`/chat/${state.data}?ask=${encodeURIComponent(question)}`);
   }
 
