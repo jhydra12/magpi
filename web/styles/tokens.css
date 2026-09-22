@@ -57,6 +57,9 @@
   /* One shell width for every row of the site, header and footer included. */
   --measure-shell: 72rem;
 
+  /* Authenticated app sidebar. Icon, label and selected state, then the content pane. */
+  --measure-sidebar: 16.5rem;
+
   /* Copied unchanged from the compat layer, which computes this value rather than aliasing it. */
   --border-stronger: oklch(
     from var(--foreground) l calc(c * 0.5) h / calc(5% + 45% * var(--contrast-border))

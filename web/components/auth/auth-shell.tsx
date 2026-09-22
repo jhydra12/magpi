@@ -15,19 +15,21 @@ export function AuthShell({
   footer?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-svh w-full flex-col items-center justify-center gap-8 p-6">
+    <div className="flex min-h-svh w-full flex-col items-center justify-center gap-10 p-6">
       <Link
         href="/"
         className="flex items-center gap-2.5 font-heading text-lg tracking-tight text-foreground"
       >
-        <MagpieMark size={28} />
+        <MagpieMark size={26} />
         Magpi
       </Link>
 
-      <div className="w-full max-w-sm rounded-[var(--radius-panel)] border border-border bg-card p-6">
-        <h1 className="font-heading text-lg leading-tight font-medium text-foreground">{title}</h1>
+      <div className="w-full max-w-sm">
+        <h1 className="font-heading text-xl leading-tight font-medium tracking-tight text-foreground">
+          {title}
+        </h1>
         {description ? (
-          <p className="mt-1 text-sm text-tertiary-foreground">{description}</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-tertiary-foreground">{description}</p>
         ) : null}
         <div className="mt-6">{children}</div>
       </div>

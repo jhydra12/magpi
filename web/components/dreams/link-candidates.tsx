@@ -45,7 +45,7 @@ function Candidate({
   };
 
   return (
-    <li className="flex flex-wrap items-start justify-between gap-4 px-4 py-3">
+    <li className="flex flex-wrap items-start justify-between gap-4 py-3">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <DocumentLine document={candidate.documentA} />
@@ -111,7 +111,7 @@ export function LinkCandidates({
   }
 
   return (
-    <ul className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
+    <ul className="divide-y divide-border">
       {candidates.map((candidate) => (
         <Candidate
           key={candidate.id}

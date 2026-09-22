@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { FolderPlus } from 'lucide-react';
 import { useState, useTransition } from 'react';
 
 import { createFolderAction } from '@/app/(app)/chat/actions';
@@ -35,9 +35,15 @@ export function NewFolderButton({ onCreated }: NewFolderButtonProps) {
 
   return (
     <>
-      <Button variant="ghost" size="sm" className="self-start" onClick={open}>
-        <Plus />
-        New folder
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label="New folder"
+        className="size-7 text-tertiary-foreground hover:text-foreground"
+        onClick={open}
+      >
+        <FolderPlus />
       </Button>
 
       <FolderFormDialog

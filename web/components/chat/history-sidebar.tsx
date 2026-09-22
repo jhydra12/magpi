@@ -29,57 +29,58 @@ export function HistorySidebar() {
     trailingQueryKey: reloadKey,
   });
 
-  // Hooks run before the early returns below, because a loading rail still has to be a rail.
+  // The folder control stays on the rail while the list is loading or failed.
   const { isOver, dropProps } = useFolderDrop(null, refresh);
 
-  if (isLoading) return <SidebarNote>Loading your conversations...</SidebarNote>;
-  if (error) return <SidebarNote>Your conversations could not be loaded.</SidebarNote>;
-
   const { sections, unfiled } = groupByFolder(data, folders);
+  const ready = !isLoading && !error;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2">
-      {/* Everything scrolls except the button, which stays where it can always be reached. */}
-      <div
-        // Named because it is also the drop target for taking a chat out of a folder.
-        aria-label="Conversations"
-        {...dropProps}
-        className={cn(
-          'flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-[var(--radius-panel)] transition-colors motion-reduce:transition-none',
-          isOver && 'bg-muted',
-        )}
-      >
-        {folderError ? <SidebarNote>Your folders could not be loaded.</SidebarNote> : null}
-        {data.length === 0 && folders.length === 0 ? (
-          <SidebarNote>Nothing asked yet.</SidebarNote>
-        ) : null}
-
-        {sections.map((section) => (
-          <FolderSection
-            key={section.folder.id}
-            folder={section.folder}
-            folders={folders}
-            conversations={section.conversations}
-            onChanged={refresh}
-          />
-        ))}
-
-        <ConversationList conversations={unfiled} folders={folders} onChanged={refresh} />
-
-        {hasMore ? (
-          <button
-            type="button"
-            onClick={() => void fetchNextPage()}
-            className="self-start px-2 py-1 text-xs text-tertiary-foreground hover:text-foreground"
-          >
-            Show older
-          </button>
-        ) : null}
-      </div>
-
-      <div className="shrink-0 border-t border-border pt-2">
+    <div className="flex min-h-0 flex-1 flex-col gap-1">
+      <div className="flex h-7 shrink-0 items-center justify-between gap-1 px-2">
+        <p className="text-xs text-tertiary-foreground">Recent</p>
         <NewFolderButton onCreated={refresh} />
       </div>
+      {isLoading ? <SidebarNote>Loading your conversations...</SidebarNote> : null}
+      {error ? <SidebarNote>Your conversations could not be loaded.</SidebarNote> : null}
+      {ready ? (
+        <div
+          // Named because it is also the drop target for taking a chat out of a folder.
+          aria-label="Conversations"
+          {...dropProps}
+          className={cn(
+            'flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto rounded-[var(--radius-panel)] transition-colors motion-reduce:transition-none',
+            isOver && 'bg-muted',
+          )}
+        >
+          {folderError ? <SidebarNote>Your folders could not be loaded.</SidebarNote> : null}
+          {data.length === 0 && folders.length === 0 ? (
+            <SidebarNote>Nothing asked yet.</SidebarNote>
+          ) : null}
+
+          {sections.map((section) => (
+            <FolderSection
+              key={section.folder.id}
+              folder={section.folder}
+              folders={folders}
+              conversations={section.conversations}
+              onChanged={refresh}
+            />
+          ))}
+
+          <ConversationList conversations={unfiled} folders={folders} onChanged={refresh} />
+
+          {hasMore ? (
+            <button
+              type="button"
+              onClick={() => void fetchNextPage()}
+              className="self-start px-2 py-1 text-xs text-tertiary-foreground hover:text-foreground"
+            >
+              Show older
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -109,5 +110,5 @@ function groupByFolder(
 }
 
 function SidebarNote({ children }: { children: string }) {
-  return <p className="px-2 text-sm text-tertiary-foreground">{children}</p>;
+  return <p className="px-2 py-1.5 text-xs text-tertiary-foreground">{children}</p>;
 }

@@ -6,6 +6,21 @@
 @source '../components';
 @source '../lib';
 
+::selection {
+  background-color: var(--color-brand-400);
+  color: var(--color-foreground);
+}
+
+html {
+  scrollbar-color: var(--border) transparent;
+  scrollbar-width: thin;
+}
+
+textarea,
+input {
+  caret-color: var(--color-brand-600);
+}
+
 /* The hero magpie's paper fold opens and closes twice on load, then rests. */
 @keyframes magpie-wing-flap {
   0% {
@@ -57,5 +72,59 @@
   .magpie-wing,
   .magpie-underwing {
     animation: none;
+  }
+}
+
+@keyframes magpi-indeterminate {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(380%);
+  }
+}
+
+.magpi-indeterminate {
+  animation: magpi-indeterminate 1.2s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────
+ * STREAMING CARET
+ *    0ms  caret is solid
+ *  530ms  caret is gone
+ * 1060ms  repeats
+ * Reduced motion keeps a steady mark.
+ * ───────────────────────────────────────────────────────── */
+@keyframes magpi-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.magpi-caret {
+  animation: magpi-caret 1.06s steps(1, end) infinite;
+}
+
+/* The composer is a writing field. The insertion caret is the focus signal;
+   a ring around the box reads as the field being selected before you type. */
+.magpi-composer textarea:focus,
+.magpi-composer textarea:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magpi-indeterminate,
+  .magpi-caret {
+    animation: none;
+  }
+
+  .magpi-caret {
+    opacity: 1;
   }
 }

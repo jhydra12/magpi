@@ -38,6 +38,8 @@ Body copy caps at 65 to 75 characters per line. Body text hits 4.5:1 contrast mi
 
 Clean and plain. The Supabase cues carry the personality, so the layout does not have to. When a screen feels like it needs decoration, the information architecture is usually wrong.
 
+The authenticated app is a full-viewport workspace. A persistent sidebar carries section navigation; the content pane fills the rest. Chat uses the full pane height with a centered transcript. Marketing keeps the centered `--measure-shell` rows.
+
 Hierarchy runs page tabs first, subtabs outside cards, then peer content cards. Persistent navigation and filter controls live outside asynchronous content-state switches: a loading, empty or error state may replace the content below a tab strip, and must never move or remove the strip.
 
 Every screen designs its empty state, its loading state and its error state. A knowledge base is empty on day one for every single user, so the empty state is the first thing most people see. It is a primary screen, not a fallback.

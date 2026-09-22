@@ -31,7 +31,7 @@ describe('Dream batch recording view', () => {
     expect(loadDreamsPage).not.toHaveBeenCalled();
     expect(screen.getByText('Dream batch')).toBeInTheDocument();
     expect(screen.queryByText('Spaces in your organization')).not.toBeInTheDocument();
-    expect(screen.queryByText('Dream log')).not.toBeInTheDocument();
+    expect(screen.queryByText('No dreams yet')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'All Dream activity' })).toHaveAttribute(
       'href',
       '/dreams',
@@ -48,9 +48,9 @@ describe('Dream batch recording view', () => {
     expect(loadDreamSpaces).toHaveBeenCalledWith(context);
     expect(loadDreamsPage).not.toHaveBeenCalled();
     expect(screen.getByText('Spaces in your organization')).toBeInTheDocument();
-    expect(screen.queryByText('Dream log')).not.toBeInTheDocument();
+    expect(screen.queryByText('No dreams yet')).not.toBeInTheDocument();
     render(await DreamLogPage());
     expect(loadDreamsPage).toHaveBeenCalledWith(context);
-    expect(screen.getByText('Dream log')).toBeInTheDocument();
+    expect(screen.getByText('No dreams yet')).toBeInTheDocument();
   });
 });

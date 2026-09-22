@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -121,14 +122,17 @@ export function EntityGraphLive({
     <>
       {failure ? <p role="alert">{failure}</p> : null}
       {groups.length === 0 && !graphActive ? (
-        <EmptyState title="No entities yet" />
+        <div className="flex min-h-64 items-start">
+          <EmptyState title="No entities yet" />
+        </div>
       ) : (
         <>
           <EntityGraph groups={groups} active={graphActive} />
           {groups.length > 0 ? (
             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center gap-2 py-4 text-sm text-muted-foreground [&::-webkit-details-marker]:hidden">
-                <span className="transition-transform group-open:rotate-90">›</span>Detail
+              <summary className="flex cursor-pointer list-none items-center gap-1.5 py-3 text-sm text-muted-foreground [&::-webkit-details-marker]:hidden">
+                <ChevronRight className="size-3.5 transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-open:rotate-90 motion-reduce:transition-none" />
+                Detail
               </summary>
               <EntityGroups groups={groups} />
             </details>

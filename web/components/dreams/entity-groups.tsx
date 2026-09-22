@@ -10,9 +10,9 @@ export function EntityGroups({ groups }: { groups: readonly EntityGroup[] }) {
         <section key={group.kind} className="flex flex-col gap-3">
           <h2 className="font-heading text-sm font-medium text-foreground">{group.label}</h2>
 
-          <ul className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
+          <ul className="divide-y divide-border">
             {group.entities.map((entity) => (
-              <li key={entity.id} aria-label={entity.name} className="px-4 py-3">
+              <li key={entity.id} aria-label={entity.name} className="py-3">
                 <p className="text-sm font-medium text-foreground">{entity.name}</p>
                 {entity.summary ? (
                   <p className="mt-0.5 max-w-[var(--measure-prose)] text-sm text-muted-foreground">

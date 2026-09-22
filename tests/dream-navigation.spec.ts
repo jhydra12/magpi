@@ -28,7 +28,7 @@ test('Dream submission leaves navigation responsive and Entities can be refreshe
     finishSubmission();
     await page.reload();
     await expect(page.getByText('No entities yet')).toBeVisible();
-    await page.getByRole('link', { name: 'Chat', exact: true }).click();
+    await page.getByRole('link', { name: 'New chat', exact: true }).click();
     await expect(page).toHaveURL(/\/chat$/);
   } finally {
     finishSubmission();

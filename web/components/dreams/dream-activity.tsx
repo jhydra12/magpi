@@ -44,7 +44,7 @@ export function DreamActivity({
             {Object.entries(totals).map(([label, value]) => (
               <div key={label}>
                 <dt className="text-xs text-muted-foreground capitalize">{label}</dt>
-                <dd className="font-mono text-xl tabular-nums">{value}</dd>
+                <dd className="font-heading text-lg font-medium tabular-nums">{value}</dd>
               </div>
             ))}
           </dl>
@@ -55,15 +55,17 @@ export function DreamActivity({
           <dl className="flex flex-wrap gap-6" aria-label="Batch measurements" aria-live="polite">
             <div>
               <dt className="text-xs text-muted-foreground">Remaining</dt>
-              <dd className="font-mono text-xl tabular-nums">{batch.remaining}</dd>
+              <dd className="font-heading text-lg font-medium tabular-nums">{batch.remaining}</dd>
             </div>
             <div>
               <dt className="text-xs text-muted-foreground">Batch elapsed</dt>
-              <dd className="font-mono text-xl tabular-nums">{elapsedLabel}</dd>
+              <dd className="font-heading text-lg font-medium tabular-nums">{elapsedLabel}</dd>
             </div>
             <div>
               <dt className="text-xs text-muted-foreground">Completed in last 30s</dt>
-              <dd className="font-mono text-xl tabular-nums">{batch.completedInLast30Seconds}</dd>
+              <dd className="font-heading text-lg font-medium tabular-nums">
+                {batch.completedInLast30Seconds}
+              </dd>
             </div>
           </dl>
           <p className="text-xs text-tertiary-foreground">
@@ -77,9 +79,9 @@ export function DreamActivity({
           {failure}
         </p>
       ) : null}
-      <ul className="max-h-80 divide-y divide-border overflow-y-auto rounded-[var(--radius-panel)] border border-border">
+      <ul className="max-h-80 divide-y divide-border overflow-y-auto">
         {snapshot.runs.map((run) => (
-          <li key={run.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+          <li key={run.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
             <div className="flex flex-col gap-1">
               <Link href={`/dreams/${run.id}`} className="text-sm text-brand-link hover:underline">
                 {describeDreamKind(run.kind).label} · {run.id.slice(0, 8)}

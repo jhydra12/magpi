@@ -111,7 +111,7 @@ test('production Entities route paints in both themes and allows navigation', as
         .toEqual({ visible: true, matches: true });
     }
     expect(errors).toEqual([]);
-    await page.getByRole('link', { name: 'Chat', exact: true }).click({ timeout: 2000 });
+    await page.getByRole('link', { name: 'New chat', exact: true }).click({ timeout: 2000 });
     await expect(page).toHaveURL(/\/chat$/);
   } finally {
     await deleteUser(user.userId);

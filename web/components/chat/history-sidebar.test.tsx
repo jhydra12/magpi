@@ -309,8 +309,7 @@ describe('filing a conversation by dragging it', () => {
 });
 
 describe('where the new folder button sits', () => {
-  // It is anchored below the list rather than scrolling away at the top of it, so it stays
-  // reachable however many conversations there are.
+  // It stays outside the scrolling list so it remains reachable however many conversations there are.
   it('sits outside the scrolling list, not inside it', () => {
     folderQuery.folders = [folder()];
     render(<HistorySidebar />);

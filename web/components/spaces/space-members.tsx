@@ -23,11 +23,11 @@ export function SpaceMembers({
         </p>
       ) : null}
 
-      <ul className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
+      <ul className="divide-y divide-border">
         {members.map((member) => (
           <li
             key={member.userId}
-            className="flex items-baseline justify-between gap-4 px-4 py-2.5 text-sm text-muted-foreground"
+            className="-mx-2 flex items-baseline justify-between gap-4 rounded-lg px-2 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted motion-reduce:transition-none"
           >
             <span className="font-mono text-xs">{member.userId.slice(0, 8)}</span>
             <time className="text-xs text-tertiary-foreground" dateTime={member.joinedAt}>

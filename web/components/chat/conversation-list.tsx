@@ -47,10 +47,10 @@ export function ConversationList({ conversations, folders, onChanged }: Conversa
               href={href}
               aria-current={isOpen ? 'page' : undefined}
               className={cn(
-                'min-w-0 flex-1 truncate rounded-[var(--radius-panel)] px-2 py-1.5 text-sm transition-colors motion-reduce:transition-none',
+                'min-w-0 flex-1 truncate rounded-lg px-2.5 py-1 text-sm transition-colors motion-reduce:transition-none',
                 isOpen
                   ? 'bg-muted text-foreground'
-                  : 'text-muted-foreground hover:bg-card hover:text-foreground',
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
               {title}

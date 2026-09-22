@@ -55,11 +55,14 @@ export function SpaceDreamProgress({
   const hasFailed = run.status === 'failed' || run.status === 'timeout';
   const label = tasks && tasks.total > 1 ? tasks.label : isComplete ? 'Completed' : status.label;
   const percent = isComplete ? 100 : tasks ? Math.floor((tasks.completed / tasks.total) * 100) : 0;
+  const indeterminate = isActive && percent === 0;
 
   return (
     <div className="flex min-w-40 flex-1 flex-col gap-1.5">
       <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-        <span role="status">{label}</span>
+        <span role="status" className={isActive ? 'shimmer shimmer-duration-1400' : undefined}>
+          {label}
+        </span>
         <div className="flex items-center gap-3">
           {isComplete && run.output_document_id ? (
             <Link href={`/dreams/${run.id}`} className="text-brand-link hover:underline">
@@ -71,25 +74,51 @@ export function SpaceDreamProgress({
           </span>
         </div>
       </div>
-      <div
-        role="progressbar"
-        aria-label={`${spaceName} dreaming progress`}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={percent}
-        aria-valuetext={label}
-        className="relative h-1.5 overflow-hidden rounded-full bg-muted"
-      >
-        <div
-          className="h-full bg-brand-600 transition-[width] duration-300 motion-reduce:transition-none"
-          style={{ width: `${percent}%` }}
-        />
-      </div>
+      <DreamProgressTrack
+        spaceName={spaceName}
+        label={label}
+        percent={percent}
+        indeterminate={indeterminate}
+      />
       {hasFailed ? (
         <p role="alert" className="text-xs text-destructive-600">
           {status.detail}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/** A thin track. An empty waiting bar still moves, so the row does not look stuck. */
+export function DreamProgressTrack({
+  spaceName,
+  label,
+  percent,
+  indeterminate = false,
+}: {
+  spaceName: string;
+  label: string;
+  percent: number;
+  indeterminate?: boolean;
+}) {
+  return (
+    <div
+      role="progressbar"
+      aria-label={`${spaceName} dreaming progress`}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={indeterminate ? 0 : percent}
+      aria-valuetext={label}
+      className="relative h-1.5 overflow-hidden rounded-full bg-muted"
+    >
+      {indeterminate ? (
+        <span className="magpi-indeterminate absolute inset-y-0 left-0 w-1/3 rounded-full bg-brand-600 motion-reduce:inset-0 motion-reduce:w-full motion-reduce:animate-pulse" />
+      ) : (
+        <span
+          className="block h-full w-full origin-left bg-brand-600 transition-transform duration-300 ease-out motion-reduce:transition-none"
+          style={{ transform: `scaleX(${percent / 100})` }}
+        />
+      )}
     </div>
   );
 }

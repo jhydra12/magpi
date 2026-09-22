@@ -2,13 +2,30 @@
 
 import ForceGraph3D from 'react-force-graph-3d';
 import type { ForceGraphMethods } from 'react-force-graph-3d';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import type { EntityGroup } from '@/lib/dreams/entities';
 
 import { readGraphColors } from './graph-colors';
+import {
+  buildGraph,
+  retainGraphPositions,
+  type GraphData,
+  type GraphNode,
+  type GraphLink,
+} from './graph-data';
+import {
+  GRAPH_SCENE,
+  frameGraph,
+  neighborhood,
+  paintLink,
+  paintNode,
+  showLink,
+  showNode,
+  tuneGraph,
+} from './graph-scene';
 
-import { buildGraph, retainGraphPositions, type GraphNode, type GraphLink } from './graph-data';
+const EMPTY_GRAPH: GraphData = { nodes: [], links: [] };
 
 export default function EntityGraphCanvas({
   groups,
@@ -27,8 +44,11 @@ export default function EntityGraphCanvas({
   const [hoveredLink, setHoveredLink] = useState<GraphLink | null>(null);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const detailNode = hoveredNode ?? selectedNode;
+  const focus = neighborhood(graph.links, detailNode?.id ?? null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasFittedInitialGraph = useRef(false);
+  const [prepared, setPrepared] = useState(false);
+  const [fitted, setFitted] = useState(false);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [colors, setColors] = useState<ReturnType<typeof readGraphColors> | null>(null);
   const entities = graph.nodes.filter((node) => node.kind === 'entity');
@@ -52,9 +72,6 @@ export default function EntityGraphCanvas({
     setSelectedNode(node);
     setHoveredNode(null);
     setHoveredLink(null);
-    if (typeof node.x === 'number' && typeof node.y === 'number' && typeof node.z === 'number') {
-      graphRef.current?.zoomToFit(700, 120, (candidate) => candidate.id === node.id);
-    }
   };
 
   useEffect(() => {
@@ -76,18 +93,23 @@ export default function EntityGraphCanvas({
     };
   }, []);
 
+  useLayoutEffect(() => {
+    const instance = graphRef.current;
+    if (!instance || prepared) return;
+    tuneGraph(instance);
+    setPrepared(true);
+  }, [prepared, colors, size.width, size.height]);
+
   useEffect(() => {
-    if (size.width === 0 || size.height === 0) return;
-    const frame = requestAnimationFrame(() => graphRef.current?.zoomToFit(350, 48));
-    return () => cancelAnimationFrame(frame);
-  }, [size.width, size.height]);
+    if (!fitted || !colors || size.width === 0 || size.height === 0) return;
+    const instance = graphRef.current;
+    if (!instance) return;
+    frameGraph(instance);
+  }, [fitted, colors, size.width, size.height]);
 
   return (
-    <section
-      className="relative overflow-hidden rounded-[var(--radius-panel)] border border-border bg-background"
-      aria-label="Entity graph"
-    >
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
+    <section className="flex flex-col gap-3" aria-label="Entity graph">
+      <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <div
           role="group"
           aria-label="Graph legend"
@@ -111,16 +133,8 @@ export default function EntityGraphCanvas({
           <span className="inline-flex items-center gap-1.5 text-muted-foreground">
             <span
               aria-hidden="true"
-              className="size-2.5 rounded-full"
-              style={{ backgroundColor: colors?.document ?? 'var(--graph-document)' }}
-            />
-            Files
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-            <span
-              aria-hidden="true"
               className="h-px w-4"
-              style={{ backgroundColor: colors?.shared ?? 'var(--graph-shared)' }}
+              style={{ backgroundColor: colors?.document ?? 'var(--graph-document)' }}
             />
             Shared files
           </span>
@@ -130,10 +144,10 @@ export default function EntityGraphCanvas({
             {summary}
           </p>
           <details className="relative z-20">
-            <summary className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:bg-muted">
+            <summary className="cursor-pointer list-none rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
               Browse entities ({entities.length})
             </summary>
-            <div className="absolute top-full right-0 mt-2 max-h-72 max-w-[min(22rem,calc(100vw-2rem))] min-w-64 overflow-y-auto rounded-lg border border-border bg-background p-2 shadow-lg">
+            <div className="absolute top-full right-0 z-20 mt-1 max-h-72 max-w-[min(22rem,calc(100vw-2rem))] min-w-64 origin-top-right overflow-y-auto rounded-lg border border-border bg-popover p-1">
               <ul aria-label="Graph entities" className="flex flex-col gap-1">
                 {entities.map((node) => (
                   <li key={node.id}>
@@ -165,7 +179,7 @@ export default function EntityGraphCanvas({
       </header>
       <div
         ref={containerRef}
-        className="entity-graph-stage h-[clamp(22rem,70svh,42.5rem)] w-full overflow-hidden"
+        className={`entity-graph-stage h-[clamp(16rem,42svh,26rem)] w-full overflow-hidden${fitted ? '' : 'opacity-0'}`}
       >
         {graph.nodes.length === 0 ? (
           <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -174,35 +188,27 @@ export default function EntityGraphCanvas({
         ) : colors && size.width > 0 && size.height > 0 ? (
           <ForceGraph3D
             ref={graphRef}
-            graphData={graph}
+            graphData={prepared ? graph : EMPTY_GRAPH}
             backgroundColor={`${colors.background}00`}
             width={size.width}
             height={size.height}
-            cooldownTime={5000}
+            numDimensions={2}
+            warmupTicks={GRAPH_SCENE.warmupTicks}
+            cooldownTicks={0}
             showNavInfo={false}
-            nodeLabel={(node) => {
-              const item = node as GraphNode;
-              return item.kind === 'document' ? item.label : `${item.label} · ${item.entityKind}`;
-            }}
-            nodeColor={(node) => {
-              const item = node as GraphNode;
-              return item.kind === 'document'
-                ? colors.document
-                : item.entityKind === 'project'
-                  ? colors.project
-                  : item.entityKind === 'customer'
-                    ? colors.customer
-                    : item.entityKind === 'decision'
-                      ? colors.decision
-                      : colors.person;
-            }}
-            nodeVal={(node) => ((node as GraphNode).kind === 'entity' ? 5 : 1.4)}
-            linkColor={(link) =>
-              (link as GraphLink).kind === 'shared' ? colors.shared : colors.document
+            nodeRelSize={GRAPH_SCENE.nodeRelSize}
+            nodeResolution={GRAPH_SCENE.nodeResolution}
+            nodeOpacity={1}
+            linkOpacity={GRAPH_SCENE.linkOpacity}
+            nodeLabel=""
+            nodeVisibility={(node) => showNode(node as GraphNode)}
+            linkVisibility={(link) => showLink(link as GraphLink, detailNode?.id ?? null)}
+            nodeColor={(node) => paintNode(node as GraphNode, colors, focus)}
+            nodeVal={(node) =>
+              (node as GraphNode).kind === 'entity' ? GRAPH_SCENE.entityVal : GRAPH_SCENE.fileVal
             }
-            linkWidth={(link) => ((link as GraphLink).kind === 'shared' ? 1.8 : 0.45)}
-            linkDirectionalParticles={(link) => ((link as GraphLink).kind === 'shared' ? 2 : 0)}
-            linkDirectionalParticleSpeed={0.005}
+            linkColor={(link) => paintLink(link as GraphLink, colors, focus)}
+            linkWidth={0.22}
             onNodeHover={(node) => {
               setHoveredNode((node as GraphNode | null) ?? null);
               setHoveredLink(null);
@@ -213,16 +219,20 @@ export default function EntityGraphCanvas({
               setHoveredNode(null);
             }}
             onEngineStop={() => {
-              if (!hasFittedInitialGraph.current) {
-                graphRef.current?.zoomToFit(500, 48);
-                hasFittedInitialGraph.current = true;
-              }
+              if (!prepared || hasFittedInitialGraph.current) return;
+              hasFittedInitialGraph.current = true;
+              requestAnimationFrame(() => {
+                const instance = graphRef.current;
+                if (!instance) return;
+                frameGraph(instance);
+                setFitted(true);
+              });
             }}
           />
         ) : null}
       </div>
       {detailNode || hoveredLink ? (
-        <aside className="border-t border-border bg-background px-4 py-3 text-sm">
+        <aside className="text-sm">
           {hoveredLink ? (
             <>
               <p className="font-medium text-foreground">Files in common</p>

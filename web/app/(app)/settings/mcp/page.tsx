@@ -21,8 +21,10 @@ export default function McpSettingsPage() {
             reading each source itself. Give it this address.
           </p>
 
-          <div className="flex items-center gap-2 rounded-[var(--radius-panel)] border border-border bg-card p-2">
-            <code className="min-w-0 flex-1 truncate px-1 text-xs text-foreground">{url}</code>
+          <div className="flex items-center gap-2 rounded-[var(--radius-panel)] border border-border bg-background py-2 pr-2 pl-4">
+            <code className="min-w-0 flex-1 truncate font-mono text-[15px] text-foreground">
+              {url}
+            </code>
             <CopyButton value={url} />
           </div>
 

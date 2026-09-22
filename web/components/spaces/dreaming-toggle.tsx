@@ -20,7 +20,7 @@ export function DreamingToggle({ spaceId, enabled }: { spaceId: string; enabled:
   }
 
   return (
-    <div className="flex items-start justify-between gap-6 rounded-[var(--radius-panel)] border border-border p-4">
+    <div className="flex items-start justify-between gap-6 py-2">
       <div className="max-w-[var(--measure-prose)]">
         <h2 className="font-heading text-sm font-medium text-foreground">Dreaming</h2>
         <p className="mt-1 text-sm text-tertiary-foreground">
