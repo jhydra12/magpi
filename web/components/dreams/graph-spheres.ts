@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three';
 
 import type { GraphNode } from './graph-data';
+import { readGraphColors } from './graph-colors';
 import { GRAPH_SCENE, nodeMagnitude, paintNode, type GraphPalette } from './graph-scene';
 
 const SPHERE = new SphereGeometry(1, 32, 24);
@@ -52,10 +53,13 @@ export function useEntitySpheres(
 
   const nodeObject = useCallback((node: GraphNode) => {
     const paint = paintRef.current;
-    const color = paint.colors
-      ? paintNode(node, paint.colors, paint.focus, paint.kindFilter)
-      : '#14b8a6';
-    return entitySphere(node, color, magnitudeFor(node, paint.focusId), spheres.current);
+    const colors = paint.colors ?? readGraphColors();
+    return entitySphere(
+      node,
+      paintNode(node, colors, paint.focus, paint.kindFilter),
+      magnitudeFor(node, paint.focusId),
+      spheres.current,
+    );
   }, []);
 
   useEffect(() => {
