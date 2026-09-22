@@ -56,12 +56,7 @@ export function useEntitySpheres(
     const color = paint.colors
       ? paintNode(graphNode, paint.colors, paint.focus, paint.kindFilter)
       : '#14b8a6';
-    return entitySphere(
-      graphNode,
-      color,
-      magnitudeFor(graphNode, paint.focusId),
-      spheres.current,
-    );
+    return entitySphere(graphNode, color, magnitudeFor(graphNode, paint.focusId), spheres.current);
   }, []);
 
   useEffect(() => {

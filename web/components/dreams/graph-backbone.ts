@@ -18,7 +18,12 @@ function rankedShared(links: readonly GraphLink[]): GraphLink[] {
     });
 }
 
-function takeTies(links: readonly GraphLink[], keys: Set<string>, degreeCap: number, limit: number) {
+function takeTies(
+  links: readonly GraphLink[],
+  keys: Set<string>,
+  degreeCap: number,
+  limit: number,
+) {
   const degree = new Map<string, number>();
   for (const link of links) {
     if (keys.size >= limit) return;
