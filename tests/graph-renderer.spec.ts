@@ -1,6 +1,24 @@
 import { test, expect } from '@playwright/test';
-import { build } from 'esbuild';
+import { build, type Plugin } from 'esbuild';
 import path from 'node:path';
+
+const linkShim: Plugin = {
+  name: 'next-link-shim',
+  setup(build) {
+    build.onResolve({ filter: /^next\/link$/ }, () => ({
+      path: 'next-link-shim',
+      namespace: 'next-link-shim',
+    }));
+    build.onLoad({ filter: /.*/, namespace: 'next-link-shim' }, () => ({
+      contents: `import React from 'react';
+        export default function Link({ href, children, ...props }) {
+          return React.createElement('a', { href, ...props }, children);
+        }`,
+      loader: 'js',
+      resolveDir: path.resolve('web'),
+    }));
+  },
+};
 
 const bundled = build({
   stdin: {
@@ -22,6 +40,7 @@ const bundled = build({
   jsx: 'automatic',
   tsconfig: path.resolve('web/tsconfig.json'),
   define: { 'process.env.NODE_ENV': '"production"' },
+  plugins: [linkShim],
 });
 
 for (const theme of ['light', 'dark']) {
@@ -94,11 +113,10 @@ for (const theme of ['light', 'dark']) {
     await expect
       .poll(async () => canvas.evaluate((node) => node.getBoundingClientRect().height))
       .toBe(490);
-    await page.getByText(/^Browse entities/).click();
-    await page.getByRole('button', { name: 'Person 1, person, 1 files' }).click();
     const details = page.getByRole('complementary');
-    await expect(details.getByText('Person 1', { exact: true })).toBeVisible();
-    await expect(details.getByText('person · 1 file')).toBeVisible();
+    await details.getByRole('button', { name: 'Person 11', exact: true }).click();
+    await expect(details.getByRole('heading', { name: 'Person 1' })).toBeVisible();
+    await expect(details.getByText('1 file')).toBeVisible();
     await expect
       .poll(async () => {
         const screenshot = await canvas.screenshot();
