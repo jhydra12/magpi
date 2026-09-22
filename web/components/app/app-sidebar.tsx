@@ -112,7 +112,7 @@ function MobileChrome({ email, canAdminister }: { email: string | null; canAdmin
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
-        className="rounded-lg p-1.5 text-tertiary-foreground hover:bg-muted hover:text-foreground"
+        className="rounded-lg p-1.5 text-tertiary-foreground hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         {open ? <X className="size-4" /> : <Menu className="size-4" />}
       </button>

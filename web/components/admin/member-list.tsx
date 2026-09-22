@@ -84,7 +84,7 @@ export function MemberList({
                   fieldName="userId"
                   fieldValue={member.userId}
                   label="Remove"
-                  pendingLabel="Removing"
+                  pendingLabel="Removing…"
                 />
               )}
             </TableCell>

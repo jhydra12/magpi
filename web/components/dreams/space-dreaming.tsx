@@ -114,13 +114,13 @@ function SpaceRow({
           <div className="flex min-w-40 flex-1 flex-col gap-1.5">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span role="status" className="shimmer shimmer-duration-1400">
-                {isPending ? 'Starting' : 'Queued'}
+                {isPending ? 'Starting…' : 'Queued'}
               </span>
               <span className="font-mono tabular-nums">00:00</span>
             </div>
             <DreamProgressTrack
               spaceName={space.name}
-              label={isPending ? 'Starting' : 'Queued'}
+              label={isPending ? 'Starting…' : 'Queued'}
               percent={0}
               indeterminate
             />

@@ -44,7 +44,7 @@ export default async function EntitiesPage({
 
   return (
     <>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-muted-foreground tabular-nums">
         {metadata.documentCount} documents
         <span aria-hidden="true"> · </span>
         {metadata.memberCount} members

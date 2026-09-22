@@ -131,7 +131,7 @@ const DropzoneContent = ({ className }: { className?: string }) => {
                     .join(', ')}
                 </p>
               ) : loading && !isSuccessfullyUploaded ? (
-                <p className="text-xs text-muted-foreground">Uploading file...</p>
+                <p className="text-xs text-muted-foreground">Uploading file…</p>
               ) : !!fileError ? (
                 <p className="text-xs text-destructive">Failed to upload: {fileError.message}</p>
               ) : isSuccessfullyUploaded ? (
@@ -170,7 +170,7 @@ const DropzoneContent = ({ className }: { className?: string }) => {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading...
+                Uploading…
               </>
             ) : (
               <>Upload files</>

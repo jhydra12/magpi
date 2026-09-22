@@ -94,7 +94,7 @@ export function CreateSpaceDialog() {
               Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Creating' : 'Create'}
+              {isPending ? 'Creating…' : 'Create'}
             </Button>
           </div>
         </form>

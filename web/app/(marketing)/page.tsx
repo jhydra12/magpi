@@ -24,7 +24,7 @@ export default function LandingPage() {
       {/* Bird beside the headline on desktop, below it on mobile. */}
       <section className="flex flex-col-reverse items-center gap-12 md:flex-row md:items-center md:gap-16">
         <div className="max-w-[var(--measure-prose)] md:flex-1">
-          <h1 className="font-heading text-4xl leading-[1.1] font-medium tracking-tight text-foreground md:text-5xl">
+          <h1 className="font-heading text-4xl leading-[1.1] font-medium tracking-tight text-balance text-foreground md:text-5xl">
             Your team deserves better answers.
           </h1>
           <p className="mt-5 text-base text-muted-foreground">

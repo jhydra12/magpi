@@ -129,12 +129,17 @@ export function EntityGraphLive({
         <>
           <EntityGraph groups={groups} active={graphActive} />
           {groups.length > 0 ? (
-            <details className="group">
-              <summary className="flex cursor-pointer list-none items-center gap-1.5 py-3 text-sm text-muted-foreground [&::-webkit-details-marker]:hidden">
-                <ChevronRight className="size-3.5 transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-open:rotate-90 motion-reduce:transition-none" />
-                Detail
+            <details className="group rounded-xl border border-border">
+              <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
+                <ChevronRight
+                  aria-hidden="true"
+                  className="size-3.5 text-muted-foreground transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] group-open:rotate-90 motion-reduce:transition-none"
+                />
+                Directory
               </summary>
-              <EntityGroups groups={groups} />
+              <div className="border-t border-border px-3 py-2">
+                <EntityGroups groups={groups} />
+              </div>
             </details>
           ) : null}
         </>

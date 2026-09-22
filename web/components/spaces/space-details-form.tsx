@@ -47,7 +47,7 @@ export function SpaceDetailsForm({
 
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={pending}>
-          {pending ? 'Saving' : 'Save'}
+          {pending ? 'Saving…' : 'Save'}
         </Button>
 
         {state.status === 'error' ? (

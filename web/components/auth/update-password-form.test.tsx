@@ -68,6 +68,6 @@ describe('setting a new password after a reset link', () => {
 
     await saveNewPassword();
 
-    expect(screen.getByRole('button', { name: 'Saving' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Saving…' })).toBeDisabled();
   });
 });

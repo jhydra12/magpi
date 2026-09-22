@@ -6,7 +6,7 @@ import type { Citation } from '@/lib/chat/protocol';
 
 /* ─────────────────────────────────────────────────────────
  * ANSWER MOTION
- *  waiting    "Reading your documents..." shimmers until the first token
+ *  waiting    "Reading your documents…" shimmers until the first token
  *  streaming  a caret blinks at the end of the latest text
  *  settled    the caret leaves with the stream
  * ───────────────────────────────────────────────────────── */
@@ -27,7 +27,7 @@ export function AssistantTurn({ content, citations, streaming }: AssistantTurnPr
   if (segments.length === 0 && streaming) {
     return (
       <p className="shimmer text-sm text-tertiary-foreground shimmer-duration-1400">
-        Reading your documents...
+        Reading your documents…
       </p>
     );
   }

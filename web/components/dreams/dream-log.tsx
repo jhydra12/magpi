@@ -12,35 +12,15 @@ const TONE_TEXT: Record<StatusTone, string> = {
   destructive: 'text-destructive-600',
 };
 
-/** Short enough to sit on one line; the run page carries the full name. */
-const PASS_LABEL: Record<NightlyDream['runs'][number]['kind'], string> = {
-  entities: 'Entities',
-  digest: 'Digest',
-  connections: 'Links',
-};
-
-function PassLinks({ night }: { night: NightlyDream }) {
-  const seen = new Set<NightlyDream['runs'][number]['kind']>();
-  const passes = night.runs.filter((run) => {
-    if (seen.has(run.kind)) return false;
-    seen.add(run.kind);
-    return true;
-  });
+function DigestLink({ night }: { night: NightlyDream }) {
+  const digest = night.runs.find((run) => run.kind === 'digest');
+  if (!digest) return null;
 
   return (
-    <span className="flex gap-x-3">
-      {passes.map((run) => (
-        <Link key={run.id} href={`/dreams/${run.id}`} className="text-brand-link hover:underline">
-          {PASS_LABEL[run.kind]}
-        </Link>
-      ))}
-    </span>
+    <Link href={`/dreams/${digest.id}`} className="text-brand-link hover:underline">
+      Digest
+    </Link>
   );
-}
-
-function connectionsText(night: NightlyDream): string {
-  if (night.connectionsFound === 0) return '0 connections';
-  return `${night.connectionsFound} found, ${night.connectionsConfirmed} confirmed`;
 }
 
 /** One night per row. The space is the title; the figures sit underneath. */
@@ -67,8 +47,6 @@ export function DreamLog({ nights }: { nights: readonly NightlyDream[] }) {
                 {night.documentsIngested.toLocaleString('en-US')}
               </span>{' '}
               documents ingested
-              <span aria-hidden="true"> · </span>
-              {connectionsText(night)}
               {night.modelTokens !== null && night.modelTokens > 0 ? (
                 <>
                   <span aria-hidden="true"> · </span>
@@ -77,16 +55,8 @@ export function DreamLog({ nights }: { nights: readonly NightlyDream[] }) {
                 </>
               ) : null}
             </p>
-            <div className="mt-1.5 flex items-center gap-x-3 text-xs">
-              <PassLinks night={night} />
-              {night.output ? (
-                <Link
-                  href={`/documents/${night.output.id}`}
-                  className="text-brand-link hover:underline"
-                >
-                  Open
-                </Link>
-              ) : null}
+            <div className="mt-1.5 text-xs">
+              <DigestLink night={night} />
             </div>
           </div>
 

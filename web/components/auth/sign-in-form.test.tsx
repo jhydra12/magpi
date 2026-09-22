@@ -87,7 +87,7 @@ describe('signing in with a password', () => {
 
     await signIn();
 
-    const button = screen.getByRole('button', { name: 'Signing in' });
+    const button = screen.getByRole('button', { name: 'Signing in…' });
     expect(button).toBeDisabled();
     await userEvent.click(button);
     expect(calls).toHaveLength(1);

@@ -58,7 +58,8 @@ describe('the dream log', () => {
     expect(row).toHaveTextContent('2m 30s');
     expect(row).toHaveTextContent('12');
     expect(row).toHaveTextContent('documents ingested');
-    expect(row).toHaveTextContent('3 found, 1 confirmed');
+    expect(row).not.toHaveTextContent('found');
+    expect(row).not.toHaveTextContent('confirmed');
     expect(row).toHaveTextContent('516k model tokens');
     expect(row).toHaveTextContent('Done');
   });
@@ -70,47 +71,25 @@ describe('the dream log', () => {
     expect(row).toHaveTextContent('Started by Nightly');
     expect(row).toHaveTextContent('2m 30s');
     expect(row).toHaveTextContent('documents ingested');
-    expect(row).toHaveTextContent('3 found, 1 confirmed');
     expect(row).toHaveTextContent('model tokens');
-    expect(screen.getByRole('link', { name: 'Open' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Digest' })).toBeInTheDocument();
   });
 
-  it('links to the document the night wrote', () => {
-    render(<DreamLog nights={[getNight()]} />);
-
-    expect(screen.getByRole('link', { name: 'Open' })).toHaveAttribute('href', '/documents/doc-1');
-  });
-
-  it('offers no document when the night wrote nothing', () => {
-    render(<DreamLog nights={[getNight({ output: null })]} />);
-
-    expect(screen.queryByRole('link', { name: 'Open' })).not.toBeInTheDocument();
-  });
-
-  it('links to each pass of the night', () => {
+  it('links only to the digest pass', () => {
     render(<DreamLog nights={[getNight()]} />);
 
     expect(screen.getByRole('link', { name: 'Digest' })).toHaveAttribute(
       'href',
       '/dreams/11111111-2222-4333-8444-555555555552',
     );
-    expect(screen.getByRole('link', { name: 'Entities' })).toHaveAttribute(
-      'href',
-      '/dreams/11111111-2222-4333-8444-555555555551',
-    );
+    expect(screen.queryByRole('link', { name: 'Entities' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Open' })).not.toBeInTheDocument();
   });
 
   it('leaves the spend column out for a reader who cannot see model calls', () => {
     render(<DreamLog nights={[getNight({ modelTokens: null })]} />);
 
     expect(screen.queryByText(/model tokens/)).not.toBeInTheDocument();
-  });
-
-  it('reads a night with no connections as a plain zero', () => {
-    render(<DreamLog nights={[getNight({ connectionsFound: 0, connectionsConfirmed: 0 })]} />);
-
-    expect(screen.getByText(/0 connections/)).toBeInTheDocument();
-    expect(screen.queryByText(/found/)).not.toBeInTheDocument();
   });
 
   it('says which pass died and why, rather than showing the night as done', () => {

@@ -31,7 +31,7 @@ export default async function ProfileSettingsPage() {
           defaultValue={displayName}
           placeholder="Ada Lovelace"
           submitLabel="Save"
-          pendingLabel="Saving"
+          pendingLabel="Saving…"
           savedLabel="Saved"
         />
       </Panel>
@@ -40,7 +40,7 @@ export default async function ProfileSettingsPage() {
         <ActionButton
           action={signOutEverywhere}
           label="Sign out everywhere"
-          pendingLabel="Signing out"
+          pendingLabel="Signing out…"
           variant="outline"
         />
       </Panel>

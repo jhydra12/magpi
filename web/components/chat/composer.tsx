@@ -38,7 +38,7 @@ export function Composer({ onAsk, busy, placeholder, rows = 2, toolbar }: Compos
       onSubmit={ask}
       className={cn(
         'magpi-composer rounded-[var(--radius-panel)] border border-border bg-background p-2',
-        toolbar ? 'flex flex-col' : 'flex items-end gap-1',
+        toolbar ? 'flex flex-col' : 'flex items-center gap-1',
       )}
     >
       <Textarea
@@ -49,8 +49,9 @@ export function Composer({ onAsk, busy, placeholder, rows = 2, toolbar }: Compos
         placeholder={placeholder}
         rows={rows}
         className={cn(
-          'resize-none border-0 bg-transparent px-2 py-1.5 text-sm shadow-none ring-0 outline-none placeholder:text-muted-foreground focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none',
-          rows === 1 ? 'min-h-10' : 'min-h-16',
+          'resize-none border-0 bg-transparent px-2 text-sm leading-5 shadow-none ring-0 outline-none placeholder:text-muted-foreground focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none',
+          // One line is exactly the field height, so the send control shares its center.
+          rows === 1 ? 'h-10 min-h-10 py-2.5' : 'min-h-16 py-1.5',
         )}
       />
       <div className={cn('flex items-center gap-2 px-1', toolbar && 'justify-between')}>

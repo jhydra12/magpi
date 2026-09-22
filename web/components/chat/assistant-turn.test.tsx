@@ -62,6 +62,6 @@ describe('AssistantTurn', () => {
   it('says what it is doing before the first token arrives', () => {
     render(<AssistantTurn content="" citations={[]} streaming />);
 
-    expect(screen.getByText('Reading your documents...')).toBeInTheDocument();
+    expect(screen.getByText('Reading your documents…')).toBeInTheDocument();
   });
 });

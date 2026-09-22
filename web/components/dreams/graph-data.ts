@@ -1,11 +1,17 @@
 import type { EntityGroup } from '@/lib/dreams/entities';
 
+export type GraphDocument = {
+  id: string;
+  title: string;
+};
+
 export type GraphNode = {
   id: string;
   label: string;
   kind: 'entity' | 'document';
   entityKind?: string;
-  documents?: string[];
+  summary?: string | null;
+  documents?: GraphDocument[];
   title?: string;
   x?: number;
   y?: number;
@@ -35,20 +41,25 @@ function entityKey(kind: string, name: string): string {
 export function buildGraph(groups: readonly EntityGroup[]): GraphData {
   const entities = new Map<string, GraphNode>();
   const documents = new Map<string, { title: string; entities: Set<string> }>();
-  const filesByEntity = new Map<string, Map<string, string>>();
+  const filesByEntity = new Map<string, Map<string, GraphDocument>>();
   for (const group of groups) {
     for (const entity of group.entities) {
       const id = `entity:${entityKey(group.kind, entity.name)}`;
-      if (!entities.has(id))
+      const existing = entities.get(id);
+      if (!existing) {
         entities.set(id, {
           id,
           label: entity.name,
           kind: 'entity',
           entityKind: group.kind,
+          summary: entity.summary,
         });
-      const files = filesByEntity.get(id) ?? new Map<string, string>();
+      } else if (!existing.summary && entity.summary) {
+        existing.summary = entity.summary;
+      }
+      const files = filesByEntity.get(id) ?? new Map<string, GraphDocument>();
       for (const document of entity.documents) {
-        files.set(document.id, document.title);
+        files.set(document.id, { id: document.id, title: document.title });
         const entry = documents.get(document.id) ?? {
           title: document.title,
           entities: new Set<string>(),

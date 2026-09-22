@@ -211,7 +211,7 @@ describe('the files waiting to be uploaded', () => {
   it('says a file is on its way while it is in flight', () => {
     renderArea({ files: [droppedFile()], loading: true });
 
-    expect(screen.getByText('Uploading file...')).toBeInTheDocument();
+    expect(screen.getByText('Uploading file…')).toBeInTheDocument();
   });
 
   it('names the file the upload failed on and why, instead of leaving it looking fine', () => {
@@ -281,7 +281,7 @@ describe('the files waiting to be uploaded', () => {
   it('shows the upload as running rather than as ready to start again', () => {
     renderArea({ files: [droppedFile()], loading: true });
 
-    expect(screen.getByRole('button', { name: 'Uploading...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Uploading…' })).toBeDisabled();
   });
 });
 

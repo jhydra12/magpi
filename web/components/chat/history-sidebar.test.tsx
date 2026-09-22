@@ -168,7 +168,7 @@ describe('HistorySidebar', () => {
     query.isLoading = true;
     render(<HistorySidebar />);
 
-    expect(screen.getByText('Loading your conversations...')).toBeInTheDocument();
+    expect(screen.getByText('Loading your conversations…')).toBeInTheDocument();
   });
 
   it('says so when the history could not be read', () => {

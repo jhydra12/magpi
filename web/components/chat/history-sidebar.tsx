@@ -41,7 +41,7 @@ export function HistorySidebar() {
         <p className="text-xs text-tertiary-foreground">Recent</p>
         <NewFolderButton onCreated={refresh} />
       </div>
-      {isLoading ? <SidebarNote>Loading your conversations...</SidebarNote> : null}
+      {isLoading ? <SidebarNote>Loading your conversations…</SidebarNote> : null}
       {error ? <SidebarNote>Your conversations could not be loaded.</SidebarNote> : null}
       {ready ? (
         <div

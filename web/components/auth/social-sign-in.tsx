@@ -35,7 +35,7 @@ export function SocialSignIn({ next }: { next: string }) {
     <div className="flex flex-col gap-3">
       <FormError message={error} />
       <Button variant="outline" className="w-full" disabled={isPending} onClick={signInWithGitHub}>
-        {isPending ? 'Redirecting' : 'Continue with GitHub'}
+        {isPending ? 'Redirecting…' : 'Continue with GitHub'}
       </Button>
     </div>
   );

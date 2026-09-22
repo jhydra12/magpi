@@ -9,12 +9,12 @@ test('converts all graph colors to sRGB in a real browser, including calculated 
       --background: oklch(1 0 0);
       --muted-foreground: oklch(.48 .02 159);
       --primary: oklch(.52 .15 159);
-      --graph-person: #0f766e;
-      --graph-project: #6d28d9;
-      --graph-customer: #a16207;
-      --graph-decision: #c2410c;
+      --graph-person: #14b8a6;
+      --graph-project: #8b5cf6;
+      --graph-customer: #e2a100;
+      --graph-decision: #e24a1b;
       --graph-document: #64748b;
-      --graph-shared: #0f766e;
+      --graph-shared: #14b8a6;
     }
     [data-theme='dark'] {
       --background: oklch(.19 calc(.005 * .5) 159);
@@ -38,11 +38,11 @@ test('converts all graph colors to sRGB in a real browser, including calculated 
   await page.evaluate(() => (document.documentElement.dataset.theme = 'light'));
   const light = await page.evaluate(readGraphColors);
   expect(light.background).toBe('#ffffff');
-  expect(light.person).toBe('#0f766e');
-  expect(light.project).toBe('#6d28d9');
-  expect(light.customer).toBe('#a16207');
-  expect(light.decision).toBe('#c2410c');
+  expect(light.person).toBe('#14b8a6');
+  expect(light.project).toBe('#8b5cf6');
+  expect(light.customer).toBe('#e2a100');
+  expect(light.decision).toBe('#e24a1b');
   expect(light.document).toBe('#64748b');
-  expect(light.shared).toBe('#0f766e');
+  expect(light.shared).toBe('#14b8a6');
   expect(light.background).not.toBe(dark.background);
 });

@@ -16,7 +16,7 @@ function formProps(overrides: Partial<FormProps> = {}): FormProps {
     defaultValue: 'Ada Lovelace',
     placeholder: 'Your name',
     submitLabel: 'Save',
-    pendingLabel: 'Saving',
+    pendingLabel: 'Saving…',
     savedLabel: 'Saved',
     ...overrides,
   };
@@ -98,7 +98,7 @@ describe('a settings name field', () => {
 
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect(await screen.findByRole('button', { name: 'Saving' })).toBeDisabled();
+    expect(await screen.findByRole('button', { name: 'Saving…' })).toBeDisabled();
 
     finish({ status: 'success', data: undefined });
     expect(await screen.findByText('Saved')).toBeInTheDocument();

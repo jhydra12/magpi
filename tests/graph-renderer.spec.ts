@@ -34,7 +34,7 @@ for (const theme of ['light', 'dark']) {
     const palette =
       theme === 'dark'
         ? ['#2dd4bf', '#c4b5fd', '#fde047', '#fb923c', '#94a3b8', '#5eead4']
-        : ['#0f766e', '#6d28d9', '#a16207', '#c2410c', '#64748b', '#0f766e'];
+        : ['#14b8a6', '#8b5cf6', '#e2a100', '#e24a1b', '#64748b', '#14b8a6'];
     await page.setViewportSize({ width: 1200, height: 900 });
     await page.setContent(`<style>
       :root { --background: ${background}; --muted-foreground: oklch(.6 .02 159); --primary: oklch(.76 .15 159);

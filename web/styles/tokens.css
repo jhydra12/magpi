@@ -7,12 +7,12 @@
   --color-demo: oklch(0.52 0.19 295);
   --color-demo-foreground: oklch(0.99 0 295);
 
-  --graph-person: #0f766e;
-  --graph-project: #6d28d9;
-  --graph-customer: #a16207;
-  --graph-decision: #c2410c;
+  --graph-person: #14b8a6;
+  --graph-project: #8b5cf6;
+  --graph-customer: #e2a100;
+  --graph-decision: #e24a1b;
   --graph-document: #64748b;
-  --graph-shared: #0f766e;
+  --graph-shared: #14b8a6;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;

@@ -80,6 +80,6 @@ describe('signing in through GitHub', () => {
 
     await continueWithGitHub();
 
-    expect(screen.getByRole('button', { name: 'Redirecting' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Redirecting…' })).toBeDisabled();
   });
 });
