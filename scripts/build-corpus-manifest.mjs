@@ -65,7 +65,7 @@ const titleOf = (body, slug) => {
 };
 
 /** The corpus ends here, so no document is edited after it. Matches LAST_DAY in check-corpus.mjs. */
-const LAST_DAY = '2026-09-09';
+const LAST_DAY = '2026-09-22';
 
 /** Rows and lines that state when a document was last touched. */
 const STAMP =

@@ -209,3 +209,84 @@ Reset verification: focused UI, action, and management API tests pass; 287 datab
 - `Reset dreams` now recreates the same mixed state while preserving Compute services and restoring the processor mode it was already using.
 - The web suite passed 1,329 tests after this addition. Lint completed with the same seven existing warnings, and type checks and the production build passed.
 - Successful reset rows now finish one minute apart beginning at 6:01am UTC. Each seeded success lasts 30 seconds, below the Edge worker's five-minute budget. The focused reset and rendering suite passed 51 tests, and type checking passed.
+
+# Replace the synthetic corpus for Launch Week
+
+- [x] Commit the existing Digital Brain and Dream reset changes before changing corpus data.
+- [x] Read the saved generation prompt, corpus rules, manifest builder, and two examples from each source.
+- [x] Remove the old synthetic documents and write 24 to 32 new Launch Week documents across Company, Engineering, Marketing, and Finance.
+- [x] Update the company reference and corpus truth table, then rebuild the manifest.
+- [x] Validate the corpus and seed tests, check dates and evidence coverage, and verify what data the local app reads.
+
+## Review
+
+- The first commit is `eae06de`. The full gate passed its first 21 steps, then stopped at the repository's 95% coverage threshold. All 1,329 tests passed in that run. A later light-gate run had three unrelated 5-second UI test timeouts.
+- Removed 583 old Markdown source and Dream fixture files from the repository. The new corpus has 32 source documents plus four new Dream-history fixtures. The old 360-document generator was removed.
+- The local demo organization had 564 source documents and stored files. A scoped cleanup removed those and the old generated history; a fresh seed loaded and ingested all 32 new source documents.
+- Live Chat found all six planned launches from two calendar sources. After the risk wording was revised, the exact risk question found Partner API and EU Region with six supporting citations.
+- `npm run check:corpus` and all 20 seed tests pass. Prettier and `git diff --check` pass. The one web title test and seven Deno rehearsal-text tests pass after old phone examples were replaced.
+- The local app has 32 new source documents, three new Dream digest documents, 12 Dream-history runs, and no chat conversations or old phone-titled documents. The hosted project was not changed.
+- The exact risk question now returns separate Partner API and EU Region entries with owners, target dates, at-risk launch status, blockers, and source links. The security issue says it is waiting for a corrected sample, so its workflow state cannot be mistaken for the launch status. The prompt instruction and its test cover that answer format.
+- Final focused checks passed: corpus validation, 20 seed tests, 12 web tests, web type checking, web lint with seven warnings and no errors, web production build, and Prettier. The second corpus change remains uncommitted for review.
+
+## Corpus specification
+
+- Fictional company: Supaphone, now described as a customer communications software company. Keep the seven demo accounts and their space memberships.
+- Source-document dates: 2026-09-14 through 2026-09-22. Launch Week: 2026-10-26 through 2026-10-30, 34 days after the final source document.
+- Six launches: Shared Inbox (Priya, Monday, on track); Audit Trail (Ben, Monday, on track); Usage Alerts (Maya, Tuesday, on track); Partner API (Dana, Wednesday, at risk on security review); EU Region (Sam, Thursday, at risk on load test); Billing Portal (John, Friday, on track).
+- Plans name owners and dates. Linear and Drive give the technical evidence. Slack gives later decisions. Five unrelated documents provide search distractors. The 22 September EU update is the recent document for live processing.
+- Rebuild the source manifest and replace the old Dream-history fixture manifest, so a new seed cannot bring old phone content back.
+
+# Clear hosted corpus files before the one-time SQL reset
+
+- [x] Check the hosted credential names, document and space fields, and Storage deletion behavior.
+- [x] Build a one-time script that previews exact document file paths and deletes them through the Storage API only after an explicit count check.
+- [x] Test personal-space paths, dry-run behavior, active-work and target guards, pagination, and deletion errors.
+- [x] Run focused verification and document the command order and results.
+
+## Review
+
+- Doppler `select-2026-demo/prd` provides the service-role key but no hosted URL, so the script derives the URL from the verified project ref and rejects any configured URL that differs.
+- The hosted dry run found 1,425 document rows, 1,333 unique linked file paths (564 under the organization and 769 under its spaces), and 92 documents without file paths. It removed nothing.
+- Run the script through Doppler with `-p select-2026-demo -c prd`. Apply requires both dry-run counts and should precede the one-time SQL document deletion; no hosted deletion was run during implementation.
+- Ten focused tests, Prettier, `git diff --check`, and a second hosted dry run passed. Apply was not run.
+- On request, the hosted Storage API removed all 1,333 document-linked paths. A follow-up scan found 59 unlinked Markdown objects under one personal space; these were removed in a guarded second pass.
+- A final scan of the organization and all 37 space prefixes found zero remaining Storage objects or folders. The 1,425 document rows remain for the SQL Editor reset.
+
+# Reset and reseed the local Launch Week demo
+
+- [x] Confirm the local Supabase target, current corpus, and available workers.
+- [x] Clear only the local demo organization's corpus and generated history.
+- [x] Seed the new Launch Week source documents and Dream-history fixtures, then complete ingestion.
+- [x] Verify local counts and corpus coverage; leave Chat empty for the user's question test.
+
+## Review
+
+- Local `jane-c1dfda3c` has 32 source documents, 3 Dream digest documents, 12 historical Dream runs, 35 successful ingest jobs, 37 spaces, 7 members, and 4 fresh connections. Chat history is empty. All 35 stored files match document paths; no unlinked files remain.
+- The first ingest attempt returned 403 because the web seed key differed from the key loaded by the local Edge Function. Aligned `web/.env.local` and Doppler `select-2026-demo/dev` with the working `supabase/.env.local` key, then reran the idempotent seed successfully.
+- `pnpm check:corpus`, 20 seed tests, and `git diff --check` pass. The hosted project remains empty after its separate SQL reset. The user will test both keynote questions in local Chat before hosted reseeding.
+- Restarted the local Next.js dev server on port 3000 after updating its ignored environment file; the app and Edge Function now use the same local worker key.
+
+# Publish the Launch Week corpus branch
+
+- [x] Review every changed and new file, including the one-time cleanup script and deploy behavior.
+- [x] Run the repository's required local checks on the exact branch contents.
+- [ ] Create one commit, push `streamline-demo-steps`, and open a pull request.
+- [ ] Wait for required checks, merge the pull request, and verify the hosted corpus seed.
+
+## Review
+
+- The strict light gate passed all 20 steps on the Launch Week corpus and chat changes. A title test hit its one-second wait under full-suite load; the targeted test passed, its wait was extended, and the full gate passed on the revised test.
+- The `main` deployment will ingest the 32 source documents. Dream fixture documents require an explicit seed step and are not part of automatic corpus deployment.
+
+# Follow the renamed Doppler project
+
+- [x] Confirm the renamed Doppler project and its `prd` config are available.
+- [x] Update the repository-scoped Doppler selection and the cleanup script's safety check.
+- [x] Run the focused tests and hosted dry run with the new project name.
+
+## Review
+
+- The repository-scoped Doppler project is now `select-2026-demo`; its default config remains `dev`.
+- `doppler run -c prd` completed the hosted dry run against the intended organization with unchanged counts: 1,425 documents and 1,333 linked file paths. No deletion was run.
+- Ten focused tests, Prettier, and `git diff --check` pass.

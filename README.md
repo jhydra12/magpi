@@ -33,9 +33,10 @@ another project you have running.
 
 ## The demo company
 
-`supabase/corpus/` is Supaphone, a fictional maker of a folding phone. Seven
-people, 34 shared spaces and three personal spaces. This loads it into the project `web/.env.local`
-points at:
+`supabase/corpus/` is Supaphone, a fictional customer communications software
+company. Its 32 Launch Week source documents span four shared spaces. The seed
+creates seven people, 34 shared spaces and three personal spaces. This loads the
+corpus into the project `web/.env.local` points at:
 
 ```bash
 node --env-file=web/.env.local scripts/seed-demo.mjs
@@ -221,7 +222,7 @@ remains unverified. See [Dream rehearsal](docs/dream-rehearsal.md).
 
 **1. Ask the brain.**
 
-Do: Chat. Type "When will the Fold product ship?"
+Do: Chat. Ask "What are we launching in the next Launch Week?" Then ask "What's at risk of not making it?"
 
 Say: This is my company's digital brain. Notion, Linear, Slack and Drive all
 feed it. I ask it a question and it answers with citations. Every night it dreams: it re-reads what came
@@ -351,7 +352,7 @@ Do, in order:
 3. ChatGPT: Settings, Connectors, Create. Paste
    `https://vvfegdrzrzjyekvrfyoj.supabase.co/functions/v1/mcp-server`.
 4. The consent screen opens in the app. Press Allow.
-5. In ChatGPT, ask "When will the Fold product ship?"
+5. In ChatGPT, ask "What's at risk of not making it?"
 
 Say: The brain is useful once it lives inside the tools people already use. So
 let's give Digital Brain an MCP server. It is a library block: one command to add, or

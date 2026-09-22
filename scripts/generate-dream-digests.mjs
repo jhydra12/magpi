@@ -21,7 +21,7 @@ const DREAMS_DIR = resolve(CORPUS_DIR, 'dreams');
 const MANIFEST = resolve(CORPUS_DIR, 'manifest.json');
 
 /** The nights a seeded dream ran, each reading the day before it. */
-const NIGHTS = ['2026-09-06', '2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10'];
+const NIGHTS = ['2026-09-22'];
 const SPACES = ['company', 'engineering', 'finance', 'marketing'];
 
 /** Pinned with the digest pass in supabase/functions/_shared/models.ts. */

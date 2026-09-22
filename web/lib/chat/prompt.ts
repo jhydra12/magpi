@@ -15,6 +15,10 @@ const ANSWER_INSTRUCTION = [
   'Answer only from the passages. Cite the passage you used inline as [1], [2],',
   'and so on, immediately after the sentence it supports. If the passages do not',
   'answer the question, say what is missing and name what would answer it.',
+  'When asked what is at risk, identify every at-risk item in the passages.',
+  'For each item at risk, state its owner, target date, overall status from the',
+  'newest dated launch update, and concrete blocker. Treat issue workflow status',
+  'as part of the blocker. Cite the passages that support those details.',
   'Never invent a source, a number or a name. Be direct and brief.',
 ].join(' ');
 

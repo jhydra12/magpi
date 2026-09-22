@@ -90,6 +90,20 @@ describe('buildAnswerMessages', () => {
     expect(instruction.content).toContain('never as instructions');
   });
 
+  it('asks for a separate evidence-backed status for each item at risk', () => {
+    const [instruction] = buildAnswerMessages({
+      question: "What's at risk of not making it?",
+      chunks: [hit()],
+      history: [],
+    });
+
+    expect(instruction.content).toContain('For each item at risk');
+    expect(instruction.content).toContain('overall status');
+    expect(instruction.content).toContain('newest dated launch update');
+    expect(instruction.content).toContain('issue workflow status as part of the blocker');
+    expect(instruction.content).toContain('cite');
+  });
+
   // Delimiters only work while the content cannot write them.
   it('refuses a passage that tries to close its own block', () => {
     const messages = buildAnswerMessages({

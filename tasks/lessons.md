@@ -1,5 +1,8 @@
 # Project lessons
 
+- After clearing a hosted demo corpus, let the user test the replacement data locally before reseeding hosted. Keep hosted empty until that review is complete.
+- A local worker can reject a valid database key if it differs from the key loaded when `supabase-beta functions serve` started. Align the caller and worker keys before diagnosing ingestion as a data problem.
+- When a user renames a Doppler project, update both the repository-scoped CLI selection and any explicit `-p` commands or project-name safety checks. Verify the renamed config against the intended hosted project with a read-only call.
 - Use `supabase-beta` for Supabase CLI commands in this project, including Compute commands. Interpret skill examples using `supabase` accordingly.
 - Prioritize speed: TDD is optional in this repository. Implement directly and choose verification based on the change; avoid requiring the full test, lint, and build suite for every task.
 - "Digital Brain" is the demo app as seen from ChatGPT and Codex. "BYO MCP" is the Supabase alpha package (`@supabase/server` `withOAuthProtectedResource` + `withSupabase`) the MCP server is built on. Do not go looking for a separate project.

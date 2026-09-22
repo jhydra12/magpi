@@ -252,6 +252,8 @@ The default seed invokes synthetic Dream history and successful activity records
 
 References: `scripts/check-corpus.mjs:24`, `scripts/generate-demo-corpus.mjs:38`.
 
+The repetitive generator was removed when the Launch Week corpus replaced its output.
+
 Content validation enumerates the original seven folders and misses 360 documents added for the new spaces. The generated documents also repeat closely related templates.
 
 **Change:** use one shared corpus manifest for generation, seeding, and validation. Validate every body, dates, references, and intended cross-space connections. Increase content variety where it affects the keynote workload.

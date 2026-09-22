@@ -90,8 +90,9 @@ A dream digest is a summary of the documents a question is about, so it scores
 well on both arms for that question. After a week of nightly digests, or an
 afternoon of rehearsal runs, a budget of twelve passages can fill with summaries
 that mention the topic and leave out the source that states the fact. This is
-what happened with the Fold S1 launch date on 18 September 2026: ten of twelve
-passages were digests, none of which carried the date the GTM-7 ticket locks.
+the failure this cap prevents: a question about the Partner API date could
+retrieve several digests while missing the calendar page that names Wednesday
+28 October.
 
 So after fusion, `search` joins each candidate to its document and keeps at most
 `greatest(1, match_count / 4)` chunks whose document has `origin = 'dream'`,

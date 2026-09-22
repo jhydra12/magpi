@@ -41,7 +41,7 @@ const SPACE_NAMES = {
 };
 
 /** One night that did not finish, so the log shows what that looks like. */
-const TIMED_OUT = { space: 'marketing', night: '2026-09-10' };
+const TIMED_OUT = { space: 'marketing', night: '2026-09-22' };
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -279,7 +279,7 @@ export async function seedNight(db, { org, spaces, corpus, dream }) {
     const [first, second] = a.id < b.id ? [a, b] : [b, a];
     const similarity = cosine(parseVector(a.opener.embedding), parseVector(b.opener.embedding));
     // Older nights have been looked at: the first pair confirmed, the last dismissed.
-    const reviewed = dream.corpusNight < '2026-09-09';
+    const reviewed = dream.corpusNight < '2026-09-22';
     return [
       {
         dream_run_id: linksRunId,

@@ -5,8 +5,6 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DEMO_TEAM_SPACES } from './demo-spaces.mjs';
-
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CORPUS = join(ROOT, 'supabase/corpus');
 
@@ -23,28 +21,14 @@ const EVERYONE = [
 /** Who may write, own, assign or comment in each space. Mentions are not restricted. */
 const MEMBERS = {
   company: EVERYONE,
-  ...Object.fromEntries(DEMO_TEAM_SPACES.map(({ key }) => [key, EVERYONE])),
   marketing: ['Jane Okonkwo', 'Maya Restrepo', 'Priya Raghunathan', 'Ben Achilov'],
   engineering: ['Jane Okonkwo', 'Sam Lindqvist', 'Ben Achilov', 'John Mbeki'],
   finance: ['Jane Okonkwo', 'John Mbeki', 'Dana Provenzano'],
-  'personal-jane': ['Jane Okonkwo'],
-  'personal-sam': ['Sam Lindqvist'],
-  'personal-john': ['John Mbeki'],
 };
 
-/** A fact that must not leave its space, or the two walls the demo rests on stop holding. */
-const WALLED = [
-  { space: 'finance', pattern: /\$1,140|\$1,899/, what: 'the unit cost or launch price' },
-  {
-    space: 'marketing',
-    // The month is common knowledge. The date, the hour and the word embargo are not.
-    pattern: /2026-11-04|4 November 2026|embargo/i,
-    what: 'the launch date or the embargo',
-  },
-];
-
-const FIRST_DAY = '2026-08-10';
-const LAST_DAY = '2026-09-09';
+const FIRST_DAY = '2026-09-14';
+const LAST_DAY = '2026-09-22';
+const SOURCES = new Set(['slack', 'linear', 'notion', 'drive', 'upload']);
 
 /** A line where someone takes part, as opposed to being talked about. */
 const SPEAKER =
@@ -67,6 +51,7 @@ export function checkCorpus(corpus = CORPUS) {
       const path = `${space}/${name}`;
       const body = readFileSync(join(corpus, path), 'utf8');
       files += 1;
+      if (!SOURCES.has(name.split('-')[0])) failures.push(`${path}: unknown source prefix`);
 
       // An upload is a scan or an export and a personal note is scratch, so neither leads with
       // a heading. Everything that came out of a tool does.
@@ -96,22 +81,10 @@ export function checkCorpus(corpus = CORPUS) {
         if (stamp > LAST_DAY) failures.push(`${path}: dated ${stamp}, after the corpus ends`);
         if (stamp < FIRST_DAY) failures.push(`${path}: dated ${stamp}, before the corpus starts`);
       }
-
-      for (const wall of WALLED) {
-        if (space !== wall.space && wall.pattern.test(body)) {
-          failures.push(`${path}: names ${wall.what}, which lives only in ${wall.space}`);
-        }
-      }
     }
   }
 
-  for (const wall of WALLED) {
-    const dir = join(corpus, wall.space);
-    const found = readdirSync(dir).some((n) =>
-      wall.pattern.test(readFileSync(join(dir, n), 'utf8')),
-    );
-    if (!found) failures.push(`no document in ${wall.space}/ names ${wall.what}`);
-  }
+  if (files < 24 || files > 32) failures.push(`expected 24 to 32 source documents, found ${files}`);
 
   // Two documents under one issue number are two different tickets with the same name.
   const issues = new Map();
@@ -161,7 +134,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`corpus: ${files} documents, every wall holds`);
+  console.log(`corpus: ${files} Launch Week documents validated`);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
