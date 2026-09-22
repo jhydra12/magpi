@@ -111,7 +111,7 @@ describe('ConversationView', () => {
     let calls = 0;
     vi.stubGlobal('fetch', async () => {
       calls += 1;
-      return answerWith(answered)();
+      return answerWith(answered)('/api/chat');
     });
 
     render(
