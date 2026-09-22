@@ -1,7 +1,9 @@
+import { StrictMode } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { subscribeConversationList } from '@/lib/chat/history-sync';
 import { encodeEvent, type ChatEvent } from '@/lib/chat/protocol';
 import type { ChatTurn } from '@/lib/chat/turns';
 
@@ -86,14 +88,55 @@ describe('ConversationView', () => {
 
     expect(await screen.findByText('What is blocking SSO?')).toBeInTheDocument();
     expect(await screen.findByText('Blocked on ENG-4417.')).toBeInTheDocument();
-  });
-
-  it('takes the question out of the address bar once it has been asked', async () => {
-    renderView({ pendingQuestion: 'What is blocking SSO?' });
-
     await waitFor(() =>
       expect(router.replace).toHaveBeenCalledWith(`/chat/${CONVERSATION_ID}`, { scroll: false }),
     );
+  });
+
+  it('takes the question out of the address bar once it has been asked', async () => {
+    const replaceState = vi.spyOn(window.history, 'replaceState');
+    renderView({ pendingQuestion: 'What is blocking SSO?' });
+
+    await waitFor(() =>
+      expect(replaceState).toHaveBeenCalledWith(
+        window.history.state,
+        '',
+        `/chat/${CONVERSATION_ID}`,
+      ),
+    );
+    replaceState.mockRestore();
+  });
+
+  it('still streams the answer when the effect is replayed', async () => {
+    let calls = 0;
+    vi.stubGlobal('fetch', async () => {
+      calls += 1;
+      return answerWith(answered)('/api/chat');
+    });
+
+    render(
+      <StrictMode>
+        <ConversationView
+          conversationId={CONVERSATION_ID}
+          initialTurns={[]}
+          initialTitle={null}
+          pendingQuestion="What is blocking SSO?"
+        />
+      </StrictMode>,
+    );
+
+    expect(await screen.findByText('Blocked on ENG-4417.')).toBeInTheDocument();
+    expect(calls).toBe(1);
+  });
+
+  it('hands the new title to the sidebar while the answer is still on screen', async () => {
+    const titles: Array<string | null | undefined> = [];
+    const unsubscribe = subscribeConversationList((patch) => titles.push(patch.title));
+    renderView({ pendingQuestion: 'What is blocking SSO?' });
+
+    expect(await screen.findByRole('heading', { name: 'SSO blockers' })).toBeInTheDocument();
+    expect(titles).toEqual(['SSO blockers']);
+    unsubscribe();
   });
 
   it('shows the name the conversation was given', async () => {

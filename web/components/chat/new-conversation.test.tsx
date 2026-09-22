@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ActionState } from '@/lib/actions/state';
+import { subscribeConversationList } from '@/lib/chat/history-sync';
 
 const CONVERSATION_ID = '44444444-4444-4444-8444-444444444444';
 const SPACE_ID = '33333333-3333-4333-8333-333333333333';
@@ -37,14 +38,18 @@ beforeEach(() => {
 
 describe('NewConversation', () => {
   it('opens a conversation and carries the question to it', async () => {
+    const opened: string[] = [];
+    const unsubscribe = subscribeConversationList((patch) => opened.push(patch.id));
     render(<NewConversation spaces={spaces} />);
 
     await user.type(screen.getByLabelText('Ask a question'), 'What is blocking SSO?{Enter}');
 
     expect(created.input).toEqual({ spaceFilter: null });
+    expect(opened).toEqual([CONVERSATION_ID]);
     expect(router.push).toHaveBeenCalledWith(
       `/chat/${CONVERSATION_ID}?ask=What%20is%20blocking%20SSO%3F`,
     );
+    unsubscribe();
   });
 
   it('opens the conversation against the spaces that were picked', async () => {

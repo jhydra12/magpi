@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 
 import { askChat } from '@/lib/chat/client';
+import { publishConversation } from '@/lib/chat/history-sync';
 import { chatReducer, initialChatState, type ChatTurn } from '@/lib/chat/turns';
 
 import { Composer } from './composer';
+import { LiveTitle } from './live-title';
 import { MessageList } from './message-list';
 
 type ConversationViewProps = {
@@ -40,13 +42,18 @@ export function ConversationView({
       await askChat(
         { conversationId, message: question },
         (event) => {
-          if (!controller.signal.aborted) dispatch({ type: 'event', event });
+          if (controller.signal.aborted) return;
+          dispatch({ type: 'event', event });
+          if (event.type === 'title') {
+            publishConversation({ id: conversationId, title: event.title });
+          }
         },
         { signal: controller.signal },
       );
       if (controller.signal.aborted) return;
-      // The history sidebar is server rendered, so a new title reaches it here.
-      router.refresh();
+      // replaceState dropped ?ask= without a navigation. Tell the router, or the
+      // next refresh puts the question back on the URL and asks it again.
+      router.replace(`/chat/${conversationId}`, { scroll: false });
     },
     [conversationId, router],
   );
@@ -54,10 +61,17 @@ export function ConversationView({
   useEffect(() => {
     if (started.current || pendingQuestion === null) return;
 
-    started.current = true;
-    router.replace(`/chat/${conversationId}`, { scroll: false });
-    void ask(pendingQuestion);
-  }, [ask, conversationId, pendingQuestion, router]);
+    // Strict mode runs this effect and its cleanup before the real run. Starting
+    // the request in that pass aborts it, and a flag set up front refuses to
+    // start another, so the screen stays on "Reading your documents…".
+    const timer = window.setTimeout(() => {
+      started.current = true;
+      window.history.replaceState(window.history.state, '', `/chat/${conversationId}`);
+      void ask(pendingQuestion);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [ask, conversationId, pendingQuestion]);
 
   useEffect(() => {
     const element = transcript.current;
@@ -67,8 +81,8 @@ export function ConversationView({
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="flex h-12 shrink-0 items-center">
-        <h1 className="truncate text-sm font-medium text-foreground">
-          {state.title ?? 'New conversation'}
+        <h1 className="min-w-0 text-sm font-medium text-foreground">
+          <LiveTitle text={state.title ?? 'New conversation'} />
         </h1>
       </header>
 

@@ -64,22 +64,18 @@ export function AssistantTurn({ content, citations, streaming }: AssistantTurnPr
 
 function Sources({ citations }: { citations: readonly Citation[] }) {
   return (
-    <section className="mt-5">
-      <h3 className="text-xs font-medium text-tertiary-foreground">Sources</h3>
-      <ul className="mt-2 flex flex-col gap-1">
+    <section className="mt-4">
+      <h3 className="text-xs text-tertiary-foreground">Sources</h3>
+      <ul className="mt-1.5 flex flex-wrap gap-1.5">
         {citations.map((citation) => (
-          <li key={citation.chunkId}>
+          <li key={citation.chunkId} className="max-w-full">
             <Link
               href={`/documents/${citation.documentId}`}
-              className="block rounded-lg px-2.5 py-2 transition-colors hover:bg-muted motion-reduce:transition-none"
+              title={citation.documentTitle}
+              className="inline-flex max-w-56 items-center gap-1.5 rounded-lg bg-muted px-2 py-1 text-xs text-foreground transition-colors hover:bg-secondary motion-reduce:transition-none"
             >
-              <span className="flex items-center gap-2 text-sm text-foreground">
-                <SourceMark source={citation.documentSource} title />
-                <span className="min-w-0 truncate">{citation.documentTitle}</span>
-              </span>
-              <span className="mt-0.5 block text-xs leading-relaxed text-tertiary-foreground">
-                {citation.excerpt}
-              </span>
+              <SourceMark source={citation.documentSource} />
+              <span className="min-w-0 truncate">{citation.documentTitle}</span>
             </Link>
           </li>
         ))}

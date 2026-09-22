@@ -1,10 +1,16 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useConversationFolders, type ConversationFolder } from '@/hooks/use-conversation-folders';
 import { useInfiniteQuery, type SupabaseTableData } from '@/hooks/use-infinite-query';
-
+import {
+  applyConversationPatches,
+  mergeConversationPatch,
+  subscribeConversationList,
+  type ConversationListPatch,
+  type ListedConversation,
+} from '@/lib/chat/history-sync';
 import { cn } from '@/lib/utils';
 
 import { ConversationList } from './conversation-list';
@@ -16,7 +22,19 @@ type ConversationRow = SupabaseTableData<'conversations'>;
 
 export function HistorySidebar() {
   const [reloadKey, setReloadKey] = useState(0);
-  const refresh = useCallback(() => setReloadKey((key) => key + 1), []);
+  const [live, setLive] = useState<ReadonlyMap<string, ConversationListPatch>>(() => new Map());
+  const refresh = useCallback(() => {
+    setLive(new Map());
+    setReloadKey((key) => key + 1);
+  }, []);
+
+  useEffect(
+    () =>
+      subscribeConversationList((patch) =>
+        setLive((current) => mergeConversationPatch(current, patch)),
+      ),
+    [],
+  );
 
   const { folders, error: folderError } = useConversationFolders(reloadKey);
   const { data, isLoading, error, hasMore, fetchNextPage } = useInfiniteQuery<
@@ -32,7 +50,8 @@ export function HistorySidebar() {
   // The folder control stays on the rail while the list is loading or failed.
   const { isOver, dropProps } = useFolderDrop(null, refresh);
 
-  const { sections, unfiled } = groupByFolder(data, folders);
+  const rows = applyConversationPatches(data, live);
+  const { sections, unfiled } = groupByFolder(rows, folders);
   const ready = !isLoading && !error;
 
   return (
@@ -54,7 +73,7 @@ export function HistorySidebar() {
           )}
         >
           {folderError ? <SidebarNote>Your folders could not be loaded.</SidebarNote> : null}
-          {data.length === 0 && folders.length === 0 ? (
+          {rows.length === 0 && folders.length === 0 ? (
             <SidebarNote>Nothing asked yet.</SidebarNote>
           ) : null}
 
@@ -87,17 +106,17 @@ export function HistorySidebar() {
 
 type FolderGroup = {
   readonly folder: ConversationFolder;
-  readonly conversations: ConversationRow[];
+  readonly conversations: ListedConversation[];
 };
 
 // A conversation filed in a folder this person can no longer see sits at the top level instead.
 function groupByFolder(
-  conversations: readonly ConversationRow[],
+  conversations: readonly ListedConversation[],
   folders: readonly ConversationFolder[],
 ) {
   const sections: FolderGroup[] = folders.map((folder) => ({ folder, conversations: [] }));
   const byFolder = new Map(sections.map((section) => [section.folder.id, section.conversations]));
-  const unfiled: ConversationRow[] = [];
+  const unfiled: ListedConversation[] = [];
 
   for (const conversation of conversations) {
     const bucket =
