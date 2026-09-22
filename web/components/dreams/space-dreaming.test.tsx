@@ -16,6 +16,7 @@ afterEach(() => {
 });
 
 const SPACE_ID = '33333333-3333-4333-8333-333333333333';
+const DOCUMENT_ID = '66666666-6666-4666-8666-666666666666';
 const getSpace = (overrides?: Partial<DreamingSpace>): DreamingSpace => ({
   id: SPACE_ID,
   name: 'Engineering',
@@ -294,18 +295,69 @@ describe('dreaming in each space row', () => {
     expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeEnabled();
   });
 
-  it('hides finished progress on a fresh page load', () => {
+  it('keeps finished progress and its output link on a fresh page load', () => {
     render(
       <SpaceDreaming
         spaces={[getSpace()]}
         initial={getInitial([
-          getActivityRun({ status: 'succeeded', finished_at: '2026-09-18T10:00:09.000Z' }),
+          getActivityRun({
+            status: 'succeeded',
+            finished_at: '2026-09-18T10:00:09.000Z',
+            output_document_id: DOCUMENT_ID,
+          }),
         ])}
         {...getActions()}
       />,
     );
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+    expect(screen.getByRole('link', { name: 'Open output' })).toHaveAttribute(
+      'href',
+      `/dreams/${RUN_ID}`,
+    );
+  });
+
+  it('links to a digest whose sibling task failed', () => {
+    render(
+      <SpaceDreaming
+        spaces={[getSpace()]}
+        initial={getInitial([
+          getActivityRun({
+            status: 'succeeded',
+            finished_at: '2026-09-18T10:00:09.000Z',
+            output_document_id: DOCUMENT_ID,
+          }),
+          getActivityRun({
+            id: '44444444-4444-4444-8444-444444444444',
+            kind: 'connections',
+            status: 'failed',
+            finished_at: '2026-09-18T10:00:08.000Z',
+            error: 'model unavailable',
+          }),
+        ])}
+        {...getActions()}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Open output' })).toHaveAttribute(
+      'href',
+      `/dreams/${RUN_ID}`,
+    );
+  });
+
+  it('offers no output link when the digest wrote no document', () => {
+    render(
+      <SpaceDreaming
+        spaces={[getSpace()]}
+        initial={getInitial([
+          getActivityRun({
+            status: 'succeeded',
+            finished_at: '2026-09-18T10:00:09.000Z',
+            output_document_id: null,
+          }),
+        ])}
+        {...getActions()}
+      />,
+    );
+    expect(screen.queryByRole('link', { name: 'Open output' })).not.toBeInTheDocument();
   });
 
   it('shows the last Dream time even when it is outside recent manual activity', () => {
@@ -325,7 +377,7 @@ describe('dreaming in each space row', () => {
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 
-  it('keeps active progress beyond five minutes and hides a result five minutes after completion', () => {
+  it('keeps a finished result and its output link well beyond five minutes', () => {
     vi.useFakeTimers();
     const props = { spaces: [getSpace()], ...getActions() };
     const active = getInitial([getActivityRun({ status: 'running' })]);
@@ -336,14 +388,13 @@ describe('dreaming in each space row', () => {
       getActivityRun({
         status: 'succeeded',
         finished_at: active.observedAt,
+        output_document_id: DOCUMENT_ID,
       }),
     ]);
     rerender(<SpaceDreaming {...props} initial={completed} />);
-    act(() => vi.advanceTimersByTime(299_999));
+    act(() => vi.advanceTimersByTime(900_000));
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
-    act(() => vi.advanceTimersByTime(1));
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    expect(screen.getByText('Next dream: 1:55am UTC')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Open output' })).toBeInTheDocument();
     unmount();
   });
 

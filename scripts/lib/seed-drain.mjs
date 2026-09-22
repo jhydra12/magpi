@@ -1,10 +1,19 @@
 /** Drain only this organization's ingestion, failing rather than declaring partial success. */
-export async function drainIngestion({ snapshot, runBatch, wait, maxPasses = 200 }) {
+export async function drainIngestion({
+  snapshot,
+  runBatch,
+  wait,
+  recoverStalled = async () => {},
+  maxPasses = 200,
+}) {
   for (let pass = 0; pass < maxPasses; pass += 1) {
     const counts = await snapshot();
     if (counts.failed || counts.timeout)
       throw new Error(`Ingestion failed: ${JSON.stringify(counts)}`);
     if (!counts.queued && !counts.running) return counts;
+    // Nothing queued but something running means the claim has nothing to take, and it only
+    // reclaims an abandoned job after fifteen minutes, which outlasts these passes.
+    if (!counts.queued && counts.running) await recoverStalled();
     await runBatch();
     // Queued retries and jobs owned by another worker can temporarily claim nothing.
     await wait();

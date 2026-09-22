@@ -54,11 +54,7 @@ function SpaceRow({
   const [isPending, startTransition] = useTransition();
   const [submittedRunId, setSubmittedRunId] = useState<string | null>(null);
   const isActive = run ? isDreamActive(run) : false;
-  const [initialFinishedRunId] = useState(() => (isActive ? null : run?.id));
-  const [expiredRunId, setExpiredRunId] = useState<string | null>(null);
-  const runId = run?.id;
   const finishedAt = run?.finished_at;
-  const showProgress = isActive || (runId !== initialFinishedRunId && runId !== expiredRunId);
   const isAwaitingRun = submittedRunId !== null && !runs.some((item) => item.id === submittedRunId);
   const isStarting = isPending || isAwaitingRun;
   const showQueuedPlaceholder = isGloballyQueued;
@@ -75,13 +71,6 @@ function SpaceRow({
         .replace(' AM', 'am')
         .replace(' PM', 'pm')} UTC`
     : 'Never';
-
-  useEffect(() => {
-    if (!runId || isActive || !showProgress) return;
-    const elapsed = finishedAt ? Math.max(0, Date.parse(observedAt) - Date.parse(finishedAt)) : 0;
-    const timer = setTimeout(() => setExpiredRunId(runId), Math.max(0, 300_000 - elapsed));
-    return () => clearTimeout(timer);
-  }, [runId, finishedAt, isActive, showProgress, observedAt]);
 
   const startDreaming = () => {
     setFailure(null);
@@ -125,7 +114,7 @@ function SpaceRow({
               indeterminate
             />
           </div>
-        ) : run && showProgress ? (
+        ) : run ? (
           <SpaceDreamProgress
             spaceName={space.name}
             run={run}
@@ -167,7 +156,7 @@ function SpaceRow({
   );
 }
 
-/** Shows active Dreams and keeps their results briefly until refresh or dismissal. */
+/** Shows active Dreams and keeps each space's last result, and its output link, until the next run. */
 export function SpaceDreaming({
   spaces,
   initial,

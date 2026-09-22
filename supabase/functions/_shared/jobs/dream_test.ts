@@ -1,6 +1,6 @@
 import { assert, assertEquals, assertStringIncludes } from '@std/assert';
 
-import type { CompleteInput, ModelRunner } from '../model_client.ts';
+import { type CompleteInput, createModelRunner, type ModelRunner } from '../model_client.ts';
 import {
   requestsFor,
   type StubDb,
@@ -9,6 +9,7 @@ import {
   type StubRequest,
 } from '../testing/stub_db.ts';
 import { type DreamRunRecord, runDreamJob } from './dream.ts';
+import { DREAM_CANCEL_REQUEST } from './dream_cancellation.ts';
 import { jumpingClock } from './testing.ts';
 import type { JobDeps } from './types.ts';
 
@@ -328,6 +329,81 @@ const SPACE_SCOPED_TABLES = ['chunks', 'documents', 'entities', 'entity_mentions
 
 /** Every id belonging to the space this run does not own. */
 const FOREIGN_IDS = [FOREIGN_SPACE, FOREIGN_DOC, FOREIGN_CHUNK];
+
+for (const kind of ['digest', 'entities', 'connections'] as const) {
+  Deno.test(`Reset dreams interrupts a pending ${kind} model request before acknowledging`, async () => {
+    let cancelled = false;
+    let aborted = false;
+    let settled = false;
+    const base = replies();
+    const stub = stubDb((request) => {
+      if (request.table === 'dream_runs' && request.method === 'GET') {
+        return { body: [{ error: cancelled ? DREAM_CANCEL_REQUEST : null }] };
+      }
+      if (
+        request.table === 'dream_runs' && request.method === 'PATCH' &&
+        isRecord(request.body) && request.body.status === 'failed'
+      ) {
+        assert(settled, 'acknowledgement must follow the aborted call settling');
+        assertEquals(writtenBodies(stub, 'model_calls').length, 1);
+      }
+      return base(request);
+    });
+    const waitForCancellation = async (signal?: AbortSignal): Promise<never> => {
+      assert(signal);
+      cancelled = true;
+      try {
+        await new Promise((_resolve, reject) => {
+          signal.addEventListener('abort', () => {
+            aborted = true;
+            reject(signal.reason);
+          }, { once: true });
+        });
+        throw new Error('unreachable');
+      } finally {
+        // Simulate accounting that still has to settle after the HTTP abort.
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        settled = true;
+      }
+    };
+    try {
+      const models = createModelRunner({
+        db: stub.db,
+        apiKey: 'test-key',
+        now: () => NOW,
+        // Deno and Node each declare a RequestInit and only one of them puts signal on it, so
+        // the parameter arrives as a union the property cannot be read off directly.
+        fetch: (_input, init) =>
+          waitForCancellation((init as { signal?: AbortSignal } | undefined)?.signal),
+      });
+      const result = await runDreamJob(dreamRun(kind), jobDeps(stub, models));
+      assert(aborted);
+      assertEquals(result, { kind: 'failed', detail: 'cancelled by Reset dreams' });
+      for (const table of [...SPACE_SCOPED_TABLES, 'usage_events']) {
+        assertEquals(writtenBodies(stub, table), []);
+      }
+    } finally {
+      await stub.close();
+    }
+  });
+}
+
+Deno.test('a claimed run cancelled before its job starts never calls a model', async () => {
+  const stub = stubDb((request) =>
+    request.table === 'dream_runs' && request.method === 'GET'
+      ? { body: [{ error: DREAM_CANCEL_REQUEST }] }
+      : replies()(request)
+  );
+  const models = fakeModels(answerFor);
+  try {
+    assertEquals((await runDreamJob(dreamRun('digest'), jobDeps(stub, models))).kind, 'failed');
+    assertEquals(models.completeCalls, []);
+    assertEquals(models.embedCalls, []);
+    assertEquals(requestsFor(stub, 'chunks'), []);
+  } finally {
+    await stub.close();
+  }
+});
 
 Deno.test('a dream run reads nothing outside its own space', async () => {
   const stub = stubDb(replies({ foreign: true }));

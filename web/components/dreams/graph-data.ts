@@ -13,6 +13,8 @@ export type GraphNode = {
   summary?: string | null;
   documents?: GraphDocument[];
   title?: string;
+  /** How many links this node ended up with, so the busiest names draw largest. */
+  degree?: number;
   x?: number;
   y?: number;
   z?: number;
@@ -26,7 +28,44 @@ export type GraphLink = {
   target: string;
   kind: 'mention' | 'shared';
   sharedFiles: string[];
+  /** Files the two ends have in common. Drawn as width, so a real tie reads as one. */
+  weight?: number;
 };
+
+/**
+ * Above this many entities, a file says nothing about any particular pair in it: a release note
+ * naming thirty things would otherwise contribute 435 links on its own, which is what turns the
+ * graph into one ball. A pair from a crowded file is kept only when another file repeats it.
+ */
+const CROWDED_FILE = 6;
+
+/**
+ * Ties kept per entity. Filtering crowded files alone still leaves a mesh, because this corpus is
+ * mostly short files that name several things each. Keeping each entity's strongest few ties caps
+ * the drawing at a few links per node, which is what lets clusters separate instead of packing
+ * into one ball. A link survives when either end counts it among its best, so nothing is orphaned.
+ */
+const TIES_PER_ENTITY = 3;
+
+/** The strongest ties of each end, unioned. Ordered by weight, then by id so it never flickers. */
+function strongestTies(links: readonly GraphLink[]): GraphLink[] {
+  const byEntity = new Map<string, GraphLink[]>();
+  for (const link of links) {
+    for (const end of [link.source, link.target]) {
+      byEntity.set(end, [...(byEntity.get(end) ?? []), link]);
+    }
+  }
+  const kept = new Set<GraphLink>();
+  for (const [, theirs] of byEntity) {
+    const ranked = [...theirs].sort(
+      (a, b) =>
+        (b.weight ?? 1) - (a.weight ?? 1) ||
+        `${a.source}${a.target}`.localeCompare(`${b.source}${b.target}`),
+    );
+    for (const link of ranked.slice(0, TIES_PER_ENTITY)) kept.add(link);
+  }
+  return links.filter((link) => kept.has(link));
+}
 
 export type GraphData = { nodes: GraphNode[]; links: GraphLink[] };
 
@@ -75,7 +114,7 @@ export function buildGraph(groups: readonly EntityGroup[]): GraphData {
     documents: [...(filesByEntity.get(node.id)?.values() ?? [])],
   }));
   const links: GraphLink[] = [];
-  const shared = new Map<string, GraphLink>();
+  const shared = new Map<string, GraphLink & { smallestFile: number }>();
   const documentNodes: GraphNode[] = [];
   for (const [documentId, document] of documents) {
     const id = `document:${documentId}`;
@@ -88,13 +127,46 @@ export function buildGraph(groups: readonly EntityGroup[]): GraphData {
         const source = members[left];
         const target = members[right];
         const key = JSON.stringify([source, target]);
-        const link = shared.get(key) ?? { source, target, kind: 'shared', sharedFiles: [] };
+        const link = shared.get(key) ?? {
+          source,
+          target,
+          kind: 'shared' as const,
+          sharedFiles: [],
+          smallestFile: Infinity,
+        };
         link.sharedFiles.push(document.title);
+        link.smallestFile = Math.min(link.smallestFile, members.length);
         shared.set(key, link);
       }
     }
   }
-  return { nodes: [...nodes, ...documentNodes], links: [...links, ...shared.values()] };
+
+  // A pair is drawn when it repeats, or when the one file that names both is a short one.
+  const candidates = [...shared.values()]
+    .filter((link) => link.sharedFiles.length > 1 || link.smallestFile <= CROWDED_FILE)
+    .map(({ source, target, kind, sharedFiles }) => ({
+      source,
+      target,
+      kind,
+      sharedFiles,
+      weight: sharedFiles.length,
+    }));
+  const sharedLinks = strongestTies(candidates);
+
+  const allLinks = [...links, ...sharedLinks];
+  const degrees = new Map<string, number>();
+  for (const link of allLinks) {
+    degrees.set(link.source, (degrees.get(link.source) ?? 0) + 1);
+    degrees.set(link.target, (degrees.get(link.target) ?? 0) + 1);
+  }
+  const withDegree = (node: GraphNode): GraphNode => ({
+    ...node,
+    degree: degrees.get(node.id) ?? 0,
+  });
+  return {
+    nodes: [...nodes.map(withDegree), ...documentNodes.map(withDegree)],
+    links: allLinks,
+  };
 }
 
 /** Keep simulation coordinates when fresh query results add entities. */

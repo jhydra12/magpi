@@ -3,6 +3,7 @@
 import { ApiError } from '../errors.ts';
 import { DEFAULT_BUDGET_MS, StageTimeout, startBudget } from './budget.ts';
 import { dreamConnections } from './dream_connections.ts';
+import { dreamCancellation } from './dream_cancellation.ts';
 import { dreamDigest } from './dream_digest.ts';
 import { dreamEntities } from './dream_entities.ts';
 import {
@@ -81,23 +82,54 @@ function reached(pass: Pass): DreamOutcome {
 }
 
 export async function runDreamJob(run: DreamRunRecord, deps: JobDeps): Promise<DreamResult> {
+  const cancellation = dreamCancellation(deps.db, run.id);
+  const models = deps.models;
+  // Await the aborted call (and its accounting) before acknowledging cancellation.
+  deps = {
+    ...deps,
+    models: {
+      async complete(input) {
+        cancellation.signal.throwIfAborted();
+        const result = await models.complete({ ...input, signal: cancellation.signal });
+        cancellation.signal.throwIfAborted();
+        return result;
+      },
+      async embed(input) {
+        cancellation.signal.throwIfAborted();
+        const result = await models.embed({ ...input, signal: cancellation.signal });
+        cancellation.signal.throwIfAborted();
+        return result;
+      },
+    },
+  };
+  const budget = startBudget(deps.http, deps.budgetMs ?? DEFAULT_BUDGET_MS);
   const pass: Pass = {
     run,
     deps,
     db: spaceScoped(deps.db, { orgId: run.org_id, spaceId: run.space_id }),
-    budget: startBudget(deps.http, deps.budgetMs ?? DEFAULT_BUDGET_MS),
+    budget: {
+      ...budget,
+      checkpoint(stage) {
+        cancellation.signal.throwIfAborted();
+        budget.checkpoint(stage);
+      },
+    },
     stage: 'collect',
     inputDocumentCount: 0,
   };
   try {
     await updateRun(run, deps, { status: 'running', started_at: deps.http.now().toISOString() });
+    await cancellation.start();
     observe(pass, 'started');
     const outcome = await dispatch(pass);
-    await finish(pass, 'succeeded', outcome, null);
+    cancellation.signal.throwIfAborted();
     await recordUsage(deps.db, [{ orgId: run.org_id, kind: 'dream_run', quantity: 1 }]);
+    cancellation.signal.throwIfAborted();
+    await finish(pass, 'succeeded', outcome, null);
     observe(pass, 'completed', outcome);
     return { kind: 'succeeded', ...outcome };
-  } catch (err) {
+  } catch (caught) {
+    const err = cancellation.signal.aborted ? cancellation.signal.reason : caught;
     if (err instanceof StageTimeout) {
       observe(pass, 'timeout');
       await finish(pass, 'timeout', reached(pass), withStage(pass.stage, err.message));
@@ -107,5 +139,7 @@ export async function runDreamJob(run: DreamRunRecord, deps: JobDeps): Promise<D
     observe(pass, 'failed');
     await finish(pass, 'failed', reached(pass), withStage(pass.stage, detail));
     return { kind: 'failed', detail };
+  } finally {
+    await cancellation.stop();
   }
 }

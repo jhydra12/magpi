@@ -4,6 +4,7 @@ import { Check, Circle, Loader2, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { resetDemoStep } from '@/app/(app)/admin/demo/actions';
+import { resetDreams } from '@/app/(app)/admin/demo/reset-dreams';
 import { Button } from '@/components/ui/button';
 
 const STEPS = [
@@ -11,6 +12,7 @@ const STEPS = [
   { id: 'chats', label: 'Delete chat history' },
   { id: 'compute', label: 'Delete all Compute services' },
   { id: 'data', label: 'Delete generated Dream data' },
+  { id: 'freshen', label: 'Refresh source document timestamps' },
   { id: 'edge', label: 'Restore Edge Functions' },
 ] as const;
 type Step = (typeof STEPS)[number]['id'];
@@ -20,6 +22,7 @@ const initialStatuses: Record<Step, Status> = {
   chats: 'pending',
   compute: 'pending',
   data: 'pending',
+  freshen: 'pending',
   edge: 'pending',
 };
 const STATUS_LABELS: Record<Status, string> = {
@@ -35,6 +38,35 @@ export function DemoReset() {
   const [statuses, setStatuses] = useState(initialStatuses);
   const [failure, setFailure] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [dreamsPending, setDreamsPending] = useState(false);
+  const [dreamsReset, setDreamsReset] = useState(false);
+
+  async function resetDreamsOnly() {
+    if (busy.current) return;
+    if (
+      !window.confirm(
+        'Clear all dream history and generated output for this organization? Chats, source documents, connections, and Compute services will be kept.',
+      )
+    )
+      return;
+    busy.current = true;
+    setDreamsPending(true);
+    setFailure(null);
+    setShowToast(false);
+    setDreamsReset(false);
+    try {
+      const result = await resetDreams();
+      if (result.status !== 'success') {
+        throw new Error(result.status === 'error' ? result.message : 'Dreams could not be reset.');
+      }
+      setDreamsReset(true);
+    } catch (error) {
+      setFailure(error instanceof Error ? error.message : 'Dreams could not be reset.');
+    } finally {
+      busy.current = false;
+      setDreamsPending(false);
+    }
+  }
 
   async function reset() {
     if (busy.current) return;
@@ -49,6 +81,7 @@ export function DemoReset() {
     setStatuses(initialStatuses);
     setFailure(null);
     setShowToast(false);
+    setDreamsReset(false);
     try {
       for (const step of STEPS) {
         setStatuses((current) => ({ ...current, [step.id]: 'running' }));
@@ -107,15 +140,34 @@ export function DemoReset() {
           );
         })}
       </ol>
-      <Button
-        type="button"
-        variant="destructive"
-        className="bg-destructive-600 text-white hover:bg-destructive-600/90"
-        disabled={pending}
-        onClick={() => void reset()}
-      >
-        {pending ? 'Resetting…' : 'Reset'}
-      </Button>
+      <div className="flex flex-wrap gap-3">
+        <Button
+          type="button"
+          variant="destructive"
+          className="bg-destructive-600 text-white hover:bg-destructive-600/90"
+          disabled={pending || dreamsPending}
+          onClick={() => void reset()}
+        >
+          {pending ? 'Resetting…' : 'Reset'}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={pending || dreamsPending}
+          onClick={() => void resetDreamsOnly()}
+        >
+          {dreamsPending ? 'Resetting dreams…' : 'Reset dreams'}
+        </Button>
+      </div>
+      <p className="max-w-xl text-sm text-muted-foreground">
+        Reset dreams clears dream history and generated output, and refreshes source timestamps for
+        another run. Chats, source documents, connections, and Compute services are kept.
+      </p>
+      {dreamsReset ? (
+        <p role="status" className="text-sm text-brand-600">
+          Dreams reset. Ready to dream again.
+        </p>
+      ) : null}
       {failure ? (
         <p role="alert" className="text-sm text-destructive-600">
           {failure}

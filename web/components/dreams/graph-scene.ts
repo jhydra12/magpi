@@ -249,6 +249,12 @@ export function frameGraph(graph: ForceGraphMethods<GraphNode, GraphLink>) {
   const camera = graph.camera() as PerspectiveCamera;
   const distance = camera.position.length();
   if (!Number.isFinite(distance) || distance === 0) return;
+  // The renderer's own far plane is 2000. A few hundred names are framed from further
+  // out than that, which draws a black canvas.
+  if (camera.far < distance * 2) {
+    camera.far = distance * 2;
+    camera.updateProjectionMatrix();
+  }
   graph.cameraPosition(
     { x: distance * 0.02, y: distance * 0.04, z: distance },
     { x: 0, y: 0, z: 0 },

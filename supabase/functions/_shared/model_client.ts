@@ -11,10 +11,12 @@ const API_BASE = 'https://api.openai.com/v1';
 export interface EmbedInput {
   orgId: string;
   texts: string[];
+  signal?: AbortSignal;
 }
 
 export interface CompleteInput {
   orgId: string;
+  signal?: AbortSignal;
   purpose: CompletionPurpose;
   system: string;
   user: string;
@@ -33,7 +35,7 @@ export interface ModelRunnerDeps extends HttpDeps, ClockDeps {
   apiKey: string;
 }
 
-interface Usage {
+export interface Usage {
   inputTokens: number;
   outputTokens: number;
 }
@@ -53,7 +55,7 @@ function readUsage(payload: Record<string, unknown>): Usage {
 }
 
 /** Logs the call, failures included. Awaited so the isolate cannot end before the insert. */
-async function record(
+export async function record(
   deps: ModelRunnerDeps,
   row: {
     orgId: string;
@@ -80,6 +82,7 @@ async function callOpenAi(
   deps: ModelRunnerDeps,
   path: string,
   body: unknown,
+  signal?: AbortSignal,
 ): Promise<Record<string, unknown>> {
   let response: Response;
   try {
@@ -90,6 +93,7 @@ async function callOpenAi(
         'content-type': 'application/json',
       },
       body: JSON.stringify(body),
+      signal,
     });
   } catch {
     throw new ApiError(502, 'model_unreachable', 'the model provider could not be reached');
@@ -188,7 +192,7 @@ export function createModelRunner(deps: ModelRunnerDeps): ModelRunner {
   }
 
   return {
-    embed({ orgId, texts }) {
+    embed({ orgId, texts, signal }) {
       if (texts.length === 0) return Promise.resolve([]);
       return run(
         orgId,
@@ -199,12 +203,12 @@ export function createModelRunner(deps: ModelRunnerDeps): ModelRunner {
             model: MODELS.embedding,
             input: texts,
             dimensions: EMBEDDING_DIMENSIONS,
-          }),
+          }, signal),
         (payload) => readEmbeddings(payload, texts.length),
       );
     },
 
-    complete({ orgId, purpose, system, user, maxOutputTokens, json }) {
+    complete({ orgId, purpose, system, user, maxOutputTokens, json, signal }) {
       const model = MODELS[purpose];
       return run(
         orgId,
@@ -219,7 +223,7 @@ export function createModelRunner(deps: ModelRunnerDeps): ModelRunner {
             ],
             ...(maxOutputTokens ? { max_completion_tokens: maxOutputTokens } : {}),
             ...(json ? { response_format: { type: 'json_object' } } : {}),
-          }),
+          }, signal),
         readCompletion,
       );
     },

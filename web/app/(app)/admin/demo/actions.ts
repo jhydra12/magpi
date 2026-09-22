@@ -97,12 +97,16 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
   if (access.kind === 'forbidden') return errorState('Only an owner or admin can reset the demo.');
   const db = access.elevated;
   try {
-    if (!['pause', 'chats', 'compute', 'data', 'edge'].includes(step))
+    if (!['pause', 'chats', 'compute', 'data', 'freshen', 'edge'].includes(step))
       return errorState('Unknown reset step.');
     assertComputeResetConfigured();
     if (step === 'pause') {
       const { error } = await db.rpc('set_dream_execution_mode', { p_mode: 'paused' });
       if (error) throw new Error('Dream processing could not be paused.');
+      // Pausing unschedules the workers that would retire their own abandoned rows, so a run
+      // whose worker died would otherwise keep this step waiting for it forever.
+      const { error: sweepError } = await db.rpc('sweep_stale_worker_runs');
+      if (sweepError) throw new Error('Stalled Dream work could not be cleared.');
       return successState({ complete: await hasNoActiveWorkers(db) });
     }
     const { data: mode, error: modeError } = await db.rpc('dream_execution_mode');
@@ -117,6 +121,14 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
     if (step === 'data') {
       const result = await deleteGeneratedDreamData(access);
       return result.status === 'error' ? result : successState({ complete: true });
+    }
+    if (step === 'freshen') {
+      // Seeded chunks keep the timestamp they were first ingested with, which soon falls outside
+      // the window a digest reads, so the demo would show a dream that writes nothing.
+      const { error } = await db.rpc('freshen_demo_corpus', { p_org_id: access.context.orgId });
+      if (error) throw new Error('Source documents could not be refreshed.');
+      revalidatePath('/dreams');
+      return successState({ complete: true });
     }
     const { count, error: runsError } = await db
       .from('dream_runs')

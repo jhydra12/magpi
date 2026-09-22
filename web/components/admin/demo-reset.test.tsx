@@ -4,13 +4,53 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { DemoReset } from './demo-reset';
 
 const resetStep = vi.hoisted(() => vi.fn());
+const resetDreams = vi.hoisted(() => vi.fn());
 vi.mock('@/app/(app)/admin/demo/actions', () => ({ resetDemoStep: resetStep }));
+vi.mock('@/app/(app)/admin/demo/reset-dreams', () => ({ resetDreams }));
 afterEach(() => {
   vi.restoreAllMocks();
   vi.clearAllMocks();
   vi.useRealTimers();
 });
 const completed = { status: 'success', data: { complete: true } };
+
+it('resets dreams independently and disables both reset buttons during the request', async () => {
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
+  let finish!: (value: unknown) => void;
+  resetDreams.mockReturnValue(
+    new Promise((resolve) => {
+      finish = resolve;
+    }),
+  );
+  render(<DemoReset />);
+  fireEvent.click(screen.getByRole('button', { name: 'Reset dreams' }));
+  expect(screen.getByRole('button', { name: 'Resetting dreams…' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Reset' })).toBeDisabled();
+  await act(async () => {
+    finish({ status: 'success', data: undefined });
+  });
+  expect(screen.getByRole('status')).toHaveTextContent('Dreams reset. Ready to dream again.');
+  expect(resetStep).not.toHaveBeenCalled();
+});
+
+it('shows dream reset failures and permits retrying', async () => {
+  vi.spyOn(window, 'confirm').mockReturnValue(true);
+  resetDreams.mockResolvedValue({ status: 'error', message: 'Dreams are still running.' });
+  render(<DemoReset />);
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'Reset dreams' }));
+  });
+  expect(screen.getByRole('alert')).toHaveTextContent('Dreams are still running.');
+  expect(screen.getByRole('button', { name: 'Reset dreams' })).toBeEnabled();
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+});
+
+it('does not reset dreams when confirmation is declined', () => {
+  vi.spyOn(window, 'confirm').mockReturnValue(false);
+  render(<DemoReset />);
+  fireEvent.click(screen.getByRole('button', { name: 'Reset dreams' }));
+  expect(resetDreams).not.toHaveBeenCalled();
+});
 
 it('waits for each real stage and shows a dismissable toast only after all succeed', async () => {
   vi.useFakeTimers();
@@ -39,6 +79,7 @@ it('waits for each real stage and shows a dismissable toast only after all succe
     'chats',
     'compute',
     'data',
+    'freshen',
     'edge',
   ]);
   expect(rows.every((row) => row.textContent?.includes('Complete'))).toBe(true);
@@ -74,6 +115,7 @@ it('stops on failure and retries the entire sequence without a false success toa
     'chats',
     'compute',
     'data',
+    'freshen',
     'edge',
   ]);
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();

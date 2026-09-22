@@ -130,6 +130,19 @@ export function stripeEnv(source: EnvSource = denoEnv): StripeEnv {
   );
 }
 
+/**
+ * Forces model calls to the rehearsal runner, or forces them to the provider. Unset means the
+ * Admin > Demo toggle decides, which is the normal case; this is the override for a machine that
+ * must behave one way whatever the shared setting says.
+ */
+export function modelRehearsalOverride(source: EnvSource = denoEnv): boolean | undefined {
+  const raw = source.get('SB_MODEL_REHEARSAL')?.trim().toLowerCase();
+  if (!raw) return undefined;
+  if (raw === '1' || raw === 'true') return true;
+  if (raw === '0' || raw === 'false') return false;
+  throw misconfigured('SB_MODEL_REHEARSAL must be 1, 0, true or false');
+}
+
 export function openAiKey(source: EnvSource = denoEnv): string {
   const key = source.get('OPENAI_API_KEY');
   if (!key) throw misconfigured('OPENAI_API_KEY is not set; no model can be called');
