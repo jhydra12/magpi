@@ -8,12 +8,19 @@ export function EntityGroups({ groups }: { groups: readonly EntityGroup[] }) {
     <div className="flex flex-col gap-8">
       {groups.map((group) => (
         <section key={group.kind} className="flex flex-col gap-3">
-          <h2 className="font-heading text-sm font-medium text-foreground">{group.label}</h2>
+          <h2 className="font-heading text-sm font-medium text-foreground">
+            {group.label}
+            <span className="ml-2 text-xs font-normal text-muted-foreground tabular-nums">
+              {group.entities.length}
+            </span>
+          </h2>
 
-          <ul className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
+          <ul className="divide-y divide-border">
             {group.entities.map((entity) => (
-              <li key={entity.id} aria-label={entity.name} className="px-4 py-3">
-                <p className="text-sm font-medium text-foreground">{entity.name}</p>
+              <li key={entity.id} aria-label={entity.name} className="py-3">
+                <p className="text-sm font-medium break-words text-foreground" translate="no">
+                  {entity.name}
+                </p>
                 {entity.summary ? (
                   <p className="mt-0.5 max-w-[var(--measure-prose)] text-sm text-muted-foreground">
                     {entity.summary}
@@ -30,7 +37,7 @@ export function EntityGroups({ groups }: { groups: readonly EntityGroup[] }) {
                       <li key={document.id}>
                         <Link
                           href={`/documents/${document.id}`}
-                          className="text-xs text-brand-link hover:underline"
+                          className="text-xs break-words text-brand-link hover:underline"
                         >
                           {document.title}
                         </Link>

@@ -14,13 +14,9 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
     <>
       <PageHeader title="Settings" description="Your account, and how agents reach your work." />
 
-      <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-        <aside className="md:w-44 md:shrink-0">
-          <SideNav items={SETTINGS_SECTIONS} label="Settings sections" />
-        </aside>
+      <SideNav items={SETTINGS_SECTIONS} label="Settings sections" orientation="horizontal" />
 
-        <div className="min-w-0 flex-1">{children}</div>
-      </div>
+      {children}
     </>
   );
 }

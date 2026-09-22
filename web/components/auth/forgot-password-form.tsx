@@ -60,7 +60,7 @@ export function ForgotPasswordForm() {
       </div>
 
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? 'Sending' : 'Send reset link'}
+        {isPending ? 'Sending…' : 'Send reset link'}
       </Button>
     </form>
   );

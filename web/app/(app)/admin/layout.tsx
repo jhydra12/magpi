@@ -34,8 +34,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <>
-      <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-        <aside className="md:w-44 md:shrink-0">
+      <div className="flex flex-col gap-8 md:flex-row md:gap-10">
+        <aside className="md:w-48 md:shrink-0">
           <SideNav items={ADMIN_SECTIONS} label="Admin sections" />
         </aside>
 

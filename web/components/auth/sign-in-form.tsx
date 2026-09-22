@@ -47,6 +47,7 @@ export function SignInForm({ next }: { next: string }) {
             id="email"
             type="email"
             autoComplete="email"
+            spellCheck={false}
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -74,7 +75,7 @@ export function SignInForm({ next }: { next: string }) {
         </div>
 
         <Button type="submit" className="w-full" disabled={isPending}>
-          {isPending ? 'Signing in' : 'Sign in'}
+          {isPending ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
 

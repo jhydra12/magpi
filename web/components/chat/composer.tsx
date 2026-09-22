@@ -1,19 +1,21 @@
 'use client';
 
 import { ArrowUp } from 'lucide-react';
-import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 type ComposerProps = {
   readonly onAsk: (question: string) => void;
   readonly busy: boolean;
   readonly placeholder: string;
-  readonly autoFocus?: boolean;
+  readonly rows?: number;
+  readonly toolbar?: ReactNode;
 };
 
-export function Composer({ onAsk, busy, placeholder, autoFocus }: ComposerProps) {
+export function Composer({ onAsk, busy, placeholder, rows = 2, toolbar }: ComposerProps) {
   const [question, setQuestion] = useState('');
   const canAsk = question.trim() !== '' && !busy;
 
@@ -32,20 +34,41 @@ export function Composer({ onAsk, busy, placeholder, autoFocus }: ComposerProps)
   }
 
   return (
-    <form onSubmit={ask} className="flex items-end gap-2">
+    <form
+      onSubmit={ask}
+      className={cn(
+        'magpi-composer rounded-[var(--radius-panel)] border border-border bg-background p-2',
+        toolbar ? 'flex flex-col' : 'flex items-center gap-1',
+      )}
+    >
       <Textarea
         value={question}
         onChange={(event) => setQuestion(event.target.value)}
         onKeyDown={onKeyDown}
         aria-label="Ask a question"
         placeholder={placeholder}
-        autoFocus={autoFocus}
-        rows={2}
-        className="min-h-[52px] resize-none rounded-[var(--radius-panel)] border-border bg-card text-sm text-foreground placeholder:text-tertiary-foreground focus-visible:ring-input"
+        rows={rows}
+        className={cn(
+          'resize-none border-0 bg-transparent px-2 text-sm leading-5 shadow-none ring-0 outline-none placeholder:text-muted-foreground focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none',
+          // One line is exactly the field height, so the send control shares its center.
+          rows === 1 ? 'h-10 min-h-10 py-2.5' : 'min-h-16 py-1.5',
+        )}
       />
-      <Button type="submit" size="icon" disabled={!canAsk} aria-label="Ask">
-        <ArrowUp />
-      </Button>
+      <div className={cn('flex items-center gap-2 px-1', toolbar && 'justify-between')}>
+        {toolbar ? <div className="min-w-0">{toolbar}</div> : null}
+        <Button
+          type="submit"
+          size="icon"
+          disabled={!canAsk}
+          aria-label="Ask"
+          className={cn(
+            'size-8 shrink-0 rounded-full',
+            !canAsk && 'bg-muted text-tertiary-foreground',
+          )}
+        >
+          <ArrowUp />
+        </Button>
+      </div>
     </form>
   );
 }

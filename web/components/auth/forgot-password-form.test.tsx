@@ -81,6 +81,6 @@ describe('asking for a password reset link', () => {
 
     await askForALink();
 
-    expect(screen.getByRole('button', { name: 'Sending' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Sending…' })).toBeDisabled();
   });
 });

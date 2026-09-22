@@ -8,9 +8,9 @@ export default function ConnectionsLoading() {
         <Skeleton className="h-4 w-[28rem] max-w-full" />
       </div>
 
-      <div className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
+      <div className="divide-y divide-border">
         {[0, 1, 2, 3].map((row) => (
-          <div key={row} className="flex items-start justify-between gap-4 px-4 py-4">
+          <div key={row} className="flex items-start justify-between gap-4 py-4">
             <div className="flex flex-col gap-2">
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-3 w-64 max-w-full" />

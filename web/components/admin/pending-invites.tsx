@@ -64,7 +64,7 @@ export function PendingInvites({
                 fieldName="inviteId"
                 fieldValue={invite.id}
                 label="Revoke"
-                pendingLabel="Revoking"
+                pendingLabel="Revoking…"
               />
             </TableCell>
           </TableRow>

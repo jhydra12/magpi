@@ -52,7 +52,7 @@ export function SyncActivity({ spaceIds }: { spaceIds: readonly string[] }) {
   return (
     <div aria-live="polite" className="min-h-6">
       {description ? (
-        <div className="flex flex-col gap-2 rounded-[var(--radius-panel)] border border-border bg-card px-4 py-3">
+        <div className="flex flex-col gap-2 px-3 py-3">
           <div className="flex items-center gap-2">
             <StatusPill
               tone={summary.failures.length > 0 ? 'destructive' : 'progress'}

@@ -166,7 +166,7 @@ describe('dreaming in each space row', () => {
     const { rerender } = render(<SpaceDreaming {...props} initial={getInitial()} />);
     await userEvent.click(screen.getByRole('button', { name: 'Start dreaming' }));
     expect(screen.queryByText('Next dream: 1:55am UTC')).not.toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Starting');
+    expect(screen.getByRole('status')).toHaveTextContent('Starting…');
     expect(screen.getByRole('button', { name: 'Start dreaming' })).toBeDisabled();
     await act(async () => {
       pending.resolve(

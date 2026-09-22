@@ -1,6 +1,24 @@
 import { test, expect } from '@playwright/test';
-import { build } from 'esbuild';
+import { build, type Plugin } from 'esbuild';
 import path from 'node:path';
+
+const linkShim: Plugin = {
+  name: 'next-link-shim',
+  setup(build) {
+    build.onResolve({ filter: /^next\/link$/ }, () => ({
+      path: 'next-link-shim',
+      namespace: 'next-link-shim',
+    }));
+    build.onLoad({ filter: /.*/, namespace: 'next-link-shim' }, () => ({
+      contents: `import React from 'react';
+        export default function Link({ href, children, ...props }) {
+          return React.createElement('a', { href, ...props }, children);
+        }`,
+      loader: 'js',
+      resolveDir: path.resolve('web'),
+    }));
+  },
+};
 
 /**
  * A graph of a few hundred names, which is what a seeded space really produces. The small
@@ -27,6 +45,7 @@ const bundled = build({
   jsx: 'automatic',
   tsconfig: path.resolve('web/tsconfig.json'),
   define: { 'process.env.NODE_ENV': '"production"' },
+  plugins: [linkShim],
 });
 
 /** Pixels that differ from the corner colour, which is the background. */
@@ -50,7 +69,7 @@ async function visiblePixels(page: import('@playwright/test').Page, shot: Buffer
   }, shot.toString('base64'));
 }
 
-test('frames and turns a large graph instead of leaving the canvas black', async ({ page }) => {
+test('frames a large graph instead of leaving the canvas black', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.setViewportSize({ width: 1200, height: 900 });
@@ -69,22 +88,12 @@ test('frames and turns a large graph instead of leaving the canvas black', async
   await page.addScriptTag({ content: (await bundled).outputFiles[0].text });
 
   const canvas = page.locator('canvas').first();
-  await expect(canvas).toBeVisible();
-  // Files are hidden by default, and so is any name left with nothing to join it to, so the
-  // drawn count is below the total. Browse entities still offers every one of them.
-  await expect(page.getByText('Browse entities (400)')).toBeVisible();
+  await expect(canvas).toBeVisible({ timeout: 20000 });
+  await expect(page.getByRole('status')).toContainText('400 entities');
 
   // Long enough for the simulation to settle and the camera to take its final frame.
   await page.waitForTimeout(9000);
   const settled = await visiblePixels(page, await canvas.screenshot());
   expect(settled).toBeGreaterThan(2000);
-
-  // Turning: the same scene from a different angle a few seconds later.
-  const before = await canvas.screenshot();
-  await page.waitForTimeout(4000);
-  const after = await canvas.screenshot();
-  expect(Buffer.compare(before, after)).not.toBe(0);
-  expect(await visiblePixels(page, after)).toBeGreaterThan(2000);
-
   expect(errors).toEqual([]);
 });

@@ -21,10 +21,11 @@ type SpaceFilterProps = {
   readonly spaces: readonly SpaceOption[];
   readonly selected: readonly string[];
   readonly onChange: (selected: readonly string[]) => void;
+  readonly variant?: 'outline' | 'ghost';
 };
 
 /** Narrows which spaces a conversation searches. An empty selection means all of them. */
-export function SpaceFilter({ spaces, selected, onChange }: SpaceFilterProps) {
+export function SpaceFilter({ spaces, selected, onChange, variant = 'outline' }: SpaceFilterProps) {
   const label =
     selected.length === 0
       ? 'All spaces'
@@ -39,7 +40,7 @@ export function SpaceFilter({ spaces, selected, onChange }: SpaceFilterProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" aria-label={`Search scope: ${label}`}>
+        <Button variant={variant} size="sm" aria-label={`Search scope: ${label}`}>
           {label}
           <ChevronDown />
         </Button>

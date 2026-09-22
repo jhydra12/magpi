@@ -65,20 +65,29 @@ export function ConversationView({
   }, [state.turns]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-6">
-      <h1 className="font-heading text-xl leading-tight font-medium text-foreground">
-        {state.title ?? 'New conversation'}
-      </h1>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <header className="flex h-12 shrink-0 items-center">
+        <h1 className="truncate text-sm font-medium text-foreground">
+          {state.title ?? 'New conversation'}
+        </h1>
+      </header>
 
-      <div ref={transcript} className="min-h-0 flex-1 overflow-y-auto pr-1">
-        <MessageList turns={state.turns} />
+      <div ref={transcript} className="min-h-0 flex-1 [scrollbar-gutter:stable] overflow-y-auto">
+        <div className="mx-auto w-full max-w-[var(--measure-prose)] py-8">
+          <MessageList turns={state.turns} />
+        </div>
       </div>
 
-      <Composer
-        onAsk={(question) => void ask(question)}
-        busy={state.asking}
-        placeholder="Ask a follow-up"
-      />
+      <div className="shrink-0 pb-5">
+        <div className="mx-auto w-full max-w-[var(--measure-prose)]">
+          <Composer
+            onAsk={(question) => void ask(question)}
+            busy={state.asking}
+            placeholder="Ask a follow-up"
+            rows={1}
+          />
+        </div>
+      </div>
     </div>
   );
 }

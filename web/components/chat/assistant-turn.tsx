@@ -4,6 +4,13 @@ import { SourceMark } from '@/components/brand/source-mark';
 import { splitAnswer } from '@/lib/chat/inline-citations';
 import type { Citation } from '@/lib/chat/protocol';
 
+/* ─────────────────────────────────────────────────────────
+ * ANSWER MOTION
+ *  waiting    "Reading your documents…" shimmers until the first token
+ *  streaming  a caret blinks at the end of the latest text
+ *  settled    the caret leaves with the stream
+ * ───────────────────────────────────────────────────────── */
+
 type AssistantTurnProps = {
   readonly content: string;
   readonly citations: readonly Citation[];
@@ -18,12 +25,16 @@ export function AssistantTurn({ content, citations, streaming }: AssistantTurnPr
   const cited = citations.filter((_, index) => citedLabels.has(index + 1));
 
   if (segments.length === 0 && streaming) {
-    return <p className="text-sm text-tertiary-foreground">Reading your documents...</p>;
+    return (
+      <p className="shimmer text-sm text-tertiary-foreground shimmer-duration-1400">
+        Reading your documents…
+      </p>
+    );
   }
 
   return (
     <div className="max-w-[var(--measure-prose)]">
-      <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+      <p className="text-[15px] leading-7 whitespace-pre-wrap text-foreground">
         {segments.map((segment, index) =>
           segment.kind === 'text' ? (
             <span key={index}>{segment.text}</span>
@@ -32,7 +43,7 @@ export function AssistantTurn({ content, citations, streaming }: AssistantTurnPr
               key={index}
               href={`/documents/${segment.citation.documentId}`}
               title={segment.citation.documentTitle}
-              className="mx-0.5 rounded-[var(--radius-panel)] bg-muted px-1.5 py-0.5 align-baseline text-xs text-brand-link hover:bg-secondary"
+              className="mx-0.5 rounded-md bg-muted px-1.5 py-0.5 align-baseline text-xs font-medium text-brand-link hover:bg-secondary"
             >
               {segment.label}
             </Link>
@@ -41,7 +52,7 @@ export function AssistantTurn({ content, citations, streaming }: AssistantTurnPr
         {streaming ? (
           <span
             aria-hidden
-            className="ml-0.5 inline-block h-4 w-1.5 translate-y-0.5 animate-pulse bg-tertiary-foreground motion-reduce:animate-none"
+            className="magpi-caret ml-px inline-block h-[1.05em] w-px translate-y-0.5 bg-foreground"
           />
         ) : null}
       </p>
@@ -53,14 +64,14 @@ export function AssistantTurn({ content, citations, streaming }: AssistantTurnPr
 
 function Sources({ citations }: { citations: readonly Citation[] }) {
   return (
-    <section className="mt-4 border-t border-border pt-3">
+    <section className="mt-5">
       <h3 className="text-xs font-medium text-tertiary-foreground">Sources</h3>
-      <ul className="mt-2 flex flex-col gap-2">
+      <ul className="mt-2 flex flex-col gap-1">
         {citations.map((citation) => (
           <li key={citation.chunkId}>
             <Link
               href={`/documents/${citation.documentId}`}
-              className="block rounded-[var(--radius-panel)] px-2 py-1.5 transition-colors hover:bg-muted motion-reduce:transition-none"
+              className="block rounded-lg px-2.5 py-2 transition-colors hover:bg-muted motion-reduce:transition-none"
             >
               <span className="flex items-center gap-2 text-sm text-foreground">
                 <SourceMark source={citation.documentSource} title />

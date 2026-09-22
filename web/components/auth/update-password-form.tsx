@@ -49,7 +49,7 @@ export function UpdatePasswordForm() {
       </div>
 
       <Button type="submit" className="w-full" disabled={isPending}>
-        {isPending ? 'Saving' : 'Save password'}
+        {isPending ? 'Saving…' : 'Save password'}
       </Button>
     </form>
   );

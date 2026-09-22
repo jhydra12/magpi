@@ -1,6 +1,24 @@
 import { test, expect } from '@playwright/test';
-import { build } from 'esbuild';
+import { build, type Plugin } from 'esbuild';
 import path from 'node:path';
+
+const linkShim: Plugin = {
+  name: 'next-link-shim',
+  setup(build) {
+    build.onResolve({ filter: /^next\/link$/ }, () => ({
+      path: 'next-link-shim',
+      namespace: 'next-link-shim',
+    }));
+    build.onLoad({ filter: /.*/, namespace: 'next-link-shim' }, () => ({
+      contents: `import React from 'react';
+        export default function Link({ href, children, ...props }) {
+          return React.createElement('a', { href, ...props }, children);
+        }`,
+      loader: 'js',
+      resolveDir: path.resolve('web'),
+    }));
+  },
+};
 
 const bundled = build({
   stdin: {
@@ -22,6 +40,7 @@ const bundled = build({
   jsx: 'automatic',
   tsconfig: path.resolve('web/tsconfig.json'),
   define: { 'process.env.NODE_ENV': '"production"' },
+  plugins: [linkShim],
 });
 
 for (const theme of ['light', 'dark']) {
@@ -34,7 +53,7 @@ for (const theme of ['light', 'dark']) {
     const palette =
       theme === 'dark'
         ? ['#2dd4bf', '#c4b5fd', '#fde047', '#fb923c', '#94a3b8', '#5eead4']
-        : ['#0f766e', '#6d28d9', '#a16207', '#c2410c', '#64748b', '#0f766e'];
+        : ['#14b8a6', '#8b5cf6', '#e2a100', '#e24a1b', '#64748b', '#14b8a6'];
     await page.setViewportSize({ width: 1200, height: 900 });
     await page.setContent(`<style>
       :root { --background: ${background}; --muted-foreground: oklch(.6 .02 159); --primary: oklch(.76 .15 159);
@@ -94,11 +113,10 @@ for (const theme of ['light', 'dark']) {
     await expect
       .poll(async () => canvas.evaluate((node) => node.getBoundingClientRect().height))
       .toBe(490);
-    await page.getByText(/^Browse entities/).click();
-    await page.getByRole('button', { name: 'Person 1, person, 1 files' }).click();
     const details = page.getByRole('complementary');
-    await expect(details.getByText('Person 1', { exact: true })).toBeVisible();
-    await expect(details.getByText('person · 1 file')).toBeVisible();
+    await details.getByRole('button', { name: 'Person 11', exact: true }).click();
+    await expect(details.getByRole('heading', { name: 'Person 1' })).toBeVisible();
+    await expect(details.getByText('1 file')).toBeVisible();
     await expect
       .poll(async () => {
         const screenshot = await canvas.screenshot();

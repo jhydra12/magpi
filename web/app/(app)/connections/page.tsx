@@ -50,7 +50,7 @@ export default async function ConnectionsPage({
         />
       )}
 
-      <section className="flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-panel)] border border-border px-4 py-4">
+      <section className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
         <div className="min-w-0">
           <h2 className="font-heading text-sm font-medium text-foreground">
             Upload documents manually

@@ -118,6 +118,6 @@ describe('creating an account', () => {
 
     await signUp();
 
-    expect(screen.getByRole('button', { name: 'Creating your account' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Creating your account…' })).toBeDisabled();
   });
 });

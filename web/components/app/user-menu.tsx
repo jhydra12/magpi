@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -8,7 +9,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -33,21 +33,18 @@ export function UserMenu({
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Your account"
-        className="rounded-full ring-offset-background transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+        className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1 text-left ring-offset-background transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
       >
         <CurrentUserAvatar />
+        {email ? (
+          <span className="min-w-0 flex-1 truncate text-sm text-foreground">{email}</span>
+        ) : (
+          <span className="min-w-0 flex-1" />
+        )}
+        <ChevronsUpDown className="size-3.5 shrink-0 text-tertiary-foreground" aria-hidden="true" />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-56">
-        {email ? (
-          <>
-            <DropdownMenuLabel className="truncate font-normal text-tertiary-foreground">
-              {email}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-          </>
-        ) : null}
-
+      <DropdownMenuContent align="end" side="top" className="w-56">
         <DropdownMenuItem asChild>
           <Link href="/settings">Settings</Link>
         </DropdownMenuItem>

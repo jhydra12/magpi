@@ -26,7 +26,7 @@ describe('entities extracted by dreaming', () => {
   it('groups them under the kind they are', () => {
     render(<EntityGroups groups={[getGroup()]} />);
 
-    expect(screen.getByRole('heading', { name: 'Projects' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Projects/ })).toBeInTheDocument();
     expect(screen.getByText('SSO rollout')).toBeInTheDocument();
   });
 

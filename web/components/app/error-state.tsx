@@ -1,12 +1,9 @@
 export function ErrorState({ title, detail }: { title: string; detail?: string }) {
   return (
-    <div
-      role="alert"
-      className="rounded-[var(--radius-panel)] border border-border-destructive bg-destructive-200 p-5"
-    >
-      <h2 className="font-heading text-base font-medium text-destructive-600">{title}</h2>
+    <div role="alert" className="flex flex-col gap-1 py-2">
+      <h2 className="font-heading text-sm font-medium text-destructive-600">{title}</h2>
       {detail ? (
-        <p className="mt-1 max-w-[var(--measure-prose)] text-sm text-muted-foreground">{detail}</p>
+        <p className="max-w-[var(--measure-prose)] text-sm text-tertiary-foreground">{detail}</p>
       ) : null}
     </div>
   );

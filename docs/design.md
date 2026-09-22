@@ -108,6 +108,8 @@ the upstream system already answers.
 | `--z-modal`            | `40`                                                                           | Dialogs, sheets and the command menu, above their own overlay.                                                                                                                                      |
 | `--z-toast`            | `50`                                                                           | Ingest failures and connection status changes, which must be visible above a dialog because they report something that happened outside it.                                                         |
 | `--measure-prose`      | `68ch`                                                                         | `DESIGN.md` caps body copy at 65 to 75 characters per line, and 68ch is the middle of that range. Applied to answer text, digests and document bodies.                                              |
+| `--measure-shell`      | `72rem`                                                                        | One shell width for every row of the marketing site, header and footer included.                                                                                                                    |
+| `--measure-sidebar`    | `16.5rem`                                                                      | The authenticated app sidebar. Wide enough for an icon, a label and a selected state, narrow enough that the content pane stays the stage.                                                          |
 
 The six `--z-*` tokens are one decision, stated as six values. A stacking
 problem is then a question about where a component belongs on a named scale,

@@ -5,7 +5,7 @@ import { AssistantTurn } from './assistant-turn';
 
 export function MessageList({ turns }: { turns: readonly ChatTurn[] }) {
   return (
-    <ol className="flex flex-col gap-8">
+    <ol className="flex flex-col gap-6">
       {turns.map((turn) => (
         <li key={turn.id}>{renderTurn(turn)}</li>
       ))}
@@ -17,9 +17,11 @@ function renderTurn(turn: ChatTurn) {
   switch (turn.kind) {
     case 'question':
       return (
-        <p className="max-w-[var(--measure-prose)] font-heading text-base leading-snug font-medium text-foreground">
-          {turn.content}
-        </p>
+        <div className="flex justify-end">
+          <p className="max-w-[85%] rounded-[var(--radius-panel)] bg-muted px-3.5 py-2 text-sm leading-relaxed text-foreground">
+            {turn.content}
+          </p>
+        </div>
       );
     case 'answer':
       return (

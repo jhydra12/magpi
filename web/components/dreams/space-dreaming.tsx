@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
 
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import { submitDream } from '@/lib/dreams/submit';
 import type { DreamKind } from '@/lib/dreams/status';
 import { summarizeSpaceDream } from '@/lib/dreams/space-progress';
 
-import { SpaceDreamProgress } from './space-dream-progress';
+import { DreamProgressTrack, SpaceDreamProgress } from './space-dream-progress';
 import { useDreamActivity } from './use-dream-activity';
 
 export type DreamingSpace = {
@@ -92,24 +92,27 @@ function SpaceRow({
   };
 
   return (
-    <div role="group" aria-label={space.name} className="flex flex-col gap-2 px-4 py-3">
-      <div className="flex flex-wrap items-center gap-5">
-        <span className="w-28 shrink-0 text-sm text-foreground">{space.name}</span>
+    <div
+      role="group"
+      aria-label={space.name}
+      className="-mx-2 flex flex-col gap-2 rounded-lg px-3 py-3 transition-colors hover:bg-muted motion-reduce:transition-none"
+    >
+      <div className="grid items-center gap-1 sm:grid-cols-[minmax(8rem,12rem)_minmax(0,1fr)_auto] sm:gap-4">
+        <span className="text-sm font-medium text-foreground">{space.name}</span>
         {isStarting || showQueuedPlaceholder ? (
           <div className="flex min-w-40 flex-1 flex-col gap-1.5">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span role="status">{isPending ? 'Starting' : 'Queued'}</span>
+              <span role="status" className="shimmer shimmer-duration-1400">
+                {isPending ? 'Starting…' : 'Queued'}
+              </span>
               <span className="font-mono tabular-nums">00:00</span>
             </div>
-            <div
-              role="progressbar"
-              aria-label={`${space.name} dreaming progress`}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={0}
-              aria-valuetext={isPending ? 'Starting' : 'Queued'}
-              className="relative h-1.5 overflow-hidden rounded-full bg-muted"
-            ></div>
+            <DreamProgressTrack
+              spaceName={space.name}
+              label={isPending ? 'Starting…' : 'Queued'}
+              percent={0}
+              indeterminate
+            />
           </div>
         ) : run ? (
           <SpaceDreamProgress
@@ -119,7 +122,7 @@ function SpaceRow({
             tasks={progress}
           />
         ) : (
-          <div className="min-w-40 flex-1 text-center text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             {space.dreaming_enabled ? (
               <>
                 <span title={lastFinishedAt ? new Date(lastFinishedAt).toUTCString() : undefined}>
@@ -133,7 +136,8 @@ function SpaceRow({
         )}
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
+          className="w-fit justify-self-start"
           disabled={!space.dreaming_enabled || isStarting || isActive || isGlobalPending}
           onClick={startDreaming}
         >
@@ -186,8 +190,13 @@ export function SpaceDreaming({
   };
   const [globallyQueued, setGloballyQueued] = useState<ReadonlySet<string>>(() => new Set());
   const [globalFailure, setGlobalFailure] = useState<string | null>(null);
-  const headerTarget =
-    typeof document === 'undefined' ? null : document.getElementById('dreams-header-action');
+  const [headerTarget, setHeaderTarget] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHeaderTarget(document.getElementById('dreams-header-action'));
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
   const recent = [...snapshot.runs].sort(
     (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at),
   );
@@ -236,6 +245,7 @@ export function SpaceDreaming({
   const globalButton = (
     <Button
       variant="default"
+      className="w-fit shrink-0"
       aria-label="Start dreaming in all spaces"
       disabled={isGlobalPending || spaces.every((space) => !space.dreaming_enabled)}
       onClick={startAllDreams}
@@ -245,13 +255,15 @@ export function SpaceDreaming({
   );
   return (
     <section className="flex flex-col gap-3">
-      {headerTarget ? createPortal(globalButton, headerTarget) : globalButton}
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="font-heading text-sm font-medium text-foreground">
-          Spaces in your organization
-        </h2>
-      </div>
-      <div className="divide-y divide-border rounded-[var(--radius-panel)] border border-border">
+      {headerTarget ? (
+        createPortal(globalButton, headerTarget)
+      ) : (
+        <div className="flex justify-end">{globalButton}</div>
+      )}
+      <h2 className="font-heading text-sm font-medium text-foreground">
+        Spaces in your organization
+      </h2>
+      <div className="divide-y divide-border">
         {spaces.map((space) => {
           const accepted = acceptedBySpace[space.id];
           const runs = recent.filter(

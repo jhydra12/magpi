@@ -11,10 +11,10 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-start gap-3 rounded-[var(--radius-panel)] border border-dashed border-border p-8">
+    <div className="flex flex-col items-start gap-2 py-16">
       <h2 className="font-heading text-base font-medium text-foreground">{title}</h2>
       {description ? (
-        <p className="max-w-[var(--measure-prose)] text-sm text-tertiary-foreground">
+        <p className="max-w-[var(--measure-prose)] text-sm leading-relaxed text-tertiary-foreground">
           {description}
         </p>
       ) : null}

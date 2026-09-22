@@ -141,7 +141,7 @@ describe('creating a team space', () => {
     await user.type(screen.getByLabelText('Name your space'), 'Growth');
     await create();
 
-    expect(screen.getByRole('button', { name: 'Creating' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Creating…' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
 
     await act(async () => {

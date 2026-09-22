@@ -168,7 +168,7 @@ describe('HistorySidebar', () => {
     query.isLoading = true;
     render(<HistorySidebar />);
 
-    expect(screen.getByText('Loading your conversations...')).toBeInTheDocument();
+    expect(screen.getByText('Loading your conversations…')).toBeInTheDocument();
   });
 
   it('says so when the history could not be read', () => {
@@ -309,8 +309,7 @@ describe('filing a conversation by dragging it', () => {
 });
 
 describe('where the new folder button sits', () => {
-  // It is anchored below the list rather than scrolling away at the top of it, so it stays
-  // reachable however many conversations there are.
+  // It stays outside the scrolling list so it remains reachable however many conversations there are.
   it('sits outside the scrolling list, not inside it', () => {
     folderQuery.folders = [folder()];
     render(<HistorySidebar />);
