@@ -76,7 +76,7 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           { key: 'Content-Security-Policy', value: contentSecurityPolicy() },
-          // Two years, matching the preload list's floor. Magpi is not submitted
+          // Two years, matching the preload list's floor. Digital Brain is not submitted
           // for preloading, so subdomains carry the header without the pledge.
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
           // Ingested files are served back through Storage links. A text/plain

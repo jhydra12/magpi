@@ -6,7 +6,7 @@ import { FoldedMagpie } from '@/components/brand/magpie-mark';
 import { Button } from '@/components/ui/button';
 
 export const metadata = {
-  title: 'Magpi',
+  title: 'Digital Brain',
   description: 'Ask your team documents a question and get a cited answer.',
 };
 

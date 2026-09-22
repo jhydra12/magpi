@@ -99,7 +99,7 @@ describe('deciding whether an application may read your knowledge base', () => {
   it('names the application and says what it would be able to do', async () => {
     render(<OAuthConsent authorizationId={AUTHORIZATION} />);
 
-    expect(await screen.findByText(/Claude wants to read your Magpi/)).toBeInTheDocument();
+    expect(await screen.findByText(/Claude wants to read your Digital Brain/)).toBeInTheDocument();
     expect(screen.getByText(/Search and read the documents in your spaces/)).toBeInTheDocument();
     expect(screen.getByText(/Write notes into a space you are a member of/)).toBeInTheDocument();
     // The account being handed over, so the wrong one is visible before the button is pressed.
@@ -194,6 +194,8 @@ describe('deciding whether an application may read your knowledge base', () => {
     });
     render(<OAuthConsent authorizationId={AUTHORIZATION} />);
 
-    expect(await screen.findByText(/An application wants to read your Magpi/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/An application wants to read your Digital Brain/),
+    ).toBeInTheDocument();
   });
 });

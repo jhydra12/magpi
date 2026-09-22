@@ -5,7 +5,7 @@ import { DemoSignIn } from '@/components/auth/demo-sign-in';
 import { SignInForm } from '@/components/auth/sign-in-form';
 import { safeNextPath } from '@/lib/safe-next-path';
 
-export const metadata = { title: 'Sign in to Magpi' };
+export const metadata = { title: 'Sign in to Digital Brain' };
 
 export default async function SignInPage({
   searchParams,

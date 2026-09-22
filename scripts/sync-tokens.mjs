@@ -74,7 +74,7 @@ function main() {
       `synced: ${new Date().toISOString().slice(0, 10)}`,
       `files:  ${FILES.length}`,
       '',
-      'Never hand-edit a file under this directory. Magpi overrides live in',
+      'Never hand-edit a file under this directory. Digital Brain overrides live in',
       'web/styles/tokens.css, which loads last. Re-run scripts/sync-tokens.mjs',
       'against a newer checkout to take upstream changes as a reviewable diff.',
       '',

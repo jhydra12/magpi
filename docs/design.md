@@ -1,6 +1,6 @@
 # Design tokens
 
-Every token Magpi declares for itself, why it exists, and the rules that keep
+Every token Digital Brain declares for itself, why it exists, and the rules that keep
 the vendored Supabase system intact underneath it.
 
 `DESIGN.md` at the repository root states the visual system for the `impeccable`
@@ -9,7 +9,7 @@ skill. This file is the token-level record: what is in
 
 ## Where the tokens come from
 
-Magpi uses the Supabase design system itself, vendored out of the public
+Digital Brain uses the Supabase design system itself, vendored out of the public
 `supabase/supabase` repository. The actual token files, copied byte for byte out
 of the repository the Supabase design team already maintains.
 
@@ -34,7 +34,7 @@ Two rules follow, and both are absolute:
 **A vendored file is never hand-edited.** Not to fix a value, not to delete a
 line that looks unused, not to add a comment. A hand edit is invisible in the
 next sync's diff and is silently reverted by it, so the fix disappears and
-nobody knows when. If a vendored value is wrong for Magpi, it gets overridden
+nobody knows when. If a vendored value is wrong for Digital Brain, it gets overridden
 in `web/styles/tokens.css`. If it is wrong for Supabase, it gets fixed upstream.
 
 **`packages/ui/build/` is copied verbatim.** Despite the directory name, it is
@@ -54,8 +54,8 @@ and nothing to generate. The sync script copies it as it finds it.
 @source '../lib';
 ```
 
-The vendored entry point loads first and Magpi's own tokens load last, so a
-Magpi override wins on ordering rather than on specificity. Nothing in
+The vendored entry point loads first and Digital Brain's own tokens load last, so a
+Digital Brain override wins on ordering rather than on specificity. Nothing in
 `tokens.css` needs `!important` and nothing in it should ever need a longer
 selector.
 

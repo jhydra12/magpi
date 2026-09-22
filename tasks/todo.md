@@ -177,3 +177,35 @@ Reset verification: focused UI, action, and management API tests pass; 287 datab
 - Reset must remove every named service in this demo project before deleting generated data or restoring Edge execution.
 - Every locally available light-gate check passed, including the production build; all 23 focused reset tests passed.
 - Do not invoke the live reset while testing this change.
+
+# Rename the demo to Digital Brain
+
+- [x] Replace the displayed product name across the app, prompts, emails, tests, and docs.
+- [x] Keep the existing magpie logo and internal compatibility identifiers.
+- [x] Run focused tests and check the live app in the browser.
+
+## Review
+
+- The app now displays Digital Brain while retaining the magpie logo and internal compatibility names.
+- The web suite passed 1,323 tests, the function suite passed 639 tests, and lint, type checks, and the production build passed. Lint reported seven existing warnings and no errors.
+- Browser verification confirmed Digital Brain appears in the app sidebar with the existing logo.
+
+# Apply the accepted demo edits
+
+- [x] Rewrite the existing Notion demo script with all eight accepted changes and the single Copple prompt.
+- [x] Rename the Dreams controls to `Process all` and `Process` and update their tests and demo instructions.
+- [x] Make a full demo reset seed a deterministic mixed Dreams state: several red `Timed out` rows and successful green rows finished at 6:01am UTC on the reset date.
+- [x] Run focused tests, verify the reset-state rendering, and check the control labels in the browser.
+- [x] Make `Reset dreams` recreate the same mixed red and green starting state while preserving Compute services.
+- [x] Give successful reset rows sequential completion times with gaps below the Edge worker's five-minute budget.
+
+## Review
+
+- The Notion section now removes the terminal scaling and optional diff, joins Compute to MCP, uses the simplified permissions explanation, and ends with the exact Copple prompt and close.
+- A full reset now adds three finished timeout rows plus successful rows timestamped at 6:01am UTC. Timeout labels and tracks are red; successful labels and tracks are green.
+- The Dreams page now shows `Process all` and `Process`. Browser verification confirmed both labels in the running app.
+- The web suite passed 1,327 tests. Lint completed with the same seven existing warnings, and type checks and the production build passed. The final focused suite passed 46 tests.
+- The live reset was not invoked during verification because it deletes every Compute service and all generated Dream data.
+- `Reset dreams` now recreates the same mixed state while preserving Compute services and restoring the processor mode it was already using.
+- The web suite passed 1,329 tests after this addition. Lint completed with the same seven existing warnings, and type checks and the production build passed.
+- Successful reset rows now finish one minute apart beginning at 6:01am UTC. Each seeded success lasts 30 seconds, below the Edge worker's five-minute budget. The focused reset and rendering suite passed 51 tests, and type checking passed.

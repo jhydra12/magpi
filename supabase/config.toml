@@ -121,7 +121,7 @@ enabled = true
 port = 55323
 # External URL of the API server that frontend connects to.
 api_url = "http://127.0.0.1"
-# Supabase AI inside Studio, which is not a Magpi feature. It used to read env(OPENAI_API_KEY),
+# Supabase AI inside Studio, which is not a Digital Brain feature. It used to read env(OPENAI_API_KEY),
 # which captured whatever happened to be in the shell at `supabase start` and kept it in the
 # container for the life of the stack. That is how a key from an unrelated project ended up here.
 openai_api_key = ""
@@ -132,7 +132,7 @@ openai_api_key = ""
 enabled = true
 # Port to use for the email testing server web interface.
 port = 55324
-# Magpi sends its own account emails through the auth-email hook rather than letting the auth
+# Digital Brain sends its own account emails through the auth-email hook rather than letting the auth
 # server do it, so the hook needs somewhere to deliver locally. This is that.
 smtp_port = 55325
 # pop3_port = 55326
@@ -328,7 +328,7 @@ max_frequency = "5s"
 # enabled = true
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
-# Every account email goes to Magpi instead of being sent by the auth server, so the words, the
+# Every account email goes to Digital Brain instead of being sent by the auth server, so the words, the
 # design and the delivery are all in this repository. The templates live in
 # supabase/functions/_shared/email/ and the hook is supabase/functions/auth-email/.
 [auth.hook.send_email]

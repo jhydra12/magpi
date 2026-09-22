@@ -13,6 +13,7 @@ const STEPS = [
   { id: 'compute', label: 'Delete all Compute services' },
   { id: 'data', label: 'Delete generated Dream data' },
   { id: 'freshen', label: 'Refresh source document timestamps' },
+  { id: 'seed', label: 'Prepare the Dreams starting state' },
   { id: 'edge', label: 'Restore Edge Functions' },
 ] as const;
 type Step = (typeof STEPS)[number]['id'];
@@ -23,6 +24,7 @@ const initialStatuses: Record<Step, Status> = {
   compute: 'pending',
   data: 'pending',
   freshen: 'pending',
+  seed: 'pending',
   edge: 'pending',
 };
 const STATUS_LABELS: Record<Status, string> = {
@@ -45,7 +47,7 @@ export function DemoReset() {
     if (busy.current) return;
     if (
       !window.confirm(
-        'Clear all dream history and generated output for this organization? Chats, source documents, connections, and Compute services will be kept.',
+        'Reset dream history and generated output to the demo starting state? Chats, source documents, connections, and Compute services will be kept.',
       )
     )
       return;
@@ -160,12 +162,12 @@ export function DemoReset() {
         </Button>
       </div>
       <p className="max-w-xl text-sm text-muted-foreground">
-        Reset dreams clears dream history and generated output, and refreshes source timestamps for
-        another run. Chats, source documents, connections, and Compute services are kept.
+        Reset dreams removes generated output, refreshes source timestamps, and restores the mixed
+        demo status. Chats, source documents, connections, and Compute services are kept.
       </p>
       {dreamsReset ? (
         <p role="status" className="text-sm text-brand-600">
-          Dreams reset. Ready to dream again.
+          Dreams reset. Ready to process again.
         </p>
       ) : null}
       {failure ? (

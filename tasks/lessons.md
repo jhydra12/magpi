@@ -2,7 +2,8 @@
 
 - Use `supabase-beta` for Supabase CLI commands in this project, including Compute commands. Interpret skill examples using `supabase` accordingly.
 - Prioritize speed: TDD is optional in this repository. Implement directly and choose verification based on the change; avoid requiring the full test, lint, and build suite for every task.
-- "Digital Brain" is this app (Magpi) as seen from ChatGPT and Codex. "BYO MCP" is the Supabase alpha package (`@supabase/server` `withOAuthProtectedResource` + `withSupabase`) the MCP server is built on. Do not go looking for a separate project.
+- "Digital Brain" is the demo app as seen from ChatGPT and Codex. "BYO MCP" is the Supabase alpha package (`@supabase/server` `withOAuthProtectedResource` + `withSupabase`) the MCP server is built on. Do not go looking for a separate project.
+- Treat demo branding changes as copy changes unless the user asks for a visual redesign. Keep the existing magpie logo and internal identifiers when changing the displayed product name.
 - The MCP server is OAuth only. Never configure it in a client with a static bearer token or a bearer env var; that turns off the client's OAuth discovery.
 - The keynote demo centers on moving the Dream process to Supabase Compute. Treat the current ingestion-only Compute worker as an implementation gap to fix; preserve the intended demo when recommending changes.
 - Keep the default browser preview clean with the standard seed data. Do not create rehearsal spaces just to show the app; prepare those only for an explicit scaling rehearsal and remove them afterward.
@@ -11,7 +12,8 @@
 - Show Dream progress from worker-confirmed completed steps. An elapsed timer or moving activity animation cannot stand in for measured completion.
 - Center the next Dream time in the same space used for progress, and show only one of them at a time, including after completion.
 - For the demo, hide finished inline Dream progress after five minutes or a page reload; keep active runs visible and retain history in Log.
-- Start dreaming means the complete workflow: entities, a summary, and document links. Removing a task selector must preserve all three operations.
+- Process and Process all mean the complete workflow: entities, a summary, and document links. Removing a task selector must preserve all three operations.
+- When the user accepts a numbered review, apply the exact reviewed list. A replacement for one numbered item supersedes that item without changing the others.
 - Validate Compute speed claims with identical real work. App timeouts and scheduled queue delays are not platform limits, and more documents cannot increase work beyond fixed input caps.
 - Add a regression test whenever a Dream control or graph ID changes: global starts must leave navigation interactive, and every graph link must point to an existing node ID.
 - Verify graph fixes in the production browser: hover hit-testing does not prove that WebGL rendered. Inspect console errors and visually confirm nodes and links before reporting success. Canvas fillStyle preserves OKLCH; convert via getImageData when a renderer requires sRGB.

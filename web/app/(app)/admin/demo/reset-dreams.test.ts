@@ -12,6 +12,8 @@ function setup({
   storageFails = false,
   resumeFails = false,
   acknowledge = true,
+  seedFails = false,
+  spaces = ['space'] as readonly string[],
 } = {}) {
   const requests: { table: string; operation: string; filters: unknown[][] }[] = [];
   let documentsRead = false;
@@ -26,6 +28,11 @@ function setup({
       select: () => query,
       delete: () => {
         request.operation = 'delete';
+        return query;
+      },
+      insert: (values: unknown) => {
+        request.operation = 'insert';
+        request.filters.push(['values', values]);
         return query;
       },
       update: (values: unknown) => {
@@ -51,13 +58,16 @@ function setup({
           data = [{ id: 'digest', storage_path: 'org/digest.md' }];
           documentsRead = true;
         }
-        if (table === 'spaces') data = [{ id: 'space' }];
+        if (table === 'spaces') data = spaces.map((id) => ({ id }));
         return Promise.resolve(
           resolve({
             data,
             count:
               request.operation === 'select' && running > 0 && acknowledge ? running-- : running,
-            error: table === failTable ? { message: 'Offline' } : null,
+            error:
+              table === failTable || (seedFails && request.operation === 'insert')
+                ? { message: 'Offline' }
+                : null,
           }),
         );
       },
@@ -117,6 +127,24 @@ describe('dream-only reset', () => {
     expect((await resetDreams()).status).toBe('error');
     expect(rpc).toHaveBeenCalledTimes(1);
     expect(requests).toEqual([]);
+  });
+
+  it('recreates the mixed reset state without deleting Compute services', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-22T19:45:00.000Z'));
+    const { requests } = setup({ spaces: ['one', 'two', 'three', 'four', 'five'] });
+
+    expect((await resetDreams()).status).toBe('success');
+    const seed = requests.find(
+      ({ table, operation }) => table === 'dream_runs' && operation === 'insert',
+    );
+    expect(seed?.filters).toContainEqual([
+      'values',
+      expect.arrayContaining([
+        expect.objectContaining({ status: 'timeout', finished_at: '2026-09-22T06:01:00.000Z' }),
+        expect.objectContaining({ status: 'succeeded', finished_at: '2026-09-22T06:01:00.000Z' }),
+      ]),
+    ]);
   });
 
   it('cancels queued and running work before removing output, then resumes processing', async () => {
@@ -196,5 +224,15 @@ describe('dream-only reset', () => {
       status: 'error',
       message: expect.stringContaining('could not be restored'),
     });
+  });
+
+  it('reports a starting-state failure and still restores processing', async () => {
+    const { rpc } = setup({ seedFails: true });
+
+    expect(await resetDreams()).toMatchObject({
+      status: 'error',
+      message: expect.stringContaining('starting Dream state could not be created'),
+    });
+    expect(rpc).toHaveBeenLastCalledWith('set_dream_execution_mode', { p_mode: 'compute' });
   });
 });

@@ -121,19 +121,19 @@ describe('describing a selection', () => {
 describe('what an empty selection means', () => {
   it('tells a channel source what routing one channel would do', () => {
     expect(describeEmptySelection('channel')).toBe(
-      'Send a channel to a space and Magpi starts reading it.',
+      'Send a channel to a space and Digital Brain starts reading it.',
     );
   });
 
   it('tells a folder source what routing one folder would do', () => {
     expect(describeEmptySelection('folder')).toBe(
-      'Send a folder to a space and Magpi starts reading it.',
+      'Send a folder to a space and Digital Brain starts reading it.',
     );
   });
 
   it('tells a workspace source what routing the workspace would do', () => {
     expect(describeEmptySelection('workspace')).toBe(
-      'Send this workspace to a space and Magpi starts reading it.',
+      'Send this workspace to a space and Digital Brain starts reading it.',
     );
   });
 });

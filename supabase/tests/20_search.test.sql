@@ -158,7 +158,7 @@ select throws_ok(
 
 reset role;
 
--- Magpi under a filtered index scan: a thousand unreachable rows nearer than the caller's five.
+-- Digital Brain under a filtered index scan: a thousand unreachable rows nearer than the caller's five.
 
 reset role;
 

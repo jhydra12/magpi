@@ -1,6 +1,6 @@
 import { OAuthConsent } from '@/components/auth/oauth-consent';
 
-export const metadata = { title: 'Allow access to Magpi' };
+export const metadata = { title: 'Allow access to Digital Brain' };
 
 /**
  * Where Supabase Auth sends a person when an MCP client asks to read their knowledge base.

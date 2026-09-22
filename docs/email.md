@@ -1,11 +1,11 @@
 # Email
 
-Magpi sends its own account email. The auth server sends none.
+Digital Brain sends its own account email. The auth server sends none.
 
 That is one setting: `[auth.hook.send_email]` in `supabase/config.toml` points at
 `supabase/functions/auth-email/`. GoTrue hands every account email to that
 function with the address, the token and what the email is for, and the function
-decides the words, renders them and delivers them. Nothing about a Magpi email
+decides the words, renders them and delivers them. Nothing about a Digital Brain email
 lives in a dashboard.
 
 ## Where a message goes
@@ -25,16 +25,16 @@ socket and eight lines of conversation in `smtp.ts` rather than a dependency.
 
 ## The emails
 
-Five come from the auth server through the hook. One is Magpi's own.
+Five come from the auth server through the hook. One is Digital Brain's own.
 
-| Email                      | Sent when                                  | Goes to             |
-| -------------------------- | ------------------------------------------ | ------------------- |
-| Confirm your email address | someone signs up                           | the new account     |
-| Reset your Magpi password  | someone asks to reset it                   | the account         |
-| Your Magpi sign-in link    | a passwordless sign in                     | the account         |
-| Confirm your new email     | the address on an account is being changed | both addresses      |
-| Your confirmation code     | the account is asked to prove it is itself | the account         |
-| Invited you to an org      | somebody is invited to an organization     | the invited address |
+| Email                             | Sent when                                  | Goes to             |
+| --------------------------------- | ------------------------------------------ | ------------------- |
+| Confirm your email address        | someone signs up                           | the new account     |
+| Reset your Digital Brain password | someone asks to reset it                   | the account         |
+| Your Digital Brain sign-in link   | a passwordless sign in                     | the account         |
+| Confirm your new email            | the address on an account is being changed | both addresses      |
+| Your confirmation code            | the account is asked to prove it is itself | the account         |
+| Invited you to an org             | somebody is invited to an organization     | the invited address |
 
 Two of those are not reachable from any screen today. Sign-in links are not
 offered, and nothing asks for a confirmation code because
@@ -47,7 +47,7 @@ a missing template is a worse outcome than a template nobody reads.
 new one confirms, each with its own token, and the change only lands when both
 have answered. `docs/lessons.md` has the reason the tokens must not be swapped.
 
-**The invite is Magpi's own.** Organization invitations are a Magpi table, not a
+**The invite is Digital Brain's own.** Organization invitations are a Digital Brain table, not a
 GoTrue flow, so that email does not go through the hook. Its words live beside
 the others in `templates.tsx`.
 
@@ -70,7 +70,7 @@ One action each: a second button is a second decision, and nobody reads two.
 1. Write it in `supabase/functions/_shared/email/templates.tsx`. It returns its
    own subject, because a subject that drifts from its body is a bug.
 2. If the auth server triggers it, add the case to `compose` in
-   `auth-email/hook.ts`. If Magpi triggers it, call `sendEmail` directly.
+   `auth-email/hook.ts`. If Digital Brain triggers it, call `sendEmail` directly.
 3. Add a row to the table above.
 
 ## Settings
@@ -78,7 +78,7 @@ One action each: a second button is a second decision, and nobody reads two.
 | Variable              | Needed     | What it is                                       |
 | --------------------- | ---------- | ------------------------------------------------ |
 | `SB_AUTH_HOOK_SECRET` | always     | Signs the hook call. Without it nothing is sent. |
-| `SB_EMAIL_FROM`       | deployed   | `Magpi <no-reply@yourdomain>`                    |
+| `SB_EMAIL_FROM`       | deployed   | `Digital Brain <no-reply@yourdomain>`            |
 | `RESEND_API_KEY`      | deployed   | Absent locally, which is what selects Mailpit.   |
 | `SB_WEB_BASE_URL`     | always     | What the links in an email point at.             |
 | `SB_SMTP_PORT`        | local only | Mailpit's SMTP port, 55325.                      |

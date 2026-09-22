@@ -103,7 +103,7 @@ try {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      client_name: 'Magpi OAuth smoke',
+      client_name: 'Digital Brain OAuth smoke',
       redirect_uris: [redirectUri],
       grant_types: ['authorization_code'],
       response_types: ['code'],

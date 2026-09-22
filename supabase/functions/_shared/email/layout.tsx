@@ -1,4 +1,4 @@
-// The frame every Magpi email sits in. Dark, because the product is, and because an email that
+// The frame every Digital Brain email sits in. Dark, because the product is, and because an email that
 // flips with the reader's setting cannot be checked.
 //
 // The palette is lifted from web/styles/tokens.css rather than derived: an email has no
@@ -18,7 +18,7 @@ import {
 } from '@react-email/components';
 import * as React from 'react';
 
-/** Magpi's tokens, flattened. Dark values, since the email is always dark. */
+/** Digital Brain's tokens, flattened. Dark values, since the email is always dark. */
 export const ink = {
   ground: '#0f1114',
   panel: '#15181c',
@@ -62,7 +62,7 @@ export function Shell({
               src={`${siteUrl}/brand/magpie-mark-dark.png`}
               width='26'
               height='20'
-              alt='Magpi'
+              alt='Digital Brain'
               style={{ display: 'block' }}
             />
           </Section>
@@ -81,7 +81,7 @@ export function Shell({
           <Hr style={{ borderColor: ink.border, margin: '28px 0 16px' }} />
 
           <Text style={{ color: ink.quiet, fontSize: '12px', lineHeight: '18px', margin: 0 }}>
-            Magpi remembers what your team already wrote down.{' '}
+            Digital Brain remembers what your team already wrote down.{' '}
             <Link href={siteUrl} style={{ color: ink.quiet, textDecoration: 'underline' }}>
               {siteUrl.replace(/^https?:\/\//, '')}
             </Link>

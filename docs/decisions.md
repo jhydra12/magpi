@@ -7,7 +7,7 @@ A wrong choice recorded is fixable. A stalled run is not.
 
 **Local ports move to 552xx, not a shutdown of the other stack.** A Supabase
 stack for another project was already on 543xx. The spec asks for ports away
-from 54321, so Magpi takes 55321 through 55329 and both stacks run at once.
+from 54321, so Digital Brain takes 55321 through 55329 and both stacks run at once.
 
 **Node 24 locally, `.nvmrc` says 22.** The spec pins 22 and CI reads `.nvmrc`.
 The machine running the build has 24 and Next 16 is happy on it, so local

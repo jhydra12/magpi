@@ -2,7 +2,7 @@
 //
 // Kept out of index.ts so it can be tested without starting a server. GoTrue hands every account
 // email here instead of sending one itself, so
-// the words, the design and the delivery are all Magpi's.
+// the words, the design and the delivery are all Digital Brain's.
 //
 // The payload is signed as a standard webhook: `v1,<base64 signature>` over `id.timestamp.body`,
 // keyed by the hook secret. An unsigned call is refused before anything is rendered, because this

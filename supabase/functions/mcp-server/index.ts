@@ -1,4 +1,4 @@
-// Magpi's MCP server: the Supabase Library's MCP Server block with five tools on it, composed as
+// Digital Brain's MCP server: the Supabase Library's MCP Server block with five tools on it, composed as
 // the block is:
 //
 //   withOAuthProtectedResource  OAuth discovery for external clients. Runs before the auth gate
@@ -26,12 +26,12 @@ function readTextEnv(name: string, fallback: string): string {
   return Deno.env.get(name)?.trim() || fallback;
 }
 
-/** The block reads both from env. Magpi's defaults keep the name short and the description its own. */
-const SERVER_NAME = readTextEnv('MCP_SERVER_NAME', 'magpi');
+/** The block reads both from env. Digital Brain's defaults keep the name short and the description its own. */
+const SERVER_NAME = readTextEnv('MCP_SERVER_NAME', 'Digital Brain');
 const SERVER_VERSION = '1.0.0';
 const SERVER_DESCRIPTION = readTextEnv(
   'MCP_SERVER_DESCRIPTION',
-  'Magpi is one searchable index over the documents this person has connected: their notes, ' +
+  'Digital Brain is one searchable index over the documents this person has connected: their notes, ' +
     'their issue tracker, their files.',
 );
 

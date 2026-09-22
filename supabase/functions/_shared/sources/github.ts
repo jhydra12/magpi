@@ -84,7 +84,7 @@ function externalIdFor(repo: string, path: string): string {
 function splitExternalId(externalId: string): { repo: string; path: string } {
   const colon = externalId.indexOf(':');
   if (colon < 1 || colon === externalId.length - 1) {
-    throw new SourceError(PROVIDER, 'That GitHub path is not one Magpi filed.', false);
+    throw new SourceError(PROVIDER, 'That GitHub path is not one Digital Brain filed.', false);
   }
   return { repo: externalId.slice(0, colon), path: externalId.slice(colon + 1) };
 }
@@ -303,7 +303,7 @@ export const githubDriver: SourceDriver = {
     const { repo, path } = splitExternalId(externalId);
     const mimeType = mimeFor(path);
     if (mimeType === null) {
-      throw new SourceError(PROVIDER, 'That GitHub file is not one Magpi can read.', false);
+      throw new SourceError(PROVIDER, 'That GitHub file is not one Digital Brain can read.', false);
     }
 
     const body = asRecord(

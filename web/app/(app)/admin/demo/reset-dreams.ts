@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 import { errorState, successState, type ActionState } from '@/lib/actions/state';
 import { resolveAdminAccess } from '@/lib/analytics/access';
+import { buildDemoResetDreamRuns } from '@/lib/dreams/reset-state';
 import { dreamRateLimitBuckets } from './rate-limit';
 
 /** Clear this organization's dreams without tearing down its running services. */
@@ -137,6 +138,27 @@ export async function resetDreams(): Promise<ActionState> {
     });
     if (freshenError)
       throw new Error(`Source timestamps could not be refreshed: ${freshenError.message}`);
+
+    const { data: enabledSpaces, error: spacesError } = await db
+      .from('spaces')
+      .select('id')
+      .eq('org_id', context.orgId)
+      .eq('dreaming_enabled', true)
+      .order('name');
+    if (spacesError)
+      throw new Error(`The starting Dream state could not be read: ${spacesError.message}`);
+    if (!enabledSpaces?.length)
+      throw new Error('The starting Dream state needs at least one enabled space.');
+
+    const { error: seedError } = await db.from('dream_runs').insert(
+      buildDemoResetDreamRuns(
+        context.orgId,
+        enabledSpaces.map(({ id }) => id),
+        new Date(),
+      ),
+    );
+    if (seedError)
+      throw new Error(`The starting Dream state could not be created: ${seedError.message}`);
   } catch (error) {
     failure = error instanceof Error ? error.message : 'Dreams could not be reset.';
   } finally {

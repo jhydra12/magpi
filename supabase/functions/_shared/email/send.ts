@@ -1,4 +1,4 @@
-// One way out for every email Magpi sends. Resend in a deployed project, the local mail sink
+// One way out for every email Digital Brain sends. Resend in a deployed project, the local mail sink
 // otherwise, so development never puts a message on the internet and never needs a Resend key.
 
 import { connect, deliver } from './smtp.ts';
@@ -11,7 +11,7 @@ export interface Outgoing {
 
 /** Where a message came from. A deployment sets this; locally it is a name, not an inbox. */
 function sender(): string {
-  return Deno.env.get('SB_EMAIL_FROM') ?? 'Magpi <no-reply@magpi.local>';
+  return Deno.env.get('SB_EMAIL_FROM') ?? 'Digital Brain <no-reply@digitalbrain.local>';
 }
 
 /**

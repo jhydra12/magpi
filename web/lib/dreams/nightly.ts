@@ -40,7 +40,7 @@ export type NightlyDreamStatus = {
 };
 
 /**
- * Everything Magpi did for one space in one night: the entity pass, the digest and the
+ * Everything Digital Brain did for one space in one night: the entity pass, the digest and the
  * document links, rolled up into the numbers a person asks about the morning after.
  */
 export type NightlyDream = {

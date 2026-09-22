@@ -2,7 +2,7 @@
 
 Everything in `supabase/corpus/` is fiction. Supaphone does not exist, the Fold
 S1 does not exist, and none of the people named here are real. The documents
-were written for Magpi so the demo has something with structure in it. This file
+were written for Digital Brain so the demo has something with structure in it. This file
 is the reference the rest of the corpus is consistent with. Read it before
 adding a document, and change it first if a fact needs to move.
 
@@ -267,4 +267,4 @@ by accident than the engineering ones did.
   one writing it.
 - Dates fall inside a tranche. Nothing is dated after 2026-09-09.
 - No document explains the permission model. The corpus is the company's work,
-  not a tutorial about Magpi.
+  not a tutorial about Digital Brain.

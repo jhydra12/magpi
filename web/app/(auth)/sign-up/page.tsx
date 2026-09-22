@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { AuthShell } from '@/components/auth/auth-shell';
 import { SignUpForm } from '@/components/auth/sign-up-form';
 
-export const metadata = { title: 'Create a Magpi account' };
+export const metadata = { title: 'Create a Digital Brain account' };
 
 export default function SignUpPage() {
   return (

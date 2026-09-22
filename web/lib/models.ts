@@ -1,4 +1,4 @@
-/** Every model id in Magpi, pinned to exact ids rather than floating aliases. */
+/** Every model id in Digital Brain, pinned to exact ids rather than floating aliases. */
 export const MODELS = {
   /** Pinned 2026-09-09. 1536 dimensions, which is why chunks.embedding is vector(1536). */
   embedding: 'text-embedding-3-small',

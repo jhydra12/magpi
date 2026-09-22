@@ -11,9 +11,9 @@ import {
 } from './smtp.ts';
 
 const MESSAGE = {
-  from: 'Magpi <no-reply@magpi.local>',
+  from: 'Digital Brain <no-reply@digitalbrain.local>',
   to: 'reader@example.com',
-  subject: 'Reset your Magpi password',
+  subject: 'Reset your Digital Brain password',
   html: '<p>Hello</p>',
   date: 'Thu, 11 Sep 2026 12:00:00 GMT',
 };
@@ -52,17 +52,20 @@ Deno.test('a message is delivered in the order SMTP expects', async () => {
   await deliver(transport, MESSAGE);
 
   assertEquals(said[0], 'EHLO magpi');
-  assertEquals(said[1], 'MAIL FROM:<no-reply@magpi.local>');
+  assertEquals(said[1], 'MAIL FROM:<no-reply@digitalbrain.local>');
   assertEquals(said[2], 'RCPT TO:<reader@example.com>');
   assertEquals(said[3], 'DATA');
-  assert(said[4].startsWith('From: Magpi <no-reply@magpi.local>'));
+  assert(said[4].startsWith('From: Digital Brain <no-reply@digitalbrain.local>'));
   assert(said[4].endsWith('\r\n.'), 'the message did not end with the terminating dot');
   assertEquals(said[5], 'QUIT');
 });
 
 // The envelope takes the address alone; the display name belongs in the header.
 Deno.test('the display name is left out of the envelope', () => {
-  assertEquals(addressOf('Magpi <no-reply@magpi.local>'), 'no-reply@magpi.local');
+  assertEquals(
+    addressOf('Digital Brain <no-reply@digitalbrain.local>'),
+    'no-reply@digitalbrain.local',
+  );
   assertEquals(addressOf('plain@example.com'), 'plain@example.com');
 });
 
@@ -101,5 +104,5 @@ Deno.test('the message says it is HTML, or a client shows the markup', () => {
 
   assert(built.includes('Content-Type: text/html; charset="utf-8"'));
   assert(built.includes('MIME-Version: 1.0'));
-  assert(built.includes('Subject: Reset your Magpi password'));
+  assert(built.includes('Subject: Reset your Digital Brain password'));
 });

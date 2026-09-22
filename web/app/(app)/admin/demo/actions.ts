@@ -9,6 +9,7 @@ import {
   assertComputeResetConfigured,
   areComputeInstancesAbsent,
 } from '@/lib/admin/compute-reset';
+import { buildDemoResetDreamRuns } from '@/lib/dreams/reset-state';
 import { dreamRateLimitBuckets } from './rate-limit';
 
 async function deleteGeneratedDreamData(
@@ -90,6 +91,34 @@ async function deleteDemoChatHistory(
   return successState({ complete: true });
 }
 
+async function seedDemoDreamState(
+  access: Extract<Awaited<ReturnType<typeof resolveAdminAccess>>, { kind: 'granted' }>,
+): Promise<ActionState<{ complete: boolean }>> {
+  const { elevated: db, context } = access;
+  const { data: spaces, error: spacesError } = await db
+    .from('spaces')
+    .select('id')
+    .eq('org_id', context.orgId)
+    .eq('dreaming_enabled', true)
+    .order('name');
+  if (spacesError)
+    return errorState(`The starting Dream state could not be read: ${spacesError.message}`);
+  if (!spaces?.length)
+    return errorState('The starting Dream state needs at least one enabled space.');
+
+  const rows = buildDemoResetDreamRuns(
+    context.orgId,
+    spaces.map(({ id }) => id),
+    new Date(),
+  );
+  const { error: insertError } = await db.from('dream_runs').insert(rows);
+  if (insertError)
+    return errorState(`The starting Dream state could not be created: ${insertError.message}`);
+
+  revalidatePath('/dreams');
+  return successState({ complete: true });
+}
+
 /** Runs one verified reset stage; repeated calls resume waiting without a long request. */
 export async function resetDemoStep(step: string): Promise<ActionState<{ complete: boolean }>> {
   const access = await resolveAdminAccess();
@@ -97,7 +126,7 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
   if (access.kind === 'forbidden') return errorState('Only an owner or admin can reset the demo.');
   const db = access.elevated;
   try {
-    if (!['pause', 'chats', 'compute', 'data', 'freshen', 'edge'].includes(step))
+    if (!['pause', 'chats', 'compute', 'data', 'freshen', 'seed', 'edge'].includes(step))
       return errorState('Unknown reset step.');
     assertComputeResetConfigured();
     if (step === 'pause') {
@@ -130,12 +159,14 @@ export async function resetDemoStep(step: string): Promise<ActionState<{ complet
       revalidatePath('/dreams');
       return successState({ complete: true });
     }
+    if (step === 'seed') return seedDemoDreamState(access);
     const { count, error: runsError } = await db
       .from('dream_runs')
       .select('id', { count: 'exact', head: true })
+      .in('status', ['queued', 'running'])
       .eq('org_id', access.context.orgId);
     if (runsError || count !== 0)
-      return errorState('Generated Dream data remains. Start Reset again.');
+      return errorState('Active Dream work remains. Start Reset again.');
     const { error } = await db.rpc('set_dream_execution_mode', { p_mode: 'edge' });
     if (error) throw new Error('Edge processing could not be restored. Start Reset again.');
     return successState({ complete: true });
